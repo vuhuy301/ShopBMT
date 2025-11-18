@@ -25,7 +25,10 @@ namespace backend_shopcaulong.Models
         public DbSet<OrderDetail> OrderDetails { get; set; }
 
         public DbSet<Banner> Banners { get; set; }
-
+        public DbSet<Brand> Brands { get; set; }
+        public DbSet<ProductPromotion> ProductPromotions { get; set; }
+        public DbSet<Promotion> Promotions { get; set; }
+        public DbSet<ProductVariant> ProductVariants { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -71,11 +74,38 @@ namespace backend_shopcaulong.Models
                 .HasForeignKey(od => od.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+           
+
+            modelBuilder.Entity<ProductPromotion>()
+        .HasKey(pp => new { pp.ProductId, pp.PromotionId });
+
+            modelBuilder.Entity<ProductPromotion>()
+                .HasOne(pp => pp.Product)
+                .WithMany(p => p.ProductPromotions)
+                .HasForeignKey(pp => pp.ProductId);
+
+            modelBuilder.Entity<ProductPromotion>()
+                .HasOne(pp => pp.Promotion)
+                .WithMany(p => p.ProductPromotions)
+                .HasForeignKey(pp => pp.PromotionId);
+
+            modelBuilder.Entity<ProductVariant>()
+                .HasOne(v => v.Product)
+                .WithMany(p => p.Variants)
+                .HasForeignKey(v => v.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<StockHistory>()
-                    .HasOne(sh => sh.Product)
-                    .WithMany(p => p.StockHistories)
-                    .HasForeignKey(sh => sh.ProductId)
-                    .OnDelete(DeleteBehavior.Cascade);
+       .HasOne(sh => sh.Product)
+       .WithMany(p => p.StockHistories)
+       .HasForeignKey(sh => sh.ProductId)
+       .OnDelete(DeleteBehavior.Restrict); // hoặc NoAction
+
+            modelBuilder.Entity<StockHistory>()
+                .HasOne(sh => sh.ProductVariant)
+                .WithMany(v => v.StockHistories)
+                .HasForeignKey(sh => sh.ProductVariantId)
+                .OnDelete(DeleteBehavior.Restrict);
 
         }
     }

@@ -39,12 +39,20 @@ namespace backend_shopcaulong.Models
                  .HasForeignKey(p => p.CategoryId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-            // ===== CATEGORY - PRODUCT (1 category nhiều product) =====
-            modelBuilder.Entity<Product>()
-                .HasOne(p => p.Category)
-                .WithMany(c => c.Products)
-                .HasForeignKey(p => p.CategoryId)
-                .OnDelete(DeleteBehavior.Restrict);
+                // CATEGORY: 1 Category -> Many Products
+                modelBuilder.Entity<Product>()
+                    .HasOne(p => p.Category)
+                    .WithMany(c => c.Products)
+                    .HasForeignKey(p => p.CategoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // BRAND: 1 Brand -> Many Products
+                modelBuilder.Entity<Product>()
+                    .HasOne(p => p.Brand)
+                    .WithMany(b => b.Products)
+                    .HasForeignKey(p => p.BrandId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
 
             // ===== PRODUCT - PRODUCT IMAGE (1 product nhiều image) =====
             modelBuilder.Entity<ProductImage>()

@@ -12,7 +12,8 @@
         public decimal? DiscountPrice { get; set; }
 
         // Thương hiệu
-        public string Brand { get; set; }
+        public int BrandId { get; set; }
+        public Brand Brand { get; set; }
         public int CategoryId { get; set; }
         public Category Category { get; set; }
         public ICollection<ProductPromotion> ProductPromotions { get; set; }

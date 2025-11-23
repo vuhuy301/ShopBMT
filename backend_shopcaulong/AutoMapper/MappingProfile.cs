@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using backend_shopcaulong.DTOs.Brand;
+using backend_shopcaulong.DTOs.Cart;
 using backend_shopcaulong.DTOs.Category;
 using backend_shopcaulong.DTOs.Product;
 using backend_shopcaulong.Models;
@@ -46,6 +47,21 @@ namespace backend_shopcaulong.AutoMapper
 
             CreateMap<BrandCreateDto, Brand>();
             CreateMap<BrandUpdateDto, Brand>();
+
+            CreateMap<Cart, CartDto>()
+             .ForMember(d => d.CartId, opt => opt.MapFrom(s => s.Id))
+             .ForMember(d => d.TotalAmount,
+                 opt => opt.MapFrom(s => s.Items.Sum(i => i.Price * i.Quantity)))
+             .ForMember(d => d.Items, opt => opt.MapFrom(s => s.Items));
+
+
+            // CartItem → CartItemDto
+            CreateMap<CartItem, CartItemDto>()
+            .ForMember(d => d.ProductName, opt => opt.MapFrom(s => s.Product.Name))
+            .ForMember(d => d.VariantColor, opt => opt.MapFrom(s => s.Variant.Color))
+            .ForMember(d => d.VariantSize, opt => opt.MapFrom(s => s.Variant.Size));
+
+
 
         }
     }

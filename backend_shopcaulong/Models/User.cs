@@ -17,5 +17,6 @@
         // Nếu bạn muốn lưu địa chỉ, số điện thoại…
         public string? Phone { get; set; }
         public string? Address { get; set; }
+        public ICollection<Cart> Carts { get; set; } = new List<Cart>();
     }
 }

@@ -29,6 +29,8 @@ namespace backend_shopcaulong.Models
         public DbSet<ProductPromotion> ProductPromotions { get; set; }
         public DbSet<Promotion> Promotions { get; set; }
         public DbSet<ProductVariant> ProductVariants { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -104,16 +106,47 @@ namespace backend_shopcaulong.Models
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<StockHistory>()
-       .HasOne(sh => sh.Product)
-       .WithMany(p => p.StockHistories)
-       .HasForeignKey(sh => sh.ProductId)
-       .OnDelete(DeleteBehavior.Restrict); // hoặc NoAction
+               .HasOne(sh => sh.Product)
+               .WithMany(p => p.StockHistories)
+               .HasForeignKey(sh => sh.ProductId)
+               .OnDelete(DeleteBehavior.Restrict); // hoặc NoAction
 
             modelBuilder.Entity<StockHistory>()
                 .HasOne(sh => sh.ProductVariant)
                 .WithMany(v => v.StockHistories)
                 .HasForeignKey(sh => sh.ProductVariantId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            //Cart – CartItem (1-n)
+            modelBuilder.Entity<Cart>()
+            .HasMany(c => c.Items)
+            .WithOne(i => i.Cart)
+            .HasForeignKey(i => i.CartId)
+            .OnDelete(DeleteBehavior.Cascade);
+            //CartItem – Product
+            modelBuilder.Entity<CartItem>()
+            .HasOne(i => i.Product)
+            .WithMany()
+            .HasForeignKey(i => i.ProductId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CartItem>()
+            .HasOne(i => i.Variant)
+            .WithMany()
+            .HasForeignKey(i => i.VariantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CartItem>()
+            .HasOne(ci => ci.Variant)
+            .WithMany()
+            .HasForeignKey(ci => ci.VariantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Cart>()
+            .HasOne(c => c.User)
+            .WithMany(u => u.Carts)
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         }
     }

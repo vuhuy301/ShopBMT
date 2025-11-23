@@ -53,5 +53,12 @@ namespace backend_shopcaulong.Controllers
             if (!result) return NotFound();
             return NoContent();
         }
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPaged([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var result = await _productService.GetPagedAsync(page, pageSize);
+            return Ok(result);
+        }
+
     }
 }

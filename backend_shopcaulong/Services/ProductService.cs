@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using backend_shopcaulong.DTOs.Common;
 using backend_shopcaulong.DTOs.Product;
 using backend_shopcaulong.Models;
 using Microsoft.EntityFrameworkCore;
@@ -83,6 +84,8 @@ namespace backend_shopcaulong.Services
                     Price = v.Price,
                     DiscountPrice = v.DiscountPrice
                 }).ToList();
+                // Tự động tính tổng stock từ variant
+                product.Stock = product.Variants.Sum(v => v.Stock);
             }
 
             _context.Products.Add(product);
@@ -141,6 +144,8 @@ namespace backend_shopcaulong.Services
                     DiscountPrice = v.DiscountPrice,
                     ProductId = product.Id
                 }).ToList();
+                // Tự động tính tổng stock từ variant
+                product.Stock = product.Variants.Sum(v => v.Stock);
             }
 
             await _context.SaveChangesAsync();
@@ -156,5 +161,34 @@ namespace backend_shopcaulong.Services
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task<PagedResultDto<ProductDto>> GetPagedAsync(int page, int pageSize)
+        {
+            var query = _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .Include(p => p.Images)
+                .Include(p => p.Details)
+                .Include(p => p.Variants)
+                .AsNoTracking()
+                .OrderBy(p => p.Name);
+
+            var totalItems = await query.CountAsync();
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ProjectTo<ProductDto>(_mapper.ConfigurationProvider)
+                .ToListAsync();
+
+            return new PagedResultDto<ProductDto>
+            {
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = totalItems,
+                TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+                Items = items
+            };
+        }
+
     }
 }

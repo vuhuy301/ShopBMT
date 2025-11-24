@@ -16,6 +16,9 @@
         // Trạng thái đơn hàng
         // Pending, Paid, Shipping, Completed, Cancelled
         public string Status { get; set; } = "Pending";
+        public string PaymentMethod { get; set; }  // COD, VNPay, Momo
+        public string ShippingAddress { get; set; }
+        public string Phone { get; set; }
 
         // Danh sách sản phẩm trong đơn
         public ICollection<OrderDetail> Items { get; set; }

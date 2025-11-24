@@ -15,6 +15,9 @@
 
         // Giá tại thời điểm mua (không lấy giá từ bảng Product)
         public decimal Price { get; set; }
+        public int? VariantId { get; set; }
+        public ProductVariant? Variant { get; set; }
+
 
         // Tổng tiền item
         public decimal Total => Quantity * Price;

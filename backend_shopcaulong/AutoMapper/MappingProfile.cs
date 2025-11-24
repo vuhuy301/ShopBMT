@@ -3,6 +3,7 @@ using backend_shopcaulong.DTOs.Brand;
 using backend_shopcaulong.DTOs.Cart;
 using backend_shopcaulong.DTOs.Category;
 using backend_shopcaulong.DTOs.Product;
+using backend_shopcaulong.DTOs.User;
 using backend_shopcaulong.Models;
 
 namespace backend_shopcaulong.AutoMapper
@@ -61,7 +62,8 @@ namespace backend_shopcaulong.AutoMapper
             .ForMember(d => d.VariantColor, opt => opt.MapFrom(s => s.Variant.Color))
             .ForMember(d => d.VariantSize, opt => opt.MapFrom(s => s.Variant.Size));
 
-
+             CreateMap<User, UserDto>()
+            .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Name));
 
         }
     }

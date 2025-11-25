@@ -27,6 +27,6 @@
         public bool IsFeatured { get; set; }
         public ICollection<StockHistory> StockHistories { get; set; }
         public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
-
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

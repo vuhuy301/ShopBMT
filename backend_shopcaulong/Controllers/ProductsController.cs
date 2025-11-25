@@ -59,6 +59,33 @@ namespace backend_shopcaulong.Controllers
             var result = await _productService.GetPagedAsync(page, pageSize);
             return Ok(result);
         }
+        [HttpGet("filter")]
+        public async Task<IActionResult> Filter(
+            [FromQuery] int? categoryId,
+            [FromQuery] int? brandId,
+            [FromQuery] string? search,
+            [FromQuery] string? sortBy,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            var result = await _productService.GetProductsByFilterAsync(
+                categoryId,
+                brandId,
+                search,
+                sortBy,
+                page,
+                pageSize
+            );
 
+            return Ok(result);
+        }
+
+        // GET api/products/top-new/category/1
+        [HttpGet("top-new/category/{categoryId}")]
+        public async Task<IActionResult> GetTopNewByCategory(int categoryId)
+        {
+            var products = await _productService.GetTopNewByCategoryAsync(categoryId);
+            return Ok(products);
+        }
     }
 }

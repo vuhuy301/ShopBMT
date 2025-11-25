@@ -1,4 +1,6 @@
-﻿namespace backend_shopcaulong.DTOs.Product
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace backend_shopcaulong.DTOs.Product
 {
     public class ProductCreateDto
     {
@@ -10,8 +12,8 @@
         public int CategoryId { get; set; }
         public bool IsFeatured { get; set; } = false;
 
-        public List<string> ImageUrls { get; set; } = new(); // có thể thêm nhiều ảnh
-        public List<ProductDetailCreateDto> Details { get; set; } = new();
-        public List<ProductVariantCreateDto> Variants { get; set; } = new();
+        [FromForm] public IFormFileCollection? ImageFiles { get; set; }
+        [FromForm] public List<ProductDetailCreateDto> Details { get; set; } = new();
+        [FromForm] public List<ProductVariantCreateDto> Variants { get; set; } = new();
     }
 }

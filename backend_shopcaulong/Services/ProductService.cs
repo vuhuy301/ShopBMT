@@ -12,10 +12,19 @@ namespace backend_shopcaulong.Services
         private readonly ShopDbContext _context;
         private readonly IMapper _mapper;
 
-        public ProductService(ShopDbContext context, IMapper mapper)
+        private readonly IUploadService _uploadService;
+        private readonly IWebHostEnvironment _env; // để xóa file cũ khi update
+
+        public ProductService(
+            ShopDbContext context,
+            IMapper mapper,
+            IUploadService uploadService,
+            IWebHostEnvironment env)
         {
             _context = context;
             _mapper = mapper;
+            _uploadService = uploadService;
+            _env = env;
         }
 
         public async Task<IEnumerable<ProductDto>> GetAllAsync()
@@ -50,41 +59,76 @@ namespace backend_shopcaulong.Services
 
         public async Task<ProductDto> CreateAsync(ProductCreateDto dto)
         {
-            var product = _mapper.Map<Product>(dto);
-
-            // Xử lý ảnh chính (nếu có)
-            if (dto.ImageUrls.Any())
+            var product = new Product
             {
-                product.Images = dto.ImageUrls.Select((url, index) => new ProductImage
+                Name = dto.Name,
+                Description = dto.Description,
+                Price = dto.Price,
+                DiscountPrice = dto.DiscountPrice,
+                BrandId = dto.BrandId,
+                CategoryId = dto.CategoryId,
+                IsFeatured = dto.IsFeatured,
+                Images = new List<ProductImage>(),
+                Details = new List<ProductDetail>(),
+                Variants = new List<ProductVariant>()
+            };
+
+            // UPLOAD ẢNH
+            if (dto.ImageFiles?.Count > 0)
+            {
+                var urls = await _uploadService.UploadProductImagesAsync(dto.ImageFiles);
+                product.Images = urls.Select((url, i) => new ProductImage
                 {
                     ImageUrl = url,
-                    IsPrimary = index == 0
+                    IsPrimary = i == 0
                 }).ToList();
             }
 
             // Xử lý chi tiết mô tả
+            // Trong CreateAsync
+            // Thay toàn bộ đoạn foreach thủ công bằng:
             if (dto.Details.Any())
             {
-                product.Details = dto.Details.Select(d => new ProductDetail
+                product.Details = new List<ProductDetail>();
+                foreach (var detailDto in dto.Details)
                 {
-                    Text = d.Text,
-                    ImageUrl = d.ImageUrl,
-                    SortOrder = d.SortOrder
-                }).ToList();
+                    string? imageUrl = null;
+                    if (detailDto.ImageFile != null)
+                    {
+                        imageUrl = await _uploadService.UploadDetailImageAsync(detailDto.ImageFile);
+                    }
+
+                    product.Details.Add(new ProductDetail
+                    {
+                        Text = detailDto.Text,
+                        ImageUrl = imageUrl,
+                        SortOrder = detailDto.SortOrder
+                    });
+                }
             }
 
             // Xử lý variant
             if (dto.Variants.Any())
             {
-                product.Variants = dto.Variants.Select(v => new ProductVariant
+                product.Variants = new List<ProductVariant>();
+                foreach (var v in dto.Variants)
                 {
-                    Size = v.Size,
-                    Color = v.Color,
-                    Stock = v.Stock,
-                    Price = v.Price,
-                    DiscountPrice = v.DiscountPrice
-                }).ToList();
-                // Tự động tính tổng stock từ variant
+                    string? variantImageUrl = null;
+                    if (v.ImageFile != null)
+                    {
+                        variantImageUrl = await _uploadService.UploadVariantImageAsync(v.ImageFile);
+                    }
+
+                    product.Variants.Add(new ProductVariant
+                    {
+                        Size = v.Size,
+                        Color = v.Color,
+                        Stock = v.Stock,
+                        Price = v.Price,
+                        DiscountPrice = v.DiscountPrice,
+                        MainImageUrl = variantImageUrl
+                    });
+                }
                 product.Stock = product.Variants.Sum(v => v.Stock);
             }
 
@@ -106,45 +150,105 @@ namespace backend_shopcaulong.Services
 
             _mapper.Map(dto, product);
 
-            // Cập nhật ảnh (xóa cũ, thêm mới)
-            if (dto.ImageUrls != null)
+            // XỬ LÝ ẢNH MỚI
+            if (dto.ImageFiles?.Count > 0)
             {
+                // Xóa file cũ trên server
+                foreach (var img in product.Images)
+                {
+                    var filePath = Path.Combine(_env.WebRootPath, img.ImageUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(filePath))
+                        System.IO.File.Delete(filePath);
+                }
+
+                // Upload ảnh mới
+                var newUrls = await _uploadService.UploadProductImagesAsync(dto.ImageFiles);
                 _context.ProductImages.RemoveRange(product.Images);
-                product.Images = dto.ImageUrls.Select((url, index) => new ProductImage
+
+                product.Images = newUrls.Select((url, i) => new ProductImage
                 {
                     ImageUrl = url,
-                    IsPrimary = index == 0,
+                    IsPrimary = i == 0,
                     ProductId = product.Id
                 }).ToList();
             }
 
             // Cập nhật chi tiết
-            if (dto.Details != null)
+           if (dto.Details != null)
             {
-                _context.ProductDetails.RemoveRange(product.Details);
-                product.Details = dto.Details.Select(d => new ProductDetail
+                // Xóa ảnh cũ
+                foreach (var old in product.Details)
                 {
-                    Text = d.Text,
-                    ImageUrl = d.ImageUrl,
-                    SortOrder = d.SortOrder,
-                    ProductId = product.Id
-                }).ToList();
+                    if (!string.IsNullOrEmpty(old.ImageUrl))
+                    {
+                        var oldPath = Path.Combine(_env.WebRootPath, old.ImageUrl.TrimStart('/').Replace("/images/products/details/", ""));
+                        var fullPath = Path.Combine(_env.WebRootPath, "images", "products", "details", Path.GetFileName(oldPath));
+                        if (System.IO.File.Exists(fullPath))
+                            System.IO.File.Delete(fullPath);
+                    }
+                }
+
+                _context.ProductDetails.RemoveRange(product.Details);
+                product.Details = new List<ProductDetail>();
+
+                foreach (var d in dto.Details)
+                {
+                    string? url = null;
+                    if (d.ImageFile != null)
+                    {
+                        url = await _uploadService.UploadDetailImageAsync(d.ImageFile);
+                    }
+
+                    product.Details.Add(new ProductDetail
+                    {
+                        Text = d.Text,
+                        ImageUrl = url,
+                        SortOrder = d.SortOrder,
+                        ProductId = product.Id
+                    });
+                }
             }
 
             // Cập nhật variant
+            // 4. XỬ LÝ VARIANTS + ẢNH RIÊNG CHO TỪNG BIẾN THỂ (BỔ SUNG QUAN TRỌNG NHẤT!)
             if (dto.Variants != null)
             {
-                _context.ProductVariants.RemoveRange(product.Variants);
-                product.Variants = dto.Variants.Select(v => new ProductVariant
+                // Xóa ảnh cũ của các variant (nếu có)
+                foreach (var oldVariant in product.Variants.ToList())
                 {
-                    Size = v.Size,
-                    Color = v.Color,
-                    Stock = v.Stock,
-                    Price = v.Price,
-                    DiscountPrice = v.DiscountPrice,
-                    ProductId = product.Id
-                }).ToList();
-                // Tự động tính tổng stock từ variant
+                    if (!string.IsNullOrEmpty(oldVariant.MainImageUrl))
+                    {
+                        var filePath = Path.Combine(_env.WebRootPath, "images", "products", "variants",
+                            Path.GetFileName(oldVariant.MainImageUrl));
+                        if (System.IO.File.Exists(filePath))
+                            System.IO.File.Delete(filePath);
+                    }
+                }
+
+                _context.ProductVariants.RemoveRange(product.Variants);
+                product.Variants = new List<ProductVariant>();
+
+                foreach (var v in dto.Variants)
+                {
+                    string? variantImageUrl = null;
+                    if (v.ImageFile != null && v.ImageFile.Length > 0)
+                    {
+                        variantImageUrl = await _uploadService.UploadVariantImageAsync(v.ImageFile);
+                    }
+
+                    product.Variants.Add(new ProductVariant
+                    {
+                        Size = v.Size,
+                        Color = v.Color,
+                        Stock = v.Stock,
+                        Price = v.Price,
+                        DiscountPrice = v.DiscountPrice,
+                        MainImageUrl = variantImageUrl, // ← ẢNH RIÊNG CHO MÀU NÀY
+                        ProductId = product.Id
+                    });
+                }
+
+                // Tính lại tổng stock
                 product.Stock = product.Variants.Sum(v => v.Stock);
             }
 

@@ -23,12 +23,11 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IBrandService, BrandService>();
 builder.Services.AddScoped<ICartService, CartService>();
-//builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<JwtTokenService>();
-//builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 
-// Cấu hình Authentication JWT
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -36,25 +35,59 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+    var jwtKey = builder.Configuration["Jwt:Key"];
+    var issuer = builder.Configuration["Jwt:Issuer"];
+    var audience = builder.Configuration["Jwt:Audience"];
+
+    if (string.IsNullOrEmpty(jwtKey))
+        throw new Exception("JWT KEY IS NULL — check appsettings.json or environment variables!");
+
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
-        ValidIssuer = jwtSettings["Issuer"],
-
         ValidateAudience = true,
-        ValidAudience = jwtSettings["Audience"],
-
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"])),
-
         ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = issuer,
+        ValidAudience = audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
     };
 });
 
 
+
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddHttpContextAccessor(); // bắt buộc để lấy scheme + host
+builder.Services.AddScoped<IUploadService, UploadService>();
+
+// builder.Services.AddSwaggerGen(c =>
+// {
+//     // Thêm cấu hình bảo mật JWT
+//     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+//     {
+//         Name = "Authorization",
+//         Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+//         Scheme = "Bearer",
+//         BearerFormat = "JWT",
+//         In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+//         Description = "Nhập 'Bearer' và token JWT"
+//     });
+
+//     c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+//     {
+//         {
+//             new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+//             {
+//                 Reference = new Microsoft.OpenApi.Models.OpenApiReference
+//                 {
+//                     Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+//                     Id = "Bearer"
+//                 }
+//             },
+//             new string[]{}
+//         }
+//     });
+// });
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -68,7 +101,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseStaticFiles();
+app.UseDefaultFiles();
 app.MapControllers();
 
 app.Run();

@@ -1,8 +1,26 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../components/Header"
 import styles from "./HomePage.module.css";
+import { getProducts } from "../services/productService";
 
 const HomePage = () => {
+
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getProducts();
+        setCategories(data); // Lưu dữ liệu vào state
+        console.log(data);
+      } catch (error) {
+        console.error("Failed to load categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   return (
     <>
       <div className="container mt-3">
@@ -13,15 +31,9 @@ const HomePage = () => {
             <div className={styles.categoryMenu}>
               <h5 className={styles.categoryTitle}>Danh Mục Sản Phẩm</h5>
               <ul>
-                <li>Vợt Pickleball</li>
-                <li>Phụ kiện Pickleball</li>
-                <li>Giày Pickleball / Tennis</li>
-                <li>Vợt Cầu Lông</li>
-                <li>Giày cầu lông</li>
-                <li>Phụ kiện cầu lông</li>
-                <li>Túi vợt cầu lông</li>
-                <li>Balo cầu lông</li>
-                <li>Áo cầu lông</li>
+                {categories.map((category) => (
+                  <li key={category.id}>{category.name}</li>
+                ))}
               </ul>
             </div>
           </div>

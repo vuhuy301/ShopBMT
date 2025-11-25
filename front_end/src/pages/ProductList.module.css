@@ -1,0 +1,74 @@
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* 6 sản phẩm 1 hàng */
+  gap: 20px;
+}
+
+.productCard {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.productCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.imgWrapper {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.imgWrapper img {
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s;
+}
+
+.productCard:hover img {
+  transform: scale(1.05);
+}
+
+.productName {
+  height: 40px; /* giới hạn tên 2 dòng */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+button.btn {
+  margin-top: auto; /* đẩy nút xuống đáy card */
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+  .productGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .productGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .productGrid {
+    grid-template-columns: 1fr;
+  }
+}

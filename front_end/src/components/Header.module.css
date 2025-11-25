@@ -1,0 +1,46 @@
+.headerTop {
+  background: #0048ff;
+  color: white;
+  width: 100%;
+}
+
+.logo {
+   width: 40px;  /* điều chỉnh theo ý muốn */
+  height: auto; /* giữ tỉ lệ ảnh */
+  object-fit: contain; /* đảm bảo ảnh không bị méo */
+}
+
+/* Search box */
+.searchBox input {
+  width: 260px;
+}
+
+/* Right Menu */
+.rightMenu a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.rightMenu span {
+  font-size: 14px;
+  color: #fff;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .searchBox {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .searchBox input {
+    width: 100% !important;
+  }
+
+  .rightMenu {
+    margin-top: 10px;
+    flex-direction: column;
+    gap: 6px;
+  }
+}

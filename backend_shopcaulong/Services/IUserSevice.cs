@@ -16,6 +16,9 @@ namespace backend_shopcaulong.Services
         Task<bool> ResetPasswordAsync(string token, string newPassword);
         Task<IEnumerable<UserDto>> GetAllUsersAsync();
         Task<UserDto> UpsertGoogleUserAsync(string googleId, string email, string fullName);
+        Task<UserDto> CreateEmployeeAsync(CreateEmployeeDto dto);
+        Task<bool> UpdateUserRoleAsync(int userId, string newRole);
+        Task<bool> DeleteUserAsync(int userId);
 
     }
 }

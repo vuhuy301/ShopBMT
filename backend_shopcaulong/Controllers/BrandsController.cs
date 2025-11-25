@@ -1,5 +1,6 @@
 ﻿using backend_shopcaulong.DTOs.Brand;
 using backend_shopcaulong.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,6 +33,7 @@ namespace backend_shopcaulong.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] BrandCreateDto dto)
         {
             var brand = await _brandService.CreateAsync(dto);
@@ -39,6 +41,7 @@ namespace backend_shopcaulong.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] BrandUpdateDto dto)
         {
             var brand = await _brandService.UpdateAsync(id, dto);
@@ -47,6 +50,7 @@ namespace backend_shopcaulong.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var success = await _brandService.DeleteAsync(id);

@@ -1,0 +1,61 @@
+.footer {
+  background: #111;
+  color: #ddd;
+  margin-top: 40px;
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
+
+.title {
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+}
+
+.list li {
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.list li:hover {
+  color: #f8c146;
+}
+
+.contactList {
+  list-style: none;
+  padding: 0;
+}
+
+.contactList li {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.socialIcons {
+  margin-top: 10px;
+  display: flex;
+  gap: 12px;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.socialIcons svg:hover {
+  color: #f8c146;
+}
+
+.copy {
+  text-align: center;
+  margin-top: 25px;
+  border-top: 1px solid #333;
+  padding-top: 12px;
+  font-size: 14px;
+  color: #aaa;
+}

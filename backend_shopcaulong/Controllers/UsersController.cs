@@ -147,20 +147,20 @@ namespace backend_shopcaulong.Controllers
 
                 return userId;
             }
-        [Authorize(Roles = "Admin")]
-        [HttpPost("create-employee")]
-        public async Task<ActionResult<UserDto>> CreateEmployee([FromBody] CreateEmployeeDto dto)
-        {
-            try
-            {
-                var user = await _userService.CreateEmployeeAsync(dto);
-                return CreatedAtAction(nameof(CreateEmployee), new { id = user.Id }, user);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
+        //[Authorize(Roles = "Admin")]
+        //[HttpPost("create-employee")]
+        //public async Task<ActionResult<UserDto>> CreateEmployee([FromBody] CreateEmployeeDto dto)
+        //{
+        //    try
+        //    {
+        //        var user = await _userService.CreateEmployeeAsync(dto);
+        //        return CreatedAtAction(nameof(CreateEmployee), new { id = user.Id }, user);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new { message = ex.Message });
+        //    }
+        //}
     }
     
 }

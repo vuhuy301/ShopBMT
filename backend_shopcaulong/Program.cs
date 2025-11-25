@@ -57,6 +57,8 @@ builder.Services.AddAuthentication(options =>
 
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddHttpContextAccessor(); // bắt buộc để lấy scheme + host
+builder.Services.AddScoped<IUploadService, UploadService>();
 
 // builder.Services.AddSwaggerGen(c =>
 // {
@@ -99,7 +101,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseStaticFiles();
+app.UseDefaultFiles();
 app.MapControllers();
 
 app.Run();

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using backend_shopcaulong.DTOs.User;
 using backend_shopcaulong.Services;
+using Google.Apis.Auth;
 
 namespace backend_shopcaulong.Controllers
 {
@@ -14,9 +15,12 @@ namespace backend_shopcaulong.Controllers
     {
         private readonly IUserService _userService;
 
-        public UsersController(IUserService userService)
+        private readonly JwtTokenService _jwtTokenService;   // thêm dòng này
+
+        public UsersController(IUserService userService, JwtTokenService jwtTokenService)
         {
             _userService = userService;
+            _jwtTokenService = jwtTokenService;             // thêm dòng này
         }
         [Authorize] 
         [HttpGet("all")]
@@ -100,6 +104,37 @@ namespace backend_shopcaulong.Controllers
             if (!result) return BadRequest(new { message = "Token không hợp lệ hoặc đã hết hạn" });
 
             return NoContent();
+        }
+        [HttpPost("google-login")]
+        public async Task<ActionResult> GoogleLogin([FromBody] GoogleLoginDto dto)
+        {
+            try
+            {
+                var payload = await GoogleJsonWebSignature.ValidateAsync(dto.Token);
+
+                var userDto = await _userService.UpsertGoogleUserAsync(
+                    googleId: payload.Subject,
+                    email: payload.Email,
+                    fullName: payload.Name ?? payload.Email.Split('@')[0]
+                    // avatar: payload.Picture
+                );
+
+                var jwtToken = _jwtTokenService.GenerateToken(userDto);
+
+                return Ok(new
+                {
+                    accessToken = jwtToken,
+                    user = userDto
+                });
+            }
+            catch (InvalidJwtException ex)
+            {
+                return BadRequest(new { message = "Token Google không hợp lệ", detail = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi server", detail = ex.Message });
+            }
         }
         private int GetCurrentUserId()
             {

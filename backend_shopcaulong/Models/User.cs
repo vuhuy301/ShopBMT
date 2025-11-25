@@ -22,5 +22,9 @@
         // Reset Password token và thời gian hết hạn lưu trực tiếp trong User
         public string? ResetPasswordToken { get; set; }
         public DateTime? ResetPasswordTokenExpiry { get; set; }
+
+        public string? GoogleId { get; set; }
+        // public string? Avatar { get; set; }
+        public bool EmailVerified { get; set; } = false;
     }
 }

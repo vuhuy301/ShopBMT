@@ -16,14 +16,16 @@ namespace backend_shopcaulong.Services
         private readonly IMapper _mapper;
         private readonly JwtTokenService _jwtTokenService;
         private readonly IConfiguration _configuration;
+        private readonly IEmailSender _emailSender;
 
-        public UserService(ShopDbContext context, IMapper mapper, JwtTokenService jwtTokenService, IConfiguration configuration)
-        {
-            _context = context;
-            _mapper = mapper;
-            _jwtTokenService = jwtTokenService;
-            _configuration = configuration;
-        }
+        public UserService(ShopDbContext context, IMapper mapper, JwtTokenService jwtTokenService, IConfiguration configuration, IEmailSender emailSender)
+            {
+                _context = context;
+                _mapper = mapper;
+                _jwtTokenService = jwtTokenService;
+                _configuration = configuration;
+                _emailSender = emailSender; // Đừng quên inject
+            }
 
         // Hash mật khẩu SHA256 (nên dùng BCrypt trong thực tế)
         public string HashPassword(string password)
@@ -109,17 +111,50 @@ namespace backend_shopcaulong.Services
         public async Task<bool> SendResetPasswordEmailAsync(string email)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-            if (user == null) return false;
+            if (user == null) 
+                return false; // Vẫn trả false để không lộ thông tin tài khoản tồn tại
 
-            // Tạo token (random GUID)
+            // Tạo token
             user.ResetPasswordToken = Guid.NewGuid().ToString("N");
-            user.ResetPasswordTokenExpiry = DateTime.UtcNow.AddHours(1); // token hiệu lực 1 giờ
-
+            user.ResetPasswordTokenExpiry = DateTime.UtcNow.AddHours(1);
             await _context.SaveChangesAsync();
 
-            // TODO: Gửi mail có link reset kiểu: https://yourdomain.com/reset-password?token=xxxx
+            // Link reset (thay bằng domain thật của bạn)
+            var frontendUrl = _configuration["FrontendUrl"] ?? "https://shopcaulong.vercel.app";
+            var resetLink = $"{frontendUrl}/reset-password?token={user.ResetPasswordToken}";
 
-            return true;
+            // Nội dung email đẹp
+            var subject = "Đặt lại mật khẩu tài khoản Shop Cầu Lông";
+            var htmlMessage = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;'>
+                    <h2 style='color: #d4380d;'>Yêu cầu đặt lại mật khẩu</h2>
+                    <p>Xin chào <strong>{user.FullName}</strong>,</p>
+                    <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.</p>
+                    <p>Vui lòng nhấn vào nút bên dưới để đặt lại mật khẩu (link chỉ có hiệu lực trong <strong>1 giờ</strong>):</p>
+                    
+                    <div style='text-align: center; margin: 30px 0;'>
+                        <a href='{resetLink}' style='background-color: #d4380d; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;'>
+                            Đặt lại mật khẩu ngay
+                        </a>
+                    </div>
+                    
+                    <p>Nếu bạn không yêu cầu điều này, vui lòng bỏ qua email này.</p>
+                    <hr>
+                    <small>Shop Cầu Lông - Hệ thống bán vợt cầu lông uy tín</small>
+                </div>";
+
+            try
+            {
+                await _emailSender.SendEmailAsync(email, subject, htmlMessage);
+            }
+            catch (Exception ex)
+            {
+                // Nên log lỗi ở đây (Serilog, NLog,...)
+                Console.WriteLine($"Lỗi gửi email: {ex.Message}");
+                // Không throw để frontend không biết lỗi server
+            }
+
+            return true; // Luôn trả true để không lộ user tồn tại
         }
 
         // Reset password bằng token
@@ -160,7 +195,40 @@ namespace backend_shopcaulong.Services
 
                 return users;
             }
+        public async Task<UserDto> UpsertGoogleUserAsync(string googleId, string email, string fullName)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.GoogleId == googleId || u.Email == email);
 
+            if (user == null)
+            {
+                // Tạo mới
+                user = new User
+                {
+                    FullName = fullName,
+                    Email = email,
+                    EmailVerified = true,
+                    GoogleId = googleId,
+                    // Avatar = avatar,
+                    PasswordHash = "", // không cần password
+                    RoleId = 2, // Customer
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.Users.Add(user);
+            }
+            else
+            {
+                // Cập nhật thông tin nếu đã tồn tại
+                user.GoogleId ??= googleId;
+                user.FullName = fullName;
+                // user.Avatar = avatar ?? user.Avatar;
+                user.EmailVerified = true;
+            }
+
+            await _context.SaveChangesAsync();
+            await _context.Entry(user).Reference(u => u.Role).LoadAsync();
+
+            return _mapper.Map<UserDto>(user);
+        }
 
     }
 }

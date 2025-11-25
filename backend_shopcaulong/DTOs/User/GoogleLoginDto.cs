@@ -1,6 +1,6 @@
 namespace backend_shopcaulong.DTOs.User{
     public class GoogleLoginDto
-{
-    public string IdToken { get; set; }
-}
+    {
+        public string Token { get; set; } = string.Empty;
+    }
 }

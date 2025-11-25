@@ -17,28 +17,34 @@ public class JwtTokenService
         _configuration = configuration;
     }
 
-    public string GenerateToken(UserDto user)
-    {
-        var jwtSettings = _configuration.GetSection("JwtSettings");
-        var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]));
-        var credentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
-
-        var claims = new[]
+   public string GenerateToken(UserDto user)
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.FullName),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.RoleName)
-        };
+            var jwtSettings = _configuration.GetSection("Jwt");
 
-        var token = new JwtSecurityToken(
-            issuer: jwtSettings["Issuer"],
-            audience: jwtSettings["Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpiryMinutes"])),
-            signingCredentials: credentials);
+            var keyValue = jwtSettings["Key"];
+            if (string.IsNullOrEmpty(keyValue))
+                throw new Exception("JWT:Key is NULL — check your appsettings.json!");
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
+            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyValue));
+            var credentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.FullName ?? ""),
+                new Claim(ClaimTypes.Email, user.Email ?? ""),
+                new Claim(ClaimTypes.Role, user.RoleName ?? "")
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: jwtSettings["Issuer"],
+                audience: jwtSettings["Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
 }
 }

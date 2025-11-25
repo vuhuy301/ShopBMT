@@ -38,48 +38,124 @@ public class CartService : ICartService
     }
 
     // Thêm item
+    // public async Task AddItemAsync(int userId, CartAddItemDto dto)
+    // {
+    //     var cart = await GetOrCreateCart(userId);
+
+    //     // Tìm xem item đã có trong cart chưa
+    //     var existing = cart.Items.FirstOrDefault(i =>
+    //         i.ProductId == dto.ProductId &&
+    //         i.VariantId == dto.VariantId
+    //     );
+
+    //     decimal price = await GetCurrentPrice(dto.ProductId, dto.VariantId);
+
+    //     if (existing != null)
+    //     {
+    //         existing.Quantity += dto.Quantity;
+    //     }
+    //     else
+    //     {
+    //         cart.Items.Add(new CartItem
+    //         {
+    //             ProductId = dto.ProductId,
+    //             VariantId = dto.VariantId,
+    //             Quantity = dto.Quantity,
+    //             Price = price
+    //         });
+    //     }
+
+    //     await _db.SaveChangesAsync();
+    // }
     public async Task AddItemAsync(int userId, CartAddItemDto dto)
-    {
-        var cart = await GetOrCreateCart(userId);
-
-        // Tìm xem item đã có trong cart chưa
-        var existing = cart.Items.FirstOrDefault(i =>
-            i.ProductId == dto.ProductId &&
-            i.VariantId == dto.VariantId
-        );
-
-        decimal price = await GetCurrentPrice(dto.ProductId, dto.VariantId);
-
-        if (existing != null)
         {
-            existing.Quantity += dto.Quantity;
-        }
-        else
-        {
-            cart.Items.Add(new CartItem
+            var cart = await GetOrCreateCart(userId);
+            decimal price = await GetCurrentPrice(dto.ProductId, dto.VariantId);
+
+            // Lấy tồn kho hiện tại
+            int availableStock;
+            if (dto.VariantId != null)
             {
-                ProductId = dto.ProductId,
-                VariantId = dto.VariantId,
-                Quantity = dto.Quantity,
-                Price = price
-            });
+                var variant = await _db.ProductVariants.FindAsync(dto.VariantId);
+                if (variant == null) throw new Exception("Variant not found");
+                availableStock = variant.Stock;
+            }
+            else
+            {
+                var product = await _db.Products.FindAsync(dto.ProductId);
+                if (product == null) throw new Exception("Product not found");
+                availableStock = product.Stock;
+            }
+
+            var existing = cart.Items.FirstOrDefault(i =>
+                i.ProductId == dto.ProductId &&
+                i.VariantId == dto.VariantId
+            );
+
+            int newQuantity = existing != null ? existing.Quantity + dto.Quantity : dto.Quantity;
+
+            if (newQuantity > availableStock)
+                throw new Exception("Số lượng thêm vượt quá tồn kho");
+
+            if (existing != null)
+            {
+                existing.Quantity = newQuantity;
+            }
+            else
+            {
+                cart.Items.Add(new CartItem
+                {
+                    ProductId = dto.ProductId,
+                    VariantId = dto.VariantId,
+                    Quantity = dto.Quantity,
+                    Price = price
+                });
+            }
+
+            await _db.SaveChangesAsync();
         }
 
-        await _db.SaveChangesAsync();
-    }
 
     // Update quantity
+    // public async Task UpdateItemAsync(int userId, CartUpdateItemDto dto)
+    // {
+    //     var cart = await GetOrCreateCart(userId);
+
+    //     var item = cart.Items.FirstOrDefault(i => i.Id == dto.CartItemId);
+    //     if (item == null) throw new Exception("Item not found");
+
+    //     item.Quantity = dto.Quantity;
+
+    //     await _db.SaveChangesAsync();
+    // }
     public async Task UpdateItemAsync(int userId, CartUpdateItemDto dto)
-    {
-        var cart = await GetOrCreateCart(userId);
+        {
+            var cart = await GetOrCreateCart(userId);
 
-        var item = cart.Items.FirstOrDefault(i => i.Id == dto.CartItemId);
-        if (item == null) throw new Exception("Item not found");
+            var item = cart.Items.FirstOrDefault(i => i.Id == dto.CartItemId);
+            if (item == null) throw new Exception("Item not found");
 
-        item.Quantity = dto.Quantity;
+            int availableStock;
+            if (item.VariantId != null)
+            {
+                var variant = await _db.ProductVariants.FindAsync(item.VariantId);
+                if (variant == null) throw new Exception("Variant not found");
+                availableStock = variant.Stock;
+            }
+            else
+            {
+                var product = await _db.Products.FindAsync(item.ProductId);
+                if (product == null) throw new Exception("Product not found");
+                availableStock = product.Stock;
+            }
 
-        await _db.SaveChangesAsync();
-    }
+            if (dto.Quantity > availableStock)
+                throw new Exception("Số lượng cập nhật vượt quá tồn kho");
+
+            item.Quantity = dto.Quantity;
+
+            await _db.SaveChangesAsync();
+        }
 
     public async Task RemoveItemAsync(int userId, int cartItemId)
     {
@@ -127,14 +203,17 @@ public class CartService : ICartService
         // Trừ tồn kho
         foreach (var item in itemsToBuy)
         {
-            if (item.VariantId != null)
-            {
+            if (item.VariantId != null){
+                // Trừ tồn kho biến thể
                 item.Variant.Stock -= item.Quantity;
+                // Trừ tồn kho tổng của sản phẩm
+                item.Product.Stock -= item.Quantity;
             }
             else
             {
                 item.Product.Stock -= item.Quantity;
             }
+
         }
 
         // Tạo Order

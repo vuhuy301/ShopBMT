@@ -7,11 +7,14 @@ namespace backend_shopcaulong.Services
     {
         Task<UserDto> RegisterAsync(RegisterDto dto);
         Task<string?> AuthenticateAsync(string email, string password);
+
         Task<UserDto?> GetByIdAsync(int userId);
         Task<UserDto?> UpdateProfileAsync(int userId, UpdateProfileDto dto);
         Task<bool> ChangePasswordAsync(int userId, string oldPassword, string newPassword);
 
-        // Nếu có refresh token, thêm logout như:
-        // Task LogoutAsync(int userId);
+        Task<bool> SendResetPasswordEmailAsync(string email);
+        Task<bool> ResetPasswordAsync(string token, string newPassword);
+        Task<IEnumerable<UserDto>> GetAllUsersAsync();
+
     }
 }

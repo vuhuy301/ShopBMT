@@ -37,36 +37,6 @@ public class CartService : ICartService
         return _mapper.Map<CartDto>(cart);
     }
 
-    // Thêm item
-    // public async Task AddItemAsync(int userId, CartAddItemDto dto)
-    // {
-    //     var cart = await GetOrCreateCart(userId);
-
-    //     // Tìm xem item đã có trong cart chưa
-    //     var existing = cart.Items.FirstOrDefault(i =>
-    //         i.ProductId == dto.ProductId &&
-    //         i.VariantId == dto.VariantId
-    //     );
-
-    //     decimal price = await GetCurrentPrice(dto.ProductId, dto.VariantId);
-
-    //     if (existing != null)
-    //     {
-    //         existing.Quantity += dto.Quantity;
-    //     }
-    //     else
-    //     {
-    //         cart.Items.Add(new CartItem
-    //         {
-    //             ProductId = dto.ProductId,
-    //             VariantId = dto.VariantId,
-    //             Quantity = dto.Quantity,
-    //             Price = price
-    //         });
-    //     }
-
-    //     await _db.SaveChangesAsync();
-    // }
     public async Task AddItemAsync(int userId, CartAddItemDto dto)
         {
             var cart = await GetOrCreateCart(userId);
@@ -115,19 +85,6 @@ public class CartService : ICartService
             await _db.SaveChangesAsync();
         }
 
-
-    // Update quantity
-    // public async Task UpdateItemAsync(int userId, CartUpdateItemDto dto)
-    // {
-    //     var cart = await GetOrCreateCart(userId);
-
-    //     var item = cart.Items.FirstOrDefault(i => i.Id == dto.CartItemId);
-    //     if (item == null) throw new Exception("Item not found");
-
-    //     item.Quantity = dto.Quantity;
-
-    //     await _db.SaveChangesAsync();
-    // }
     public async Task UpdateItemAsync(int userId, CartUpdateItemDto dto)
         {
             var cart = await GetOrCreateCart(userId);
@@ -215,7 +172,7 @@ public class CartService : ICartService
             }
 
         }
-
+        var totalAmount = itemsToBuy.Sum(i => i.Price * i.Quantity);
         // Tạo Order
         var order = new Order
         {
@@ -223,6 +180,7 @@ public class CartService : ICartService
             ShippingAddress = dto.ShippingAddress,
             Phone = dto.Phone,
             PaymentMethod = dto.PaymentMethod,
+            TotalAmount = totalAmount,
             CreatedAt = DateTime.Now,
             Status = "Pending"
         };

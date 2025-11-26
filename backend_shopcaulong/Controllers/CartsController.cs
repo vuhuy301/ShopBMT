@@ -12,10 +12,11 @@ namespace backend_shopcaulong.Controllers
     public class CartsController : ControllerBase
     {
         private readonly ICartService _cartService;
-
-        public CartsController(ICartService cartService)
+        private readonly IOrderService _orderService;
+        public CartsController(ICartService cartService, IOrderService orderService)
         {
             _cartService = cartService;
+            _orderService = orderService;
         }
 
         // Lấy giỏ hàng của user
@@ -26,7 +27,13 @@ namespace backend_shopcaulong.Controllers
             var cart = await _cartService.GetCartAsync(userId);
             return Ok(cart);
         }
-
+        // [HttpGet("{cartItemsId}")]
+        // public async Task<IActionResult> GetCartByCartItemsId(int cartItemsId)
+        // {
+        //     int userId = GetCurrentUserId();
+        //     await _cartService.RemoveItemAsync(userId, cartItemsId);
+        //     return Ok(new { message = "Removed" });
+        // }
         // Thêm item
         [HttpPost("add")]
         public async Task<IActionResult> AddToCart([FromBody] CartAddItemDto dto)
@@ -70,6 +77,27 @@ namespace backend_shopcaulong.Controllers
             int userId = GetCurrentUserId();
             var result = await _cartService.CheckoutAsync(userId, dto);
             return Ok(result);
+        }
+        // LẤY TẤT CẢ ĐƠN HÀNG CỦA TÔI
+        [HttpGet("my-orders")]
+        public async Task<IActionResult> GetMyOrders()
+        {
+            var userId = GetCurrentUserId();
+            var orders = await _orderService.GetMyOrdersAsync(userId);
+            return Ok(orders);
+        }
+
+        // XEM CHI TIẾT 1 ĐƠN HÀNG CỦA TÔI
+        [HttpGet("my-orders/{orderId}")]
+        public async Task<IActionResult> GetMyOrderDetail(int orderId)
+        {
+            var userId = GetCurrentUserId();
+            var order = await _orderService.GetOrderByIdForUserAsync(orderId, userId);
+
+            if (order == null)
+                return NotFound("Không tìm thấy đơn hàng hoặc bạn không có quyền xem");
+
+            return Ok(order);
         }
 
         // ====== Lấy userId từ JWT ======

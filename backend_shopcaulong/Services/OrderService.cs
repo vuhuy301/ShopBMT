@@ -1,3 +1,7 @@
+
+
+// backend_shopcaulong/Services/OrderService.cs
+using AutoMapper;
 using backend_shopcaulong.DTOs.Order;
 using backend_shopcaulong.Models;
 using Microsoft.EntityFrameworkCore;
@@ -7,92 +11,69 @@ namespace backend_shopcaulong.Services
     public class OrderService : IOrderService
     {
         private readonly ShopDbContext _db;
+        private readonly IEmailSender _emailSender;
+        private readonly IMapper _mapper;
 
-        public OrderService(ShopDbContext db)
+        public OrderService(ShopDbContext db, IEmailSender emailSender, IMapper mapper)
         {
             _db = db;
+            _emailSender = emailSender;
+            _mapper = mapper;
         }
 
         public async Task<List<OrderDto>> GetAllOrdersAsync()
         {
             var orders = await _db.Orders
                 .Include(o => o.User)
-                .Include(o => o.Items)
-                    .ThenInclude(od => od.Product)
-                .Include(o => o.Items)
-                    .ThenInclude(od => od.Variant)
+                .Include(o => o.Items).ThenInclude(od => od.Product)
+                .Include(o => o.Items).ThenInclude(od => od.Variant) // BẮT BUỘC PHẢI CÓ 2 DÒNG NÀY RIÊNG BIỆT!
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
 
-            return orders.Select(o => new OrderDto
-            {
-                Id = o.Id,
-                UserId = o.UserId,
-                UserFullName = o.User?.FullName ?? "Khách vãng lai",
-                TotalAmount = o.TotalAmount,
-                CreatedAt = o.CreatedAt,
-                Status = o.Status,
-                PaymentMethod = o.PaymentMethod,
-                ShippingAddress = o.ShippingAddress,
-                Phone = o.Phone,
-                Items = o.Items.Select(i => new OrderDetailDto
-                {
-                    ProductId = i.ProductId,
-                    ProductName = i.Product.Name,
-                    VariantId = i.VariantId,
-                    // Lấy tên biến thể từ màu sắc + size (nếu có)
-                    VariantName = i.Variant != null 
-                        ? $"{(string.IsNullOrEmpty(i.Variant.Color) ? "" : i.Variant.Color)} {(string.IsNullOrEmpty(i.Variant.Size) ? "" : i.Variant.Size)}".Trim()
-                        : "",
-                    Quantity = i.Quantity,
-                    Price = i.Price
-                }).ToList()
-            }).ToList();
+            return _mapper.Map<List<OrderDto>>(orders);
         }
 
         public async Task<OrderDto?> GetOrderByIdAsync(int orderId)
         {
-            var o = await _db.Orders
+            var order = await _db.Orders
                 .Include(o => o.User)
-                .Include(o => o.Items)
-                    .ThenInclude(od => od.Product)
-                .Include(o => o.Items)
-                    .ThenInclude(od => od.Variant)
+                .Include(o => o.Items).ThenInclude(od => od.Product)
+                .Include(o => o.Items).ThenInclude(od => od.Variant) // QUAN TRỌNG NHẤT!
                 .FirstOrDefaultAsync(o => o.Id == orderId);
 
-            if (o == null) return null;
-
-            return new OrderDto
-            {
-                Id = o.Id,
-                UserId = o.UserId,
-                UserFullName = o.User?.FullName ?? "Khách vãng lai",
-                TotalAmount = o.TotalAmount,
-                CreatedAt = o.CreatedAt,
-                Status = o.Status,
-                PaymentMethod = o.PaymentMethod,
-                ShippingAddress = o.ShippingAddress,
-                Phone = o.Phone,
-                Items = o.Items.Select(i => new OrderDetailDto
-                {
-                    ProductId = i.ProductId,
-                    ProductName = i.Product.Name,
-                    VariantId = i.VariantId,
-                    VariantName = i.Variant != null 
-                        ? $"{(string.IsNullOrEmpty(i.Variant.Color) ? "" : i.Variant.Color)} {(string.IsNullOrEmpty(i.Variant.Size) ? "" : i.Variant.Size)}".Trim()
-                        : "",
-                    Quantity = i.Quantity,
-                    Price = i.Price
-                }).ToList()
-            };
+            return order == null ? null : _mapper.Map<OrderDto>(order);
         }
 
+        public async Task<List<OrderDto>> GetMyOrdersAsync(int userId)
+        {
+            var orders = await _db.Orders
+                .Where(o => o.UserId == userId)
+                .Include(o => o.User)
+                .Include(o => o.Items).ThenInclude(od => od.Product)
+                .Include(o => o.Items).ThenInclude(od => od.Variant) // PHẢI CÓ!
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+
+            return _mapper.Map<List<OrderDto>>(orders);
+        }
+
+        public async Task<OrderDto?> GetOrderByIdForUserAsync(int orderId, int userId)
+        {
+            var order = await _db.Orders
+                .Where(o => o.Id == orderId && o.UserId == userId)
+                .Include(o => o.User)
+                .Include(o => o.Items).ThenInclude(od => od.Product)
+                .Include(o => o.Items).ThenInclude(od => od.Variant) // ĐÂY LÀ CHÌA KHÓA!
+                .FirstOrDefaultAsync();
+
+            return order == null ? null : _mapper.Map<OrderDto>(order);
+        }
+
+        // Các hàm còn lại giữ nguyên (Approve, Cancel, UpdateStatus...)
         public async Task<bool> ApproveOrderAsync(int orderId)
         {
             var order = await _db.Orders.FindAsync(orderId);
-            if (order == null || order.Status != "Pending")
-                return false;
-
+            if (order == null || order.Status != "Pending") return false;
             order.Status = "Confirmed";
             await _db.SaveChangesAsync();
             return true;
@@ -100,43 +81,58 @@ namespace backend_shopcaulong.Services
 
         public async Task<bool> CancelOrderAsync(int orderId)
         {
-            var order = await _db.Orders
-                .Include(o => o.Items)
-                    .ThenInclude(i => i.Product)
-                .Include(o => o.Items)
-                    .ThenInclude(i => i.Variant)
-                .FirstOrDefaultAsync(o => o.Id == orderId);
+        var order = await _db.Orders
+            .Include(o => o.Items).ThenInclude(i => i.Product)
+            .Include(o => o.Items).ThenInclude(i => i.Variant)
+            .FirstOrDefaultAsync(o => o.Id == orderId);
 
-            if (order == null || order.Status == "Cancelled")
-                return false;
+        if (order == null || order.Status == "Cancelled") return false;
 
-            // Hoàn trả tồn kho
-            foreach (var detail in order.Items)
+        foreach (var detail in order.Items)
+        {
+            if (detail.VariantId != null && detail.Variant != null)
             {
-                if (detail.VariantId != null && detail.Variant != null)
-                {
-                    detail.Variant.Stock += detail.Quantity;
-                    detail.Product.Stock += detail.Quantity;
-                }
-                else
-                {
-                    detail.Product.Stock += detail.Quantity;
-                }
+                detail.Variant.Stock += detail.Quantity;
+                detail.Product.Stock += detail.Quantity;
             }
+            else
+            {
+                detail.Product.Stock += detail.Quantity;
+            }
+        }
 
-            order.Status = "Cancelled";
-            await _db.SaveChangesAsync();
-            return true;
+        order.Status = "Cancelled";
+        await _db.SaveChangesAsync();
+        return true;
         }
 
         public async Task<bool> UpdateOrderStatusAsync(int orderId, string newStatus)
         {
-            var order = await _db.Orders.FindAsync(orderId);
-            if (order == null) return false;
+        var order = await _db.Orders
+            .Include(o => o.User)
+            .Include(o => o.Items) // Dù không dùng ở đây nhưng giữ cho chắc
+            .FirstOrDefaultAsync(o => o.Id == orderId);
 
-            order.Status = newStatus;
-            await _db.SaveChangesAsync();
-            return true;
+        if (order == null) return false;
+
+        var oldStatus = order.Status;
+        order.Status = newStatus;
+        await _db.SaveChangesAsync();
+
+        if (oldStatus != newStatus && order.User?.Email != null)
+        {
+            var name = string.IsNullOrEmpty(order.User.FullName) ? "Quý khách" : order.User.FullName;
+            var total = order.Items?.Any() == true 
+                ? order.Items.Sum(i => i.Price * i.Quantity) 
+                : 0m;
+
+            _ = Task.Run(async () =>
+            {
+                await _emailSender.SendOrderStatusEmailAsync(
+                    order.User.Email, name, order.Id, newStatus, total);
+            });
+        }
+        return true;
         }
     }
 }

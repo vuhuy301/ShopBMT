@@ -35,6 +35,7 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IOrderService,OrderService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

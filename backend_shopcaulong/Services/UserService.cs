@@ -229,6 +229,50 @@ namespace backend_shopcaulong.Services
 
             return _mapper.Map<UserDto>(user);
         }
-        
+        public async Task<UserDto> CreateEmployeeAsync(CreateEmployeeDto dto)
+        {
+            if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
+                throw new Exception("Email đã tồn tại!");
+
+            // Lấy role từ DB
+            var role = await _context.Roles.FirstOrDefaultAsync(r => r.Name == dto.Role);
+            if (role == null)
+                throw new Exception("Role không hợp lệ! Chỉ Admin hoặc Employee");
+
+            var user = new User
+            {
+                FullName = dto.FullName,
+                Email = dto.Email,
+                PasswordHash = HashPassword(dto.Password),
+                Phone = "",
+                Address = "",
+                CreatedAt = DateTime.UtcNow,
+                RoleId = role.Id
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            await _context.Entry(user).Reference(u => u.Role).LoadAsync();
+            return _mapper.Map<UserDto>(user);
+        }
+        public async Task<bool> UpdateUserRoleAsync(int userId, string newRole)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+                return false;
+
+            // Lấy RoleId từ role name
+            var role = await _context.Roles.FirstOrDefaultAsync(r => r.Name == newRole);
+            if (role == null)
+                throw new Exception("Role không tồn tại");
+
+            user.RoleId = role.Id;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+
     }
 }

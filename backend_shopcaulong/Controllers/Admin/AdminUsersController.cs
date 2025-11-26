@@ -1,0 +1,68 @@
+using backend_shopcaulong.DTOs.User;
+using backend_shopcaulong.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace backend_shopcaulong.Controllers.Admin
+{
+    [ApiController]
+    [Route("api/admin/[controller]")]
+    // [Authorize(Roles = "Admin")]
+    public class AdminUsersController : ControllerBase
+    {
+        private readonly IUserService _userService;
+
+        public AdminUsersController(IUserService userService)
+        {
+            _userService = userService;
+        }
+
+        // GET: api/admin/users
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _userService.GetAllUsersAsync();
+            return Ok(users);
+        }
+
+        // GET: api/admin/users/5
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetUserById(int userId)
+        {
+            var user = await _userService.GetByIdAsync(userId);
+            if (user == null) return NotFound();
+            return Ok(user);
+        }
+
+        // POST: api/admin/users/create-employee
+        [HttpPost("create-employee")]
+        public async Task<IActionResult> CreateEmployee(CreateEmployeeDto dto)
+        {
+            var emp = await _userService.CreateEmployeeAsync(dto);
+            return Ok(emp);
+        }
+
+        // PUT: api/admin/users/5/role?newRole=Employee
+        [HttpPut("{userId}/role")]
+        public async Task<IActionResult> UpdateUserRole(int userId, [FromQuery] string newRole)
+        {
+            var success = await _userService.UpdateUserRoleAsync(userId, newRole);
+            if (!success) return NotFound();
+            return Ok(new { message = "Cập nhật quyền thành công" });
+        }
+
+        // DELETE: api/admin/users/5
+        // [HttpDelete("{userId}")]
+        // public async Task<IActionResult> DeleteUser(int userId)
+        // {
+        //     var user = await _userService.GetByIdAsync(userId);
+        //     if (user == null) return NotFound();
+
+        //     // Soft delete nếu muốn
+        //     // user.IsDeleted = true;
+        //     // await _context.SaveChangesAsync();
+
+        //     return Ok(new { message = "Xóa user thành công (chưa làm soft delete)" });
+        // }
+    }
+}

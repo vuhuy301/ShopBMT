@@ -1,12 +1,11 @@
 ﻿using backend_shopcaulong.DTOs.Product;
 using backend_shopcaulong.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend_shopcaulong.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
@@ -16,6 +15,7 @@ namespace backend_shopcaulong.Controllers
             _productService = productService;
         }
 
+        // Get tất cả sản phẩm
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetAll()
         {
@@ -23,6 +23,7 @@ namespace backend_shopcaulong.Controllers
             return Ok(products);
         }
 
+        // Get sản phẩm theo id
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductDto>> GetById(int id)
         {
@@ -31,34 +32,15 @@ namespace backend_shopcaulong.Controllers
             return Ok(product);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<ProductDto>> Create(ProductCreateDto dto)
-        {
-            var product = await _productService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<ActionResult<ProductDto>> Update(int id, ProductUpdateDto dto)
-        {
-            var product = await _productService.UpdateAsync(id, dto);
-            if (product == null) return NotFound();
-            return Ok(product);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var result = await _productService.DeleteAsync(id);
-            if (!result) return NotFound();
-            return NoContent();
-        }
+        // Lấy sản phẩm có phân trang
         [HttpGet("paged")]
         public async Task<IActionResult> GetPaged([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _productService.GetPagedAsync(page, pageSize);
             return Ok(result);
         }
+
+        // API lọc sản phẩm
         [HttpGet("filter")]
         public async Task<IActionResult> Filter(
             [FromQuery] int? categoryId,
@@ -80,7 +62,7 @@ namespace backend_shopcaulong.Controllers
             return Ok(result);
         }
 
-        // GET api/products/top-new/category/1
+        // Top sản phẩm mới theo category
         [HttpGet("top-new/category/{categoryId}")]
         public async Task<IActionResult> GetTopNewByCategory(int categoryId)
         {

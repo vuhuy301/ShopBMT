@@ -34,7 +34,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
-
+builder.Services.AddScoped<IOrderService,OrderService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -67,34 +68,34 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddHttpContextAccessor(); // bắt buộc để lấy scheme + host
 builder.Services.AddScoped<IUploadService, UploadService>();
 
-// builder.Services.AddSwaggerGen(c =>
-// {
-//     // Thêm cấu hình bảo mật JWT
-//     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-//     {
-//         Name = "Authorization",
-//         Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-//         Scheme = "Bearer",
-//         BearerFormat = "JWT",
-//         In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-//         Description = "Nhập 'Bearer' và token JWT"
-//     });
+builder.Services.AddSwaggerGen(c =>
+{
+    // Thêm cấu hình bảo mật JWT
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Nhập 'Bearer' và token JWT"
+    });
 
-//     c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-//     {
-//         {
-//             new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-//             {
-//                 Reference = new Microsoft.OpenApi.Models.OpenApiReference
-//                 {
-//                     Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-//                     Id = "Bearer"
-//                 }
-//             },
-//             new string[]{}
-//         }
-//     });
-// });
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[]{}
+        }
+    });
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

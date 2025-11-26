@@ -2,6 +2,7 @@
 using backend_shopcaulong.DTOs.Brand;
 using backend_shopcaulong.DTOs.Cart;
 using backend_shopcaulong.DTOs.Category;
+using backend_shopcaulong.DTOs.Order;
 using backend_shopcaulong.DTOs.Product;
 using backend_shopcaulong.DTOs.User;
 using backend_shopcaulong.Models;
@@ -64,7 +65,22 @@ namespace backend_shopcaulong.AutoMapper
 
              CreateMap<User, UserDto>()
             .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Name));
+            
+            CreateMap<Order, OrderDto>()
+                .ForMember(dest => dest.UserFullName,
+                    opt => opt.MapFrom(src => src.User != null ? src.User.FullName : "Khách vãng lai"))
+                .ForMember(dest => dest.TotalAmount,
+                    opt => opt.MapFrom(src => src.Items.Sum(i => i.Price * i.Quantity))) // Tính chính xác 100%
+                .ForMember(dest => dest.Items,
+                    opt => opt.MapFrom(src => src.Items));
 
+            CreateMap<OrderDetail, OrderDetailDto>()
+                .ForMember(dest => dest.ProductName,
+                    opt => opt.MapFrom(src => src.Product.Name))
+                .ForMember(dest => dest.VariantName,
+                    opt => opt.MapFrom(src => src.Variant != null
+                        ? $"{src.Variant.Color} {src.Variant.Size}".Trim()
+                        : string.Empty));
         }
     }
 }

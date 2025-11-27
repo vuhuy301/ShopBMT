@@ -362,13 +362,23 @@
                     Items = items
                 };
             }
-            public async Task<List<Product>> GetTopNewByCategoryAsync(int categoryId)
+             public async Task<List<ProductDto>> GetTopNewByCategoryAsync(int categoryId)
             {
-                return await _context.Products
+                var products = await _context.Products
                     .Where(p => p.CategoryId == categoryId)
+                    .Include(p => p.Brand)
+                    .Include(p => p.Category)
+                    .Include(p => p.Images)
+                    .Include(p => p.Details)
+                    .Include(p => p.Variants)
                     .OrderByDescending(p => p.CreatedAt)
                     .Take(8)
                     .ToListAsync();
+
+                // Map sang DTO
+                var productDtos = _mapper.Map<List<ProductDto>>(products);
+
+                return productDtos;
             }
 
         }

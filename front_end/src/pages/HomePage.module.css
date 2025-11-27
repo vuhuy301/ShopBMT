@@ -113,3 +113,21 @@
   color: #b41f6c;
   text-decoration: underline;
 }
+.priceWrapper {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.salePrice {
+  color: red;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.originalPrice {
+  text-decoration: line-through;
+  color: #888;
+  font-size: 14px;
+}

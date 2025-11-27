@@ -36,5 +36,67 @@ namespace backend_shopcaulong.Services
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
         }
+
+        //Hàm chuyên dụng: Gửi thông báo trạng thái đơn hàng
+        public async Task SendOrderStatusEmailAsync(string toEmail, string customerName, int orderId, string newStatus, decimal totalAmount)
+        {
+            var statusText = newStatus switch
+            {
+                "Pending" => "Chờ xác nhận",
+                "Confirmed" => "Đã xác nhận",
+                "Preparing" => "Đang chuẩn bị hàng",
+                "Shipping" => "Đang giao hàng",
+                "Delivered" => "Đã giao thành công",
+                "Cancelled" => "Đã hủy",
+                "Returned" => "Đã hoàn trả",
+                _ => newStatus
+            };
+
+            var statusColor = newStatus switch
+            {
+                "Delivered" => "#52c41a",
+                "Cancelled" or "Returned" => "#ff4d4f",
+                "Confirmed" or "Shipping" => "#fa8c16",
+                _ => "#1890ff"
+            };
+
+            var subject = $"[CẬP NHẬT] Đơn hàng #{orderId} - {statusText}";
+
+            var htmlMessage = $@"
+            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e8e8e8; border-radius: 10px; overflow: hidden;'>
+                <div style='background: linear-gradient(135deg, #ff7e5f, #feb47b); padding: 20px; text-align: center; color: white;'>
+                    <h1>Shop Cầu Lông</h1>
+                    <p>Chuyên vợt Yonex - Victor - Lining chính hãng</p>
+                </div>
+                <div style='padding: 30px; background: #fafafa;'>
+                    <h2>Xin chào <strong>{customerName}</strong>,</h2>
+                    <p>Cảm ơn bạn đã tin tưởng mua sắm tại Shop Cầu Lông!</p>
+                    
+                    <div style='background: white; padding: 20px; border-radius: 8px; border-left: 5px solid {statusColor}; margin: 20px 0;'>
+                        <h3 style='margin: 0; color: #333;'>Trạng thái đơn hàng của bạn đã thay đổi:</h3>
+                        <h1 style='margin: 10px 0; color: {statusColor}; font-size: 28px;'><strong>{statusText}</strong></h1>
+                        <p><strong>Mã đơn hàng:</strong> #{orderId}</p>
+                        <p><strong>Tổng tiền:</strong> {totalAmount:N0}₫</p>
+                    </div>
+
+                    <p style='text-align: center;'>
+                        <a href='https://shopcaulong.com/don-hang/{orderId}' 
+                           style='background: #d4380d; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold;'>
+                            XEM CHI TIẾT ĐƠN HÀNG
+                        </a>
+                    </p>
+
+                    <hr style='border: 1px dashed #ddd; margin: 30px 0;'>
+                    <p>Nếu bạn có thắc mắc, vui lòng liên hệ:</p>
+                    <p><strong>Hotline:</strong> 0909.123.456<br>
+                       <strong>Email:</strong> support@shopcaulong.com</p>
+                </div>
+                <div style='background: #333; color: #aaa; padding: 15px; text-align: center; font-size: 12px;'>
+                    © 2025 Shop Cầu Lông - Chuyên đồ cầu lông chính hãng
+                </div>
+            </div>";
+
+            await SendEmailAsync(toEmail, subject, htmlMessage);
+        }
     }
 }

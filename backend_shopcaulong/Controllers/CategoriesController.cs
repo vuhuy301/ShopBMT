@@ -1,12 +1,11 @@
 ﻿using backend_shopcaulong.DTOs.Category;
 using backend_shopcaulong.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend_shopcaulong.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -16,29 +15,19 @@ namespace backend_shopcaulong.Controllers
             _categoryService = categoryService;
         }
 
-        [HttpGet] public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAll() => Ok(await _categoryService.GetAllAsync());
+        // User xem tất cả category
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAll()
+        {
+            return Ok(await _categoryService.GetAllAsync());
+        }
+
+        // User xem chi tiết category
         [HttpGet("{id}")]
         public async Task<ActionResult<CategoryDto>> GetById(int id)
         {
             var cat = await _categoryService.GetByIdAsync(id);
             return cat == null ? NotFound() : Ok(cat);
-        }
-        [HttpPost]
-        public async Task<ActionResult<CategoryDto>> Create(CategoryCreateUpdateDto dto)
-        {
-            var cat = await _categoryService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = cat.Id }, cat);
-        }
-        [HttpPut("{id}")]
-        public async Task<ActionResult<CategoryDto>> Update(int id, CategoryCreateUpdateDto dto)
-        {
-            var cat = await _categoryService.UpdateAsync(id, dto);
-            return cat == null ? NotFound() : Ok(cat);
-        }
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            return await _categoryService.DeleteAsync(id) ? NoContent() : NotFound();
         }
     }
 }

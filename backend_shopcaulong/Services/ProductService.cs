@@ -293,6 +293,83 @@ namespace backend_shopcaulong.Services
                 Items = items
             };
         }
+        public async Task<PagedResultDto<ProductDto>> GetProductsByFilterAsync(
+    int? categoryId,
+    int? brandId,
+    string? search,
+    string? sortBy,
+    int page,
+    int pageSize)
+        {
+            IQueryable<Product> query = _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .Include(p => p.Images)
+                .Include(p => p.Details)
+                .Include(p => p.Variants)
+                .AsNoTracking();
+
+            // 1. Lọc theo danh mục (Category)
+            if (categoryId.HasValue && categoryId > 0)
+            {
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+            }
+
+            // 2. Lọc theo thương hiệu (Brand)
+            if (brandId.HasValue && brandId > 0)
+            {
+                query = query.Where(p => p.BrandId == brandId.Value);
+            }
+
+            // 3. Tìm kiếm theo tên
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string keyword = search.Trim().ToLower();
+                query = query.Where(p => p.Name.ToLower().Contains(keyword));
+            }
+
+            // 4. Sắp xếp
+            switch (sortBy)
+            {
+                case "price_asc":
+                    query = query.OrderBy(p => p.DiscountPrice ?? p.Price);
+                    break;
+
+                case "price_desc":
+                    query = query.OrderByDescending(p => p.DiscountPrice ?? p.Price);
+                    break;
+
+                default:
+                    query = query.OrderBy(p => p.Name); // name_asc
+                    break;
+            }
+
+            // 5. Phân trang
+            int totalItems = await query.CountAsync();
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ProjectTo<ProductDto>(_mapper.ConfigurationProvider)
+                .ToListAsync();
+
+            return new PagedResultDto<ProductDto>
+            {
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = totalItems,
+                TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+                Items = items
+            };
+        }
+        public async Task<List<Product>> GetTopNewByCategoryAsync(int categoryId)
+        {
+            return await _context.Products
+                .Where(p => p.CategoryId == categoryId)
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(8)
+                .ToListAsync();
+        }
 
     }
 }

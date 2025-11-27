@@ -1,5 +1,6 @@
 ﻿using backend_shopcaulong.DTOs.Common;
 using backend_shopcaulong.DTOs.Product;
+using backend_shopcaulong.Models;
 
 namespace backend_shopcaulong.Services
 {
@@ -11,6 +12,7 @@ namespace backend_shopcaulong.Services
         Task<ProductDto?> UpdateAsync(int id, ProductUpdateDto dto);
         Task<bool> DeleteAsync(int id);
         Task<PagedResultDto<ProductDto>> GetPagedAsync(int page, int pageSize);
-
+        Task<PagedResultDto<ProductDto>> GetProductsByFilterAsync(int? categoryId, int? brandId, string? search, string? sortBy, int page, int pageSize);
+        Task<List<Product>> GetTopNewByCategoryAsync(int categoryId);
     }
 }

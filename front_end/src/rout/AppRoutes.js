@@ -1,54 +1,49 @@
-// // AppRouter.js
-// import React from "react";
-// import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-// import Header from "../components/Header";
-// import Homepage from "../pages/HomePage";
-// import ProductList from "../pages/ProductList";
-// import ProductDetails from "../pages/ProductDetails";
-// import Footer from "../components/Footer";
-// // import các trang khác nếu có
-// // import About from "./pages/About";
-// // import Contact from "./pages/Contact";
-
-// const AppRouter = () => {
-//   return (
-//     <BrowserRouter>
-//       {/* Header dùng chung cho tất cả trang user */}
-//       <Header />
-
-//       <Routes>
-//         <Route path="/" element={<Homepage />} />
-//          <Route path="/products" element={<ProductList />} />
-//          <Route path="/product/:id" element={<ProductDetails />} />
-//         <Route path="*" element={<Navigate to="/" />} />
-//       </Routes>
-
-//         <Footer />
-//     </BrowserRouter>
-//   );
-// };
-
-// export default AppRouter;
-// AppRouter.js
+// src/AppRouter.jsx
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
+
+// Pages & Layouts
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Homepage from "../pages/HomePage";
 import ProductList from "../pages/ProductList";
 import ProductDetails from "../pages/ProductDetails";
-
-// ADMIN
+import LoginPage from "../pages/LoginPage";
 import AdminLayout from "../layouts/AdminLayout";
+// import EmployeeLayout from "../layouts/EmployeeLayout"; // bạn tạo sau
 
-const UserLayout = () => (
+// Role-based Route
+const RoleRoute = ({ children, allowedRoles = [] }) => {
+  const token = localStorage.getItem("accessToken");
+  const role = localStorage.getItem("role"); // "Admin", "Employee", "Customer"
+  const location = useLocation();
+
+  if (!token) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
+
+// Layout cho khách hàng
+const CustomerLayout = () => (
   <>
     <Header />
     <Routes>
       <Route path="/" element={<Homepage />} />
       <Route path="/category/:categoryId" element={<ProductList />} />
       <Route path="/product/:id" element={<ProductDetails />} />
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
     <Footer />
   </>
@@ -58,8 +53,30 @@ const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/*" element={<UserLayout />} />
-        <Route path="/admin/*" element={<AdminLayout />} />
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* Khách hàng */}
+        <Route path="/*" element={<CustomerLayout />} />
+
+        {/* Admin */}
+        <Route
+          path="/admin/*"
+          element={
+            <RoleRoute allowedRoles={["Admin"]}>
+              <AdminLayout />
+            </RoleRoute>
+          }
+        />
+
+        {/* Nhân viên */}
+        {/* <Route
+          path="/employee/*"
+          element={
+            <RoleRoute allowedRoles={["Employee"]}>
+              <EmployeeLayout />
+            </RoleRoute>
+          }
+        /> */}
       </Routes>
     </BrowserRouter>
   );

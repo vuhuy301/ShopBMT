@@ -22,7 +22,6 @@ namespace backend_shopcaulong.Services
             var categories = await _context.Categories
                 .Include(c => c.Products)
                 .AsNoTracking()
-                .OrderBy(c => c.Name)
                 .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
                 .ToListAsync();
 

@@ -54,14 +54,14 @@ const Header = () => {
           {/* === CHƯA ĐĂNG NHẬP === */}
           {!token ? (
             <>
-              <Link to="/login" className="ms-4 text-primary fw-bold">
+              <Link to="/login" className="ms-4 fw-bold">
                 Đăng nhập
               </Link>
 
               {/* Nếu bạn có trang đăng ký khách hàng thì để Link, không thì dùng button */}
-              <button type="button" className="ms-3 btn btn-link p-0">
+                <Link to="/register" className="ms-4 fw-bold">
                 Đăng ký
-              </button>
+              </Link>
             </>
           ) : (
             /* === ĐÃ ĐĂNG NHẬP === */

@@ -71,7 +71,10 @@ const HomePage = () => {
                   <div className={styles.productCard}>
                     <img src={`https://cdn.hstatic.net/products/200000852613/1_29d313a3d53546baa19c855057a15cee_grande.png`} alt="" />
                     <p className="mt-2 fw-bold text-center">Sản phẩm {item}</p>
-                    <span className={styles.price}> {item}99.000đ </span>
+                     <div className={styles.priceWrapper}>
+                      <span className={styles.salePrice}>{item * 80}.000đ</span>
+                      <span className={styles.originalPrice}>{item}99.000đ</span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -91,7 +94,10 @@ const HomePage = () => {
                       alt=""
                     />
                     <p className="mt-2 fw-bold text-center">Vợt cầu lông {item}</p>
-                    <span className={styles.price}> {item}99.000đ</span>
+                     <div className={styles.priceWrapper}>
+                      <span className={styles.salePrice}>{item * 80}.000đ</span>
+                      <span className={styles.originalPrice}>{item}99.000đ</span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -111,7 +117,10 @@ const HomePage = () => {
                       alt=""
                     />
                     <p className="mt-2 fw-bold text-center">Vợt cầu lông {item}</p>
-                    <span className={styles.price}> {item}99.000đ</span>
+                     <div className={styles.priceWrapper}>
+                      <span className={styles.salePrice}>{item * 80}.000đ</span>
+                      <span className={styles.originalPrice}>{item}99.000đ</span>
+                    </div>
                   </div>
                 </div>
               ))}

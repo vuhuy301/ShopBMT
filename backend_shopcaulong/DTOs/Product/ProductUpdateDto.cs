@@ -13,9 +13,9 @@ namespace backend_shopcaulong.DTOs.Product
     public bool? IsFeatured { get; set; }
 
     // Nếu có gửi ảnh mới → thay thế toàn bộ
-    [FromForm] public IFormFileCollection? ImageFiles { get; set; }
+    public IFormFileCollection? ImageFiles { get; set; }
 
-    [FromForm] public List<ProductDetailCreateDto>? Details { get; set; }
-    [FromForm] public List<ProductVariantCreateDto>? Variants { get; set; }
-}
+    public List<ProductDetailCreateDto>? Details { get; set; }
+    public List<ProductVariantCreateDto>? Variants { get; set; }
+    }
 }

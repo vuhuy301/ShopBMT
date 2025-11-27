@@ -9,6 +9,9 @@ using Google.Apis.Auth;
 
 namespace backend_shopcaulong.Controllers
 {
+    /// <summary>
+    /// API quản lý người dùng (đăng ký, đăng nhập, thông tin cá nhân,...)
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -22,6 +25,10 @@ namespace backend_shopcaulong.Controllers
             _userService = userService;
             _jwtTokenService = jwtTokenService;             // thêm dòng này
         }
+
+        /// <summary>
+        /// Lấy danh sách tất cả người dùng (dành cho Admin).
+        /// </summary>
         // [Authorize(Roles = "Admin")]
         [HttpGet("all")]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsers()
@@ -30,7 +37,9 @@ namespace backend_shopcaulong.Controllers
             return Ok(users);
         }
 
-
+        /// <summary>
+        /// Đăng ký tài khoản mới.
+        /// </summary>
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register([FromBody] RegisterDto registerDto)
         {
@@ -44,7 +53,9 @@ namespace backend_shopcaulong.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-
+        /// <summary>
+        /// Đăng nhập với email và mật khẩu, trả về JWT token.
+        /// </summary>
         [HttpPost("login")]
         public async Task<ActionResult> Login([FromBody] LoginDto loginDto)
         {
@@ -55,6 +66,9 @@ namespace backend_shopcaulong.Controllers
             return Ok(new { accessToken = token });
         }
 
+        /// <summary>
+        /// Lấy thông tin hồ sơ người dùng hiện tại.
+        /// </summary>
         [Authorize]
         [HttpGet("profile")]
         public async Task<ActionResult<UserDto>> GetProfile()
@@ -65,7 +79,9 @@ namespace backend_shopcaulong.Controllers
             return Ok(user);
         }
 
-
+        /// <summary>
+        /// Cập nhật thông tin hồ sơ người dùng hiện tại.
+        /// </summary>
         [Authorize]
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
@@ -76,6 +92,9 @@ namespace backend_shopcaulong.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Đổi mật khẩu người dùng hiện tại.
+        /// </summary>
         [Authorize]
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
@@ -88,6 +107,9 @@ namespace backend_shopcaulong.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Gửi email yêu cầu đặt lại mật khẩu.
+        /// </summary>
         [HttpPost("reset-password-request")]
         public async Task<IActionResult> ResetPasswordRequest([FromBody] ResetPasswordRequestDto dto)
         {
@@ -96,7 +118,9 @@ namespace backend_shopcaulong.Controllers
 
             return Ok(new { message = "Email đổi mật khẩu đã được gửi (nếu email tồn tại)" });
         }
-
+        /// <summary>
+        /// Đặt lại mật khẩu bằng token được gửi qua email.
+        /// </summary>
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
         {
@@ -105,6 +129,10 @@ namespace backend_shopcaulong.Controllers
 
             return NoContent();
         }
+
+        /// <summary>
+        /// Đăng nhập bằng Google OAuth, trả về JWT token và thông tin người dùng.
+        /// </summary>
         [HttpPost("google-login")]
         public async Task<ActionResult> GoogleLogin([FromBody] GoogleLoginDto dto)
         {

@@ -16,8 +16,28 @@ namespace backend_shopcaulong.Controllers.Admin
         {
             _categoryService = categoryService;
         }
+          /// <summary>
+        /// Lấy tất cả danh mục.
+        /// </summary>
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAll()
+        {
+            return Ok(await _categoryService.GetAllAsync());
+        }
 
-        // Tạo category
+        /// <summary>
+        /// Lấy chi tiết danh mục theo ID.
+        /// </summary>
+        /// <param name="id">ID danh mục.</param>
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CategoryDto>> GetById(int id)
+        {
+            var cat = await _categoryService.GetByIdAsync(id);
+            return cat == null ? NotFound() : Ok(cat);
+        }
+        /// <summary>
+        /// Tạo danh mục sản phẩm
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult<CategoryDto>> Create(CategoryCreateUpdateDto dto)
         {
@@ -26,6 +46,9 @@ namespace backend_shopcaulong.Controllers.Admin
         }
 
         // Cập nhật category
+        /// <summary>
+        /// Cập nhật mục sản phẩm
+        /// </summary>
         [HttpPut("{id}")]
         public async Task<ActionResult<CategoryDto>> Update(int id, CategoryCreateUpdateDto dto)
         {
@@ -34,6 +57,9 @@ namespace backend_shopcaulong.Controllers.Admin
         }
 
         // Xóa category
+        /// <summary>
+        /// Xóa mục sản phẩm
+        /// </summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

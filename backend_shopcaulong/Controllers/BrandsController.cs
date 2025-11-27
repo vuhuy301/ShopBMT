@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace backend_shopcaulong.Controllers
 {
+    /// <summary>
+    /// API xem thông tin thương hiệu.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class BrandsController : ControllerBase
@@ -14,7 +17,9 @@ namespace backend_shopcaulong.Controllers
             _brandService = brandService;
         }
 
-        // User xem danh sách brand
+        /// <summary>
+        /// Lấy danh sách tất cả thương hiệu.
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -22,7 +27,10 @@ namespace backend_shopcaulong.Controllers
             return Ok(brands);
         }
 
-        // User xem chi tiết brand
+        /// <summary>
+        /// Lấy chi tiết thương hiệu theo ID.
+        /// </summary>
+        /// <param name="id">ID thương hiệu.</param>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {

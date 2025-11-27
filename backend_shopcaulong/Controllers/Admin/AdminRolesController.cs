@@ -19,6 +19,10 @@ public class RolesController : ControllerBase
         _roleService = roleService;
     }
 
+    // Lấy danh sách quyền
+    /// <summary>
+    /// Lấy tất cả quyền.
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -26,36 +30,53 @@ public class RolesController : ControllerBase
         return Ok(roles);
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
-    {
-        var role = await _roleService.GetByIdAsync(id);
-        if (role == null) return NotFound();
-        return Ok(role);
-    }
+        // Lấy quyền theo ID
+        /// <summary>
+        /// Lấy quyền theo ID.
+        /// </summary>
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var role = await _roleService.GetByIdAsync(id);
+            if (role == null) return NotFound();
+            return Ok(role);
+        }
 
-    [HttpPost]
-    public async Task<IActionResult> Create(RoleCreateDto dto)
-    {
-        var role = await _roleService.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = role.Id }, role);
-    }
+        // Tạo quyền mới
+        /// <summary>
+        /// Tạo quyền mới.
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> Create(RoleCreateDto dto)
+        {
+            var role = await _roleService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = role.Id }, role);
+        }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, RoleUpdateDto dto)
-    {
-        var updatedRole = await _roleService.UpdateAsync(id, dto);
-        if (updatedRole == null) return NotFound();
-        return Ok(updatedRole);
-    }
+        // Cập nhật quyền
+        /// <summary>
+        /// Cập nhật quyền.
+        /// </summary>
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, RoleUpdateDto dto)
+        {
+            var updatedRole = await _roleService.UpdateAsync(id, dto);
+            if (updatedRole == null) return NotFound();
+            return Ok(updatedRole);
+        }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var success = await _roleService.DeleteAsync(id);
-        if (!success) return NotFound();
-        return NoContent();
-    }
+        // Xóa quyền
+        /// <summary>
+        /// Xóa quyền.
+        /// </summary>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var success = await _roleService.DeleteAsync(id);
+            if (!success) return NotFound();
+            return NoContent();
+        }
+
 }
    
 }

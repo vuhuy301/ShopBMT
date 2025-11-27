@@ -18,7 +18,15 @@ public class AdminBrandsController : ControllerBase
     {
         _brandService = brandService;
     }
-
+     /// <summary>
+        /// Lấy danh sách tất cả thương hiệu.
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var brands = await _brandService.GetAllAsync();
+            return Ok(brands);
+        }
     /// <summary>
     /// Tạo thương hiệu mới.
     /// </summary>

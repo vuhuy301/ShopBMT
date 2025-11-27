@@ -9,6 +9,6 @@ namespace backend_shopcaulong.DTOs.Product
         public int Stock { get; set; }
         public decimal? Price { get; set; }
         public decimal? DiscountPrice { get; set; }
-        [FromForm] public IFormFile? ImageFile { get; set; } // ảnh riêng cho màu này
+        public IFormFile? ImageFile { get; set; } // ảnh riêng cho màu này
     }
 }

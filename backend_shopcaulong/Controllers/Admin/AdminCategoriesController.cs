@@ -16,7 +16,25 @@ namespace backend_shopcaulong.Controllers.Admin
         {
             _categoryService = categoryService;
         }
+          /// <summary>
+        /// Lấy tất cả danh mục.
+        /// </summary>
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAll()
+        {
+            return Ok(await _categoryService.GetAllAsync());
+        }
 
+        /// <summary>
+        /// Lấy chi tiết danh mục theo ID.
+        /// </summary>
+        /// <param name="id">ID danh mục.</param>
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CategoryDto>> GetById(int id)
+        {
+            var cat = await _categoryService.GetByIdAsync(id);
+            return cat == null ? NotFound() : Ok(cat);
+        }
         /// <summary>
         /// Tạo danh mục sản phẩm
         /// </summary>

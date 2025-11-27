@@ -17,7 +17,10 @@ namespace backend_shopcaulong.Controllers.Admin
             _userService = userService;
         }
 
-        // GET: api/admin/users
+        // Lấy danh sách người dùng
+        /// <summary>
+        /// Lấy tất cả người dùng.
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -25,7 +28,10 @@ namespace backend_shopcaulong.Controllers.Admin
             return Ok(users);
         }
 
-        // GET: api/admin/users/5
+        // Lấy người dùng theo ID
+        /// <summary>
+        /// Lấy người dùng theo ID.
+        /// </summary>
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetUserById(int userId)
         {
@@ -34,7 +40,10 @@ namespace backend_shopcaulong.Controllers.Admin
             return Ok(user);
         }
 
-        // POST: api/admin/users/create-employee
+        // Tạo nhân viên
+        /// <summary>
+        /// Tạo tài khoản nhân viên.
+        /// </summary>
         [HttpPost("create-employee")]
         public async Task<IActionResult> CreateEmployee(CreateEmployeeDto dto)
         {
@@ -42,7 +51,10 @@ namespace backend_shopcaulong.Controllers.Admin
             return Ok(emp);
         }
 
-        // PUT: api/admin/users/5/role?newRole=Employee
+        // Cập nhật quyền người dùng
+        /// <summary>
+        /// Cập nhật quyền cho người dùng.
+        /// </summary>
         [HttpPut("{userId}/role")]
         public async Task<IActionResult> UpdateUserRole(int userId, [FromQuery] string newRole)
         {
@@ -50,6 +62,7 @@ namespace backend_shopcaulong.Controllers.Admin
             if (!success) return NotFound();
             return Ok(new { message = "Cập nhật quyền thành công" });
         }
+
 
         // DELETE: api/admin/users/5
         // [HttpDelete("{userId}")]

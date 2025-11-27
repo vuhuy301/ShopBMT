@@ -7,6 +7,9 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace backend_shopcaulong.Controllers
 {
+    /// <summary>
+    /// API quản lý giỏ hàng và đơn hàng của người dùng.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class CartsController : ControllerBase
@@ -19,7 +22,9 @@ namespace backend_shopcaulong.Controllers
             _orderService = orderService;
         }
 
-        // Lấy giỏ hàng của user
+        /// <summary>
+        /// Lấy giỏ hàng của người dùng hiện tại.
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetCart()
         {
@@ -27,14 +32,10 @@ namespace backend_shopcaulong.Controllers
             var cart = await _cartService.GetCartAsync(userId);
             return Ok(cart);
         }
-        // [HttpGet("{cartItemsId}")]
-        // public async Task<IActionResult> GetCartByCartItemsId(int cartItemsId)
-        // {
-        //     int userId = GetCurrentUserId();
-        //     await _cartService.RemoveItemAsync(userId, cartItemsId);
-        //     return Ok(new { message = "Removed" });
-        // }
-        // Thêm item
+
+        /// <summary>
+        /// Thêm sản phẩm vào giỏ hàng.
+        /// </summary>
         [HttpPost("add")]
         public async Task<IActionResult> AddToCart([FromBody] CartAddItemDto dto)
         {
@@ -43,7 +44,9 @@ namespace backend_shopcaulong.Controllers
             return Ok(new { message = "Added to cart" });
         }
 
-        // Cập nhật số lượng
+        /// <summary>
+        /// Cập nhật số lượng sản phẩm trong giỏ hàng.
+        /// </summary>
         [HttpPut("update")]
         public async Task<IActionResult> UpdateItem([FromBody] CartUpdateItemDto dto)
         {
@@ -52,7 +55,10 @@ namespace backend_shopcaulong.Controllers
             return Ok(new { message = "Updated" });
         }
 
-        // Xóa item
+        /// <summary>
+        /// Xóa sản phẩm khỏi giỏ hàng.
+        /// </summary>
+        /// <param name="itemId">ID sản phẩm trong giỏ hàng.</param>
         [HttpDelete("{itemId}")]
         public async Task<IActionResult> RemoveItem(int itemId)
         {
@@ -61,7 +67,10 @@ namespace backend_shopcaulong.Controllers
             return Ok(new { message = "Removed" });
         }
 
-        // Tích chọn / bỏ chọn item
+        /// <summary>
+        /// Tích hoặc bỏ tích chọn sản phẩm trong giỏ hàng.
+        /// </summary>
+        /// <param name="itemId">ID sản phẩm trong giỏ hàng.</param>
         [HttpPut("toggle-select/{itemId}")]
         public async Task<IActionResult> ToggleSelect(int itemId)
         {
@@ -70,7 +79,9 @@ namespace backend_shopcaulong.Controllers
             return Ok(new { message = "Toggled select" });
         }
 
-        // CHECKOUT
+        /// <summary>
+        /// Thanh toán giỏ hàng.
+        /// </summary>
         [HttpPost("checkout")]
         public async Task<IActionResult> Checkout([FromBody] CheckoutRequestDto dto)
         {
@@ -78,7 +89,10 @@ namespace backend_shopcaulong.Controllers
             var result = await _cartService.CheckoutAsync(userId, dto);
             return Ok(result);
         }
-        // LẤY TẤT CẢ ĐƠN HÀNG CỦA TÔI
+
+        /// <summary>
+        /// Lấy tất cả đơn hàng của người dùng hiện tại.
+        /// </summary>
         [HttpGet("my-orders")]
         public async Task<IActionResult> GetMyOrders()
         {
@@ -87,7 +101,10 @@ namespace backend_shopcaulong.Controllers
             return Ok(orders);
         }
 
-        // XEM CHI TIẾT 1 ĐƠN HÀNG CỦA TÔI
+        /// <summary>
+        /// Lấy chi tiết đơn hàng của người dùng theo ID đơn hàng.
+        /// </summary>
+        /// <param name="orderId">ID đơn hàng.</param>
         [HttpGet("my-orders/{orderId}")]
         public async Task<IActionResult> GetMyOrderDetail(int orderId)
         {

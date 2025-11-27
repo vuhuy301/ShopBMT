@@ -16,18 +16,31 @@ namespace backend_shopcaulong.Controllers.Admin
         {
             _productService = productService;
         }
+        // Thêm vào AdminProductsController
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetAll()
+        {
+            var products = await _productService.GetAllAsync(); // dùng chung service
+            return Ok(products);
+        }
 
         // Tạo sản phẩm
+        /// <summary>
+        /// Tạo mới một sản phẩm.
+        /// </summary>
         [HttpPost]
-        public async Task<ActionResult<ProductDto>> Create(ProductCreateDto dto)
+        public async Task<ActionResult<ProductDto>> Create([FromForm] ProductCreateDto dto)
         {
             var product = await _productService.CreateAsync(dto);
             return CreatedAtAction(nameof(Create), new { id = product.Id }, product);
         }
 
         // Cập nhật sản phẩm
+        /// <summary>
+        /// Cập nhật thông tin sản phẩm.
+        /// </summary>
         [HttpPut("{id}")]
-        public async Task<ActionResult<ProductDto>> Update(int id, ProductUpdateDto dto)
+        public async Task<ActionResult<ProductDto>> Update(int id,[FromForm]  ProductUpdateDto dto)
         {
             var product = await _productService.UpdateAsync(id, dto);
             if (product == null) return NotFound();
@@ -35,6 +48,9 @@ namespace backend_shopcaulong.Controllers.Admin
         }
 
         // Xóa sản phẩm
+        /// <summary>
+        /// Xóa sản phẩm theo ID.
+        /// </summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -42,5 +58,6 @@ namespace backend_shopcaulong.Controllers.Admin
             if (!result) return NotFound();
             return NoContent();
         }
+
     }
 }

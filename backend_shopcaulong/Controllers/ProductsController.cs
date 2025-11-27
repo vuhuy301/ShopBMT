@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace backend_shopcaulong.Controllers
 {
+    /// <summary>
+    /// API quản lý sản phẩm.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
@@ -15,7 +18,9 @@ namespace backend_shopcaulong.Controllers
             _productService = productService;
         }
 
-        // Get tất cả sản phẩm
+        /// <summary>
+        /// Lấy tất cả sản phẩm.
+        /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetAll()
         {
@@ -23,7 +28,10 @@ namespace backend_shopcaulong.Controllers
             return Ok(products);
         }
 
-        // Get sản phẩm theo id
+        /// <summary>
+        /// Lấy sản phẩm theo ID.
+        /// </summary>
+        /// <param name="id">ID sản phẩm.</param>
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductDto>> GetById(int id)
         {
@@ -32,7 +40,11 @@ namespace backend_shopcaulong.Controllers
             return Ok(product);
         }
 
-        // Lấy sản phẩm có phân trang
+        /// <summary>
+        /// Lấy sản phẩm theo trang với phân trang.
+        /// </summary>
+        /// <param name="page">Số trang, mặc định 1.</param>
+        /// <param name="pageSize">Số mục trên trang, mặc định 10.</param>
         [HttpGet("paged")]
         public async Task<IActionResult> GetPaged([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
@@ -40,7 +52,15 @@ namespace backend_shopcaulong.Controllers
             return Ok(result);
         }
 
-        // API lọc sản phẩm
+        /// <summary>
+        /// Lọc sản phẩm theo tiêu chí.
+        /// </summary>
+        /// <param name="categoryId">ID danh mục (tùy chọn).</param>
+        /// <param name="brandId">ID thương hiệu (tùy chọn).</param>
+        /// <param name="search">Từ khóa tìm kiếm (tùy chọn).</param>
+        /// <param name="sortBy">Sắp xếp (tùy chọn).</param>
+        /// <param name="page">Số trang, mặc định 1.</param>
+        /// <param name="pageSize">Số mục trên trang, mặc định 10.</param>
         [HttpGet("filter")]
         public async Task<IActionResult> Filter(
             [FromQuery] int? categoryId,
@@ -62,7 +82,10 @@ namespace backend_shopcaulong.Controllers
             return Ok(result);
         }
 
-        // Top sản phẩm mới theo category
+        /// <summary>
+        /// Lấy top sản phẩm mới theo danh mục.
+        /// </summary>
+        /// <param name="categoryId">ID danh mục.</param>
         [HttpGet("top-new/category/{categoryId}")]
         public async Task<IActionResult> GetTopNewByCategory(int categoryId)
         {

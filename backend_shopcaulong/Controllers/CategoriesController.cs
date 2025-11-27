@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace backend_shopcaulong.Controllers
 {
+    /// <summary>
+    /// API quản lý danh mục sản phẩm.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class CategoriesController : ControllerBase
@@ -15,14 +18,19 @@ namespace backend_shopcaulong.Controllers
             _categoryService = categoryService;
         }
 
-        // User xem tất cả category
+        /// <summary>
+        /// Lấy tất cả danh mục.
+        /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAll()
         {
             return Ok(await _categoryService.GetAllAsync());
         }
 
-        // User xem chi tiết category
+        /// <summary>
+        /// Lấy chi tiết danh mục theo ID.
+        /// </summary>
+        /// <param name="id">ID danh mục.</param>
         [HttpGet("{id}")]
         public async Task<ActionResult<CategoryDto>> GetById(int id)
         {

@@ -42,6 +42,7 @@
   height: 40px; /* giới hạn tên 2 dòng */
   overflow: hidden;
   text-overflow: ellipsis;
+  cursor: pointer;
 }
 
 button.btn {

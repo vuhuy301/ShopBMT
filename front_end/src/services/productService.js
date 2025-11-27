@@ -14,3 +14,14 @@ export const getProducts = async ({ categoryId, page = 1, pageSize = 10 }) => {
     return { items: [], totalItems: 0, totalPages: 0, page: 1, pageSize: 10 };
   }
 };
+
+export const getProductById = async (id) => {
+  try {
+    const res = await fetch(`${BASE_URL}/Products/${id}`);
+    if (!res.ok) throw new Error("Failed to fetch product");
+    return await res.json();
+  } catch (error) {
+    console.error("Error:", error);
+    return null;
+  }
+};

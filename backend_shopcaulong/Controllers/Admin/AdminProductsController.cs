@@ -18,6 +18,9 @@ namespace backend_shopcaulong.Controllers.Admin
         }
 
         // Tạo sản phẩm
+        /// <summary>
+        /// Tạo mới một sản phẩm.
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult<ProductDto>> Create(ProductCreateDto dto)
         {
@@ -26,6 +29,9 @@ namespace backend_shopcaulong.Controllers.Admin
         }
 
         // Cập nhật sản phẩm
+        /// <summary>
+        /// Cập nhật thông tin sản phẩm.
+        /// </summary>
         [HttpPut("{id}")]
         public async Task<ActionResult<ProductDto>> Update(int id, ProductUpdateDto dto)
         {
@@ -35,6 +41,9 @@ namespace backend_shopcaulong.Controllers.Admin
         }
 
         // Xóa sản phẩm
+        /// <summary>
+        /// Xóa sản phẩm theo ID.
+        /// </summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -42,5 +51,6 @@ namespace backend_shopcaulong.Controllers.Admin
             if (!result) return NotFound();
             return NoContent();
         }
+
     }
 }

@@ -17,7 +17,9 @@ namespace backend_shopcaulong.Controllers.Admin
             _categoryService = categoryService;
         }
 
-        // Tạo category
+        /// <summary>
+        /// Tạo danh mục sản phẩm
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult<CategoryDto>> Create(CategoryCreateUpdateDto dto)
         {
@@ -26,6 +28,9 @@ namespace backend_shopcaulong.Controllers.Admin
         }
 
         // Cập nhật category
+        /// <summary>
+        /// Cập nhật mục sản phẩm
+        /// </summary>
         [HttpPut("{id}")]
         public async Task<ActionResult<CategoryDto>> Update(int id, CategoryCreateUpdateDto dto)
         {
@@ -34,6 +39,9 @@ namespace backend_shopcaulong.Controllers.Admin
         }
 
         // Xóa category
+        /// <summary>
+        /// Xóa mục sản phẩm
+        /// </summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

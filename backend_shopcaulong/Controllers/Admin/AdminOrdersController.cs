@@ -7,9 +7,14 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace backend_shopcaulong.Controllers.Admin
 {
+
+namespace backend_shopcaulong.Controllers.Admin
+{
+    /// <summary>
+    /// API quản lý đơn hàng dành cho Admin và Nhân viên.
+    /// </summary>
     [ApiController]
     [Route("api/admin/orders")]
-    // [Authorize(Roles = "Admin,Employee")] // Chỉ Admin và Nhân viên được vào
     public class AdminOrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;
@@ -19,7 +24,9 @@ namespace backend_shopcaulong.Controllers.Admin
             _orderService = orderService;
         }
 
-        // GET: api/admin/orders
+        /// <summary>
+        /// Lấy danh sách tất cả đơn hàng.
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -27,7 +34,10 @@ namespace backend_shopcaulong.Controllers.Admin
             return Ok(orders);
         }
 
-        // GET: api/admin/orders/123
+        /// <summary>
+        /// Lấy chi tiết đơn hàng theo ID.
+        /// </summary>
+        /// <param name="id">ID đơn hàng.</param>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -35,7 +45,10 @@ namespace backend_shopcaulong.Controllers.Admin
             return order == null ? NotFound("Không tìm thấy đơn hàng") : Ok(order);
         }
 
-        // PUT: api/admin/orders/123/approve
+        /// <summary>
+        /// Duyệt đơn hàng.
+        /// </summary>
+        /// <param name="id">ID đơn hàng.</param>
         [HttpPut("{id}/approve")]
         public async Task<IActionResult> Approve(int id)
         {
@@ -45,7 +58,10 @@ namespace backend_shopcaulong.Controllers.Admin
                 : BadRequest("Chỉ có thể duyệt đơn hàng đang ở trạng thái 'Pending'");
         }
 
-        // PUT: api/admin/orders/123/cancel
+        /// <summary>
+        /// Hủy đơn hàng.
+        /// </summary>
+        /// <param name="id">ID đơn hàng.</param>
         [HttpPut("{id}/cancel")]
         public async Task<IActionResult> Cancel(int id)
         {
@@ -55,7 +71,11 @@ namespace backend_shopcaulong.Controllers.Admin
                 : BadRequest("Đơn hàng không tồn tại hoặc đã bị hủy trước đó");
         }
 
-        // PUT: api/admin/orders/123/status
+        /// <summary>
+        /// Cập nhật trạng thái đơn hàng.
+        /// </summary>
+        /// <param name="id">ID đơn hàng.</param>
+        /// <param name="dto">Trạng thái mới.</param>
         [HttpPut("{id}/status")]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateOrderStatusRequest dto)
         {
@@ -89,12 +109,18 @@ namespace backend_shopcaulong.Controllers.Admin
                 newStatus = dto.NewStatus
             });
         }
-        
     }
 
-    // DTO nhỏ gọn cho request
+    /// <summary>
+    /// Request cập nhật trạng thái đơn hàng.
+    /// </summary>
     public class UpdateOrderStatusRequest
     {
+        /// <summary>
+        /// Trạng thái mới của đơn hàng.
+        /// </summary>
         public string NewStatus { get; set; } = string.Empty;
     }
+}
+
 }

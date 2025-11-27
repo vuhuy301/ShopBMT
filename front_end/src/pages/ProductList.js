@@ -10,6 +10,7 @@ const priceOptions = [
   { label: "2 - 3 triệu", min: 2000000, max: 3000000 },
   { label: "3 - 4 triệu", min: 3000000, max: 4000000 },
   { label: "4 - 5 triệu", min: 4000000, max: 5000000 },
+  { label: "Trên 5 triệu", min: 5000000, max: Infinity },
 ];
 
 const ProductList = () => {
@@ -26,22 +27,21 @@ const ProductList = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getProducts({ categoryId, page: currentPage, pageSize: 10 });
+      const data = await getProducts({ categoryId, page: currentPage, pageSize: 12, search });
       setProducts(data.items);
       setTotalPages(data.totalPages);
     };
     fetchData();
-  }, [categoryId, currentPage]);
+  }, [categoryId, currentPage, search]);
 
   const brands = ["all", ...new Set(products.map((p) => p.brandName))];
 
   let filteredProducts = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(search.toLowerCase()) &&
-      (selectedBrand === "all" || p.brandName === selectedBrand) &&
-      p.discountPrice >= selectedPrice.min &&
-      p.discountPrice <= selectedPrice.max
-  );
+  (p) =>
+    (selectedBrand === "all" || p.brandName === selectedBrand) &&
+    p.discountPrice >= selectedPrice.min &&
+    p.discountPrice <= selectedPrice.max
+);
 
   if (sortOrder === "asc") filteredProducts.sort((a, b) => a.discountPrice - b.discountPrice);
   if (sortOrder === "desc") filteredProducts.sort((a, b) => b.discountPrice - a.discountPrice);

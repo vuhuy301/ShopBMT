@@ -1,27 +1,39 @@
 import React, { useState, useEffect } from "react";
-import Header from "../components/Header"
+import Header from "../components/Header";
 import styles from "./HomePage.module.css";
 import { useNavigate } from "react-router-dom";
 import { getCategories } from "../services/categoryService";
+import { getTopNewProductsByCategory } from "../services/productService";
 
 const HomePage = () => {
-
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
+  const [productsByCategory, setProductsByCategory] = useState({}); // lưu sản phẩm theo categoryId
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const data = await getCategories();
-        setCategories(data); // Lưu dữ liệu vào state
-        console.log(data);
+        setCategories(data);
       } catch (error) {
         console.error("Failed to load categories:", error);
       }
     };
-
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const categoryProducts = {};
+      for (const category of categories) {
+        const products = await getTopNewProductsByCategory(category.id);
+        categoryProducts[category.id] = products;
+      }
+      setProductsByCategory(categoryProducts);
+    };
+
+    if (categories.length > 0) fetchProducts();
+  }, [categories]);
 
   return (
     <>
@@ -38,7 +50,9 @@ const HomePage = () => {
                     key={category.id}
                     style={{ cursor: "pointer" }}
                     onClick={() => navigate(`/category/${category.id}`)}
-                  > {category.name}</li>
+                  >
+                    {category.name}
+                  </li>
                 ))}
               </ul>
             </div>
@@ -49,7 +63,10 @@ const HomePage = () => {
 
             {/* Banner lớn */}
             <div className={styles.mainBanner}>
-              <img src="https://file.hstatic.net/200000852613/file/tuyen_dung_fb__1__5df2c07130b3404ca13cb74e549cb983_1024x1024.png" alt="banner" />
+              <img
+                src="https://file.hstatic.net/200000852613/file/tuyen_dung_fb__1__5df2c07130b3404ca13cb74e549cb983_1024x1024.png"
+                alt="banner"
+              />
             </div>
 
             {/* 3 Box nhỏ */}
@@ -65,72 +82,50 @@ const HomePage = () => {
               </div>
             </div>
 
-            {/* HOT PRODUCTS */}
-            <div className={styles.sectionHeader}>
-              <h4>🔥 Hàng Hot Bán Chạy</h4>
-              <a href="/danh-muc/vot-cau-long" className={styles.viewMore}>Xem thêm →</a>
-            </div>
-
-            <div className="row g-3">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-                <div className="col-md-3" key={item}>
-                  <div className={styles.productCard}>
-                    <img src={`https://cdn.hstatic.net/products/200000852613/1_29d313a3d53546baa19c855057a15cee_grande.png`} alt="" />
-                    <p className="mt-2 fw-bold text-center">Sản phẩm {item}</p>
-                    <div className={styles.priceWrapper}>
-                      <span className={styles.salePrice}>{item * 80}.000đ</span>
-                      <span className={styles.originalPrice}>{item}99.000đ</span>
-                    </div>
-                  </div>
+            {/* ==== Hiển thị sản phẩm theo từng category ==== */}
+            {categories.map((category) => (
+              <div key={category.id} className="mb-4">
+                <div className={styles.sectionHeader}>
+                  <h4>🏸 {category.name}</h4>
+                  <a onClick={() => navigate(`/category/${category.id}`)} style={{ cursor: "pointer" }} className={styles.viewMore}>
+                    Xem thêm →
+                  </a>
                 </div>
-              ))}
-            </div>
 
-            {/* ============ DANH MỤC 1 ============= */}
-            <div className={styles.sectionHeader}>
-              <h4>🏸 Vợt Cầu Lông</h4>
-              <a href="/danh-muc/vot-cau-long" className={styles.viewMore}>Xem thêm →</a>
-            </div>
-            <div className="row g-3">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-                <div className="col-md-3" key={`vot-${item}`}>
-                  <div className={styles.productCard}>
-                    <img
-                      src="https://cdn.hstatic.net/products/200000852613/1_29d313a3d53546baa19c855057a15cee_grande.png"
-                      alt=""
-                    />
-                    <p className="mt-2 fw-bold text-center">Vợt cầu lông {item}</p>
-                    <div className={styles.priceWrapper}>
-                      <span className={styles.salePrice}>{item * 80}.000đ</span>
-                      <span className={styles.originalPrice}>{item}99.000đ</span>
+                <div className="row g-3">
+                  {productsByCategory[category.id]?.map((product) => (
+                    <div className="col-md-3" key={product.id}>
+                      <div
+                        className={styles.productCard}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => navigate(`/product/${product.id}`)}
+                      >
+                        <img
+                          src={
+                            product.images.find(img => img.isPrimary)?.imageUrl ||
+                            product.images[0]?.imageUrl
+                          }
+                          alt={product.name}
+                        />
+                        <p className="mt-2 fw-bold text-center">{product.name}</p>
+                        <div className={styles.priceWrapper}>
+                          <span className={styles.salePrice}>
+                            {product.discountPrice
+                              ? product.discountPrice.toLocaleString() + "đ"
+                              : product.price.toLocaleString() + "đ"}
+                          </span>
+                          {product.discountPrice && (
+                            <span className={styles.originalPrice}>
+                              {product.price.toLocaleString()}đ
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-
-            {/* ============ DANH MỤC 1 ============= */}
-            <div className={styles.sectionHeader}>
-              <h4>🏸 Giày cầu lông</h4>
-              <a href="/danh-muc/vot-cau-long" className={styles.viewMore}>Xem thêm →</a>
-            </div>
-            <div className="row g-3">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-                <div className="col-md-3" key={`vot-${item}`}>
-                  <div className={styles.productCard}>
-                    <img
-                      src="https://cdn.hstatic.net/products/200000852613/1_29d313a3d53546baa19c855057a15cee_grande.png"
-                      alt=""
-                    />
-                    <p className="mt-2 fw-bold text-center">Vợt cầu lông {item}</p>
-                    <div className={styles.priceWrapper}>
-                      <span className={styles.salePrice}>{item * 80}.000đ</span>
-                      <span className={styles.originalPrice}>{item}99.000đ</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+              </div>
+            ))}
 
           </div>
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import styles from "./ProductList.module.css";
 import { getProducts } from "../services/productService";
 
@@ -11,7 +12,9 @@ const priceOptions = [
   { label: "4 - 5 triệu", min: 4000000, max: 5000000 },
 ];
 
-const ProductList = ({ categoryId = 1 }) => {
+const ProductList = () => {
+  const navigate = useNavigate();
+  const { categoryId } = useParams();
   const [products, setProducts] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
@@ -110,14 +113,16 @@ const ProductList = ({ categoryId = 1 }) => {
       <div className={styles.productGrid}>
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => {
-            const mainImage = product.images.find((img) => img.isPrimary)?.imageUrl || 
-                              "https://via.placeholder.com/300x300?text=No+Image";
+            const mainImage = product.images.find((img) => img.isPrimary)?.imageUrl ||
+              "https://via.placeholder.com/300x300?text=No+Image";
             return (
               <div key={product.id} className={styles.productCard}>
                 <div className={styles.imgWrapper}>
                   <img src={mainImage} alt={product.name} />
                 </div>
-                <h6 className={styles.productName}>{product.name}</h6>
+                <h6 className={styles.productName}
+                  onClick={() => navigate(`/product/${product.id}`)}
+                >{product.name}</h6>
                 {product.discountPrice < product.price ? (
                   <div>
                     <span className="text-muted text-decoration-line-through me-2">

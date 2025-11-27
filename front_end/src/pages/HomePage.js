@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header"
 import styles from "./HomePage.module.css";
-import { getProducts } from "../services/productService";
+import { useNavigate } from "react-router-dom";
+import { getCategories } from "../services/categoryService";
 
 const HomePage = () => {
 
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await getProducts();
+        const data = await getCategories();
         setCategories(data); // Lưu dữ liệu vào state
         console.log(data);
       } catch (error) {
@@ -32,7 +34,11 @@ const HomePage = () => {
               <h5 className={styles.categoryTitle}>Danh Mục Sản Phẩm</h5>
               <ul>
                 {categories.map((category) => (
-                  <li key={category.id}>{category.name}</li>
+                  <li
+                    key={category.id}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => navigate(`/category/${category.id}`)}
+                  > {category.name}</li>
                 ))}
               </ul>
             </div>
@@ -71,7 +77,7 @@ const HomePage = () => {
                   <div className={styles.productCard}>
                     <img src={`https://cdn.hstatic.net/products/200000852613/1_29d313a3d53546baa19c855057a15cee_grande.png`} alt="" />
                     <p className="mt-2 fw-bold text-center">Sản phẩm {item}</p>
-                     <div className={styles.priceWrapper}>
+                    <div className={styles.priceWrapper}>
                       <span className={styles.salePrice}>{item * 80}.000đ</span>
                       <span className={styles.originalPrice}>{item}99.000đ</span>
                     </div>
@@ -94,7 +100,7 @@ const HomePage = () => {
                       alt=""
                     />
                     <p className="mt-2 fw-bold text-center">Vợt cầu lông {item}</p>
-                     <div className={styles.priceWrapper}>
+                    <div className={styles.priceWrapper}>
                       <span className={styles.salePrice}>{item * 80}.000đ</span>
                       <span className={styles.originalPrice}>{item}99.000đ</span>
                     </div>
@@ -117,7 +123,7 @@ const HomePage = () => {
                       alt=""
                     />
                     <p className="mt-2 fw-bold text-center">Vợt cầu lông {item}</p>
-                     <div className={styles.priceWrapper}>
+                    <div className={styles.priceWrapper}>
                       <span className={styles.salePrice}>{item * 80}.000đ</span>
                       <span className={styles.originalPrice}>{item}99.000đ</span>
                     </div>

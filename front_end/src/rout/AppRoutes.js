@@ -46,7 +46,7 @@ const UserLayout = () => (
     <Header />
     <Routes>
       <Route path="/" element={<Homepage />} />
-      <Route path="/products" element={<ProductList />} />
+      <Route path="/category/:categoryId" element={<ProductList />} />
       <Route path="/product/:id" element={<ProductDetails />} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

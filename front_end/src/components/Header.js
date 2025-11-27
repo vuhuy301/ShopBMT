@@ -1,14 +1,24 @@
 import React from "react";
 import styles from "./Header.module.css";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const navigate = useNavigate();
   return (
     <div className={styles.headerTop}>
       <div className="container d-flex justify-content-between align-items-center py-2">
 
         {/* Logo */}
-        <div className="d-flex align-items-center">
-          <img src="https://aocaulongthietke.com/wp-content/uploads/2022/10/Mau-logo-doi-club-cau-lac-bo-cau-long-thiet-ke-dep-1-400x400.png" alt="logo" className={styles.logo} />
+        <div
+          className="d-flex align-items-center"
+          onClick={() => navigate("/")}
+          style={{ cursor: "pointer" }}
+        >
+          <img
+            src="https://aocaulongthietke.com/wp-content/uploads/2022/10/Mau-logo-doi-club-cau-lac-bo-cau-long-thiet-ke-dep-1-400x400.png"
+            alt="logo"
+            className={styles.logo}
+          />
         </div>
 
         {/* Search */}

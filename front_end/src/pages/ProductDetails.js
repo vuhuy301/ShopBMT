@@ -1,84 +1,58 @@
-import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-
-const products = [
-  {
-    id: 1,
-    name: "Vợt Cầu Lông Kumpoo Power Control K520 Pro",
-    price: 850000,
-    brand: "Kumpoo",
-    colors: ["Đen", "Xanh lá", "Đỏ"],
-    images: [
-      "https://shopvnb.com//uploads/san_pham/vot-cau-long-yonex-astrox-01a-chinh-hang-1.webp",
-      "https://shopvnb.com//uploads/san_pham/vot-cau-long-yonex-astrox-01a-chinh-hang-1.webp",
-      "https://shopvnb.com//uploads/san_pham/vot-cau-long-yonex-astrox-01a-chinh-hang-1.webp",
-    ],
-    description: `Vợt Cầu Lông Kumpoo Power Control K520 Pro - Nâng Cấp Thiết Kế, Chất Lượng Tốt Hơn
-
-1. Giới thiệu vợt cầu lông Kumpoo Power Control K520 Pro
-- Dành cho người chơi phong trào tầm thấp.
-- Trọng lượng 4U, dễ điều khiển, dễ đánh.
-- Khung vợt dạng hộp hỗ trợ lực tốt.
-
-2. Thông số kỹ thuật
-- Độ cứng: Trung bình (8.5)
-- Trọng lượng: 82 ± 2 g (4U)
-- Điểm cân bằng: 290 ± 5 mm
-
-3. Đối tượng phù hợp
-- Lối chơi toàn diện.
-- Người mới chơi hoặc trình độ trung bình.
-
-📷 Một số hình ảnh minh họa khác:
-![minhhoa1](https://shopvnb.com//uploads/san_pham/vot-cau-long-yonex-astrox-01a-chinh-hang-1.webp)
-![minhhoa2](https://shopvnb.com//uploads/san_pham/vot-cau-long-yonex-astrox-01a-chinh-hang-1.webp)
-`
-  },
-];
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { getProductById } from "../services/productService";
 
 const ProductDetails = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
-  const product = products.find((p) => p.id === parseInt(id));
-
+  const [product, setProduct] = useState(null);
   const [mainImageIndex, setMainImageIndex] = useState(0);
-  const [selectedColor, setSelectedColor] = useState(product?.colors[0]);
 
-  const mainImage = product.images[mainImageIndex];
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getProductById(id);
+      setProduct(data);
+    };
+    fetchData();
+  }, [id]);
 
   // Auto slideshow
   useEffect(() => {
+    if (!product) return;
+
     const interval = setInterval(() => {
       setMainImageIndex((prev) =>
         prev === product.images.length - 1 ? 0 : prev + 1
       );
     }, 3000);
-    return () => clearInterval(interval);
-  }, [product.images.length]);
 
-  if (!product) {
-    return (
-      <div className="container mt-4">
-        <h3>Sản phẩm không tồn tại!</h3>
-        <Link to="/" className="btn btn-primary mt-3">Quay lại</Link>
-      </div>
-    );
-  }
+    return () => clearInterval(interval);
+  }, [product]);
+
+  if (!product) return <h3 className="container mt-5">Đang tải sản phẩm...</h3>;
+
+  const mainImage = product.images[mainImageIndex]?.imageUrl;
 
   return (
     <div className="container mt-4">
-      <Link to="/" className="btn btn-secondary mb-3">← Quay lại</Link>
+      <button onClick={() => navigate(-1)} className="btn btn-secondary">
+        Quay lại
+      </button>
 
       <div className="row">
         {/* Ảnh sản phẩm */}
         <div className="col-md-6">
           <img src={mainImage} alt="" className="img-fluid rounded border" />
+
+          {/* Thumbnail */}
           <div className="d-flex gap-2 mt-3">
             {product.images.map((img, index) => (
               <img
                 key={index}
-                src={img}
+                src={img.imageUrl}
                 width="70"
-                className={`border rounded p-1 ${mainImageIndex === index ? "border-primary" : ""}`}
+                className={`border rounded p-1 ${mainImageIndex === index ? "border-primary" : ""
+                  }`}
                 style={{ cursor: "pointer" }}
                 onClick={() => setMainImageIndex(index)}
               />
@@ -86,30 +60,45 @@ const ProductDetails = () => {
           </div>
         </div>
 
-        {/* Chi tiết sản phẩm */}
+        {/* Thông tin sản phẩm */}
         <div className="col-md-6">
           <h3>{product.name}</h3>
-             {/* Thương hiệu */}
-          <p>Thương hiệu: <strong>{product.brand}</strong></p>
-          <p className="text-danger fw-bold fs-4">{product.price.toLocaleString()}đ</p>
-       
-          {/* Chọn màu sắc */}
-          <div className="mt-3">
-            <strong>Màu sắc:</strong>
-            <div className="d-flex gap-2 mt-2">
-              {product.colors.map((color) => (
-                <button
-                  key={color}
-                  className={`btn ${selectedColor === color ? "btn-primary" : "btn-outline-secondary"}`}
-                  onClick={() => setSelectedColor(color)}
-                >
-                  {color}
-                </button>
-              ))}
-            </div>
-          </div>
 
-          <button className="btn btn-success mt-3">Thêm vào giỏ hàng</button>
+          <p>
+            Thương hiệu: <strong>{product.brandName}</strong>
+          </p>
+
+          {/* Giá */}
+          <p className="text-danger fw-bold fs-4">
+            {product.discountPrice
+              ? `${product.discountPrice.toLocaleString()}đ`
+              : `${product.price.toLocaleString()}đ`}
+          </p>
+
+          {product.discountPrice && (
+            <p className="text-decoration-line-through">
+              {product.price.toLocaleString()}đ
+            </p>
+          )}
+
+          {/* 🔥 Tình trạng hàng */}
+          <p className="mt-2">
+            <strong>Tình trạng: </strong>
+            {product.stock > 0 ? (
+              <span className="badge bg-success">Còn hàng</span>
+            ) : (
+              <span className="badge bg-danger">Hết hàng</span>
+            )}
+          </p>
+
+          {/* Nút thêm vào giỏ — tự disable nếu hết hàng */}
+          <button
+            className="btn btn-success mt-3"
+            disabled={product.stock === 0}
+          >
+            Thêm vào giỏ hàng
+          </button>
+
           {/* Ưu đãi */}
           <div className="mt-3 p-3 border rounded bg-light">
             <h5>Ưu đãi</h5>
@@ -120,16 +109,32 @@ const ProductDetails = () => {
             </ul>
           </div>
         </div>
+
       </div>
 
-      {/* Phần mô tả xuống trang khác */}
+      {/* Mô tả chi tiết từ "details" */}
       <div className="mt-5 p-3 border rounded bg-light">
         <h4>Mô tả chi tiết sản phẩm</h4>
-        <div style={{ whiteSpace: "pre-wrap", fontFamily: "inherit" }}>
-          {product.description.split("\n").map((line, idx) => (
-            <p key={idx}>{line}</p>
-          ))}
-        </div>
+
+        {product.details.map((item) => (
+          <div key={item.id} className="mt-4">
+
+            {/* Text trước */}
+            <div style={{ whiteSpace: "pre-wrap" }} className="mb-3">
+              {item.text}
+            </div>
+
+            {/* Ảnh nằm dưới */}
+            {item.imageUrl && (
+              <img
+                src={item.imageUrl}
+                alt=""
+                className="img-fluid rounded"
+                style={{ maxHeight: "600px" }}
+              />
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );

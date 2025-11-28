@@ -331,11 +331,11 @@
                 // 4. Sắp xếp
                 switch (sortBy)
                 {
-                    case "price_asc":
+                    case "asc":
                         query = query.OrderBy(p => p.DiscountPrice ?? p.Price);
                         break;
 
-                    case "price_desc":
+                    case "desc":
                         query = query.OrderByDescending(p => p.DiscountPrice ?? p.Price);
                         break;
 

@@ -22,7 +22,7 @@ const jsonHeaders = {
 
 // === PRODUCT ===
 export const getAllProducts = async () => {
-  const res = await fetch(`${BASE_URL}/api/admin/AdminProducts`, {
+  const res = await fetch(`${BASE_URL}/admin/AdminProducts`, {
     headers: jsonHeaders,
   });
   if (!res.ok) await handleError(res);
@@ -30,7 +30,7 @@ export const getAllProducts = async () => {
 };
 
 export const createProduct = async (formData) => {
-  const response = await fetch(`${BASE_URL}/api/admin/AdminProducts`, {
+  const response = await fetch(`${BASE_URL}/admin/AdminProducts`, {
     method: "POST",
     // KHÔNG ĐƯỢC ĐỘNG VÀO headers → browser tự thêm boundary
     body: formData,
@@ -40,7 +40,7 @@ export const createProduct = async (formData) => {
 };
 
 export const updateProduct = async (id, formData) => {
-  const response = await fetch(`${BASE_URL}/api/admin/AdminProducts/${id}`, {
+  const response = await fetch(`${BASE_URL}/admin/AdminProducts/${id}`, {
     method: "PUT",
     // Không set headers → để browser tự sinh multipart/form-data + boundary
     body: formData,
@@ -50,7 +50,7 @@ export const updateProduct = async (id, formData) => {
 };
 
 export const deleteProduct = async (id) => {
-  const res = await fetch(`${BASE_URL}/api/admin/AdminProducts/${id}`, {
+  const res = await fetch(`${BASE_URL}/admin/AdminProducts/${id}`, {
     method: "DELETE",
     headers: jsonHeaders, // DELETE không có body → có thể set JSON header
   });
@@ -60,7 +60,7 @@ export const deleteProduct = async (id) => {
 
 // === BRAND & CATEGORY ===
 export const getAllBrands = async () => {
-  const res = await fetch(`${BASE_URL}/api/admin/AdminBrands`, {
+  const res = await fetch(`${BASE_URL}/admin/AdminBrands`, {
     headers: jsonHeaders,
   });
   if (!res.ok) await handleError(res);
@@ -68,7 +68,7 @@ export const getAllBrands = async () => {
 };
 
 export const getAllCategories = async () => {
-  const res = await fetch(`${BASE_URL}/api/admin/AdminCategories`, {
+  const res = await fetch(`${BASE_URL}/admin/AdminCategories`, {
     headers: jsonHeaders,
   });
   if (!res.ok) await handleError(res);

@@ -1,5 +1,5 @@
 // src/pages/auth/LoginPage.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./LoginPage.module.css";
 
 const BASE_URL = process.env.REACT_APP_API_URL || "https://localhost:7002";
@@ -11,31 +11,73 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Giải mã JWT thuần JS
-  const parseJwt = (token) => {
-    try {
-      const base64Url = token.split(".")[1];
-      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split("")
-          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join("")
-      );
-      return JSON.parse(jsonPayload);
-    } catch {
-      return {};
-    }
-  };
+  // ==================== GOOGLE LOGIN - CÁCH MỚI NHẤT 2025 ====================
+  useEffect(() => {
+    // Tự động load script Google (không cần index.html)
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
 
-  // LOGIN THƯỜNG
+    script.onload = () => {
+      // Khởi tạo Google Identity
+      window.google.accounts.id.initialize({
+        client_id: "1013063153881-rd02h43rtk2rtsnjtvla6jlm94mt66f5.apps.googleusercontent.com",
+        callback: async (response) => {
+          if (!response.credential) {
+            setError("Đăng nhập Google thất bại");
+            return;
+          }
+
+          setLoading(true);
+          try {
+            const res = await fetch(`${BASE_URL}/Users/google-login`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ token: response.credential }), // Đây là ID Token (rất an toàn)
+            });
+
+            const data = await res.json();
+
+            if (data.accessToken) {
+              localStorage.setItem("accessToken", data.accessToken);
+              localStorage.setItem("role", data.user?.role || "Customer");
+              localStorage.setItem("user", JSON.stringify(data.user || {}));
+              window.location.href = data.user?.role === "Admin" ? "/admin" : "/";
+            } else {
+              setError("Không nhận được token từ server");
+            }
+          } catch (err) {
+            setError("Lỗi kết nối server");
+          } finally {
+            setLoading(false);
+          }
+        },
+      });
+
+      // Render nút Google chính thức (đẹp, chuẩn Google)
+      window.google.accounts.id.renderButton(
+        document.getElementById("googleSignInButton"),
+        {
+          theme: "outline",
+          size: "large",
+          text: "continue_with",
+          width: "340",
+          logo_alignment: "left",
+        }
+      );
+    };
+  }, []);
+
+  // ==================== LOGIN THƯỜNG ====================
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      const res = await fetch(`${BASE_URL}/api/Users/login`, {
+      const res = await fetch(`${BASE_URL}/Users/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,90 +95,23 @@ const LoginPage = () => {
       }
 
       const { accessToken } = await res.json();
-      const payload = parseJwt(accessToken);
 
-      const role =
-        payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ||
-        payload["role"] ||
-        "Customer";
-
-      const fullName =
-        payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ||
-        payload["unique_name"] ||
-        payload["sub"] ||
-        email.split("@")[0];
-
-      const userEmail =
-        payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] ||
-        payload["email"] ||
-        email;
+      // Giải mã nhanh role (giữ nguyên logic cũ của bạn)
+      const payload = JSON.parse(atob(accessToken.split(".")[1]));
+      const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || payload.role || "Customer";
 
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("role", role);
-      localStorage.setItem("user", JSON.stringify({ email: userEmail, fullName, role }));
+      localStorage.setItem("user", JSON.stringify({ email, role }));
 
-      // Điều hướng
-      if (role === "Admin") window.location.href = "/admin/dashboard";
-      else if (role === "Employee") window.location.href = "/employee";
+      if (role === "Admin") window.location.href = "/admin";
+      else if (role === "Staff") window.location.href = "/staff";
       else window.location.href = "/";
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
-
-  // GOOGLE LOGIN (chỉ cần thay CLIENT_ID thật khi deploy)
-  const handleGoogleLogin = () => {
-    const clientId = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"; // ← THAY DÒNG NÀY KHI ĐI PRODUCTION
-    const redirectUri = encodeURIComponent(`${window.location.origin}/google-callback.html`);
-    const scope = "email profile openid";
-
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}`;
-
-    const width = 500, height = 600;
-    const left = window.screenX + (window.outerWidth - width) / 2;
-    const top = window.screenY + (window.outerHeight - height) / 2;
-
-    const popup = window.open(
-      authUrl,
-      "google-login",
-      `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
-    );
-
-    const check = setInterval(() => {
-      if (!popup || popup.closed) {
-        clearInterval(check);
-        return;
-      }
-      try {
-        if (popup.location.href.includes("access_token")) {
-          const hash = popup.location.hash.substring(1);
-          const params = new URLSearchParams(hash);
-          const googleToken = params.get("access_token");
-
-          if (googleToken) {
-            fetch(`${BASE_URL}/api/Users/google-login`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ token: googleToken }),
-            })
-              .then((r) => r.json())
-              .then((data) => {
-                if (data.accessToken) {
-                  localStorage.setItem("accessToken", data.accessToken);
-                  localStorage.setItem("role", data.user?.role || "Customer");
-                  localStorage.setItem("user", JSON.stringify(data.user || {}));
-                  window.location.href = data.user?.role === "Admin" ? "/admin/dashboard" : "/";
-                }
-              })
-              .catch(() => setError("Google login thất bại"));
-          }
-          popup.close();
-          clearInterval(check);
-        }
-      } catch {}
-    }, 500);
   };
 
   return (
@@ -166,7 +141,7 @@ const LoginPage = () => {
             <p>Hệ thống quản trị • Nhân viên • Kho hàng</p>
           </div>
 
-          {/* Form */}
+          {/* Form login thường */}
           <form onSubmit={handleLogin} className={styles.form}>
             <div className={styles.inputGroup}>
               <label><i className="fas fa-envelope me-2"></i>Email</label>
@@ -221,23 +196,11 @@ const LoginPage = () => {
             <span>HOẶC</span>
           </div>
 
-          {/* Google Login */}
-          <button onClick={handleGoogleLogin} className={styles.googleBtn}>
-            <img src="/google-icon.svg" alt="G" width="20" height="20" />
-            Đăng nhập bằng Google
-          </button>
-
-          {/* Test accounts (xóa khi deploy) */}
-          <div className={styles.testAccounts}>
-            <small>
-              <strong>Test nhanh:</strong><br />
-              Admin: <code>admin@shopbmt.com</code> / 123456<br />
-              Nhân viên: <code>employee@shopbmt.com</code> / 123456
-            </small>
-          </div>
-
+          {/* NÚT GOOGLE CHÍNH THỨC – ĐẸP, CHUẨN, KHÔNG CẦN CALLBACK FILE */}
+          <div id="googleSignInButton" style={{ margin: "20px auto", display: "flex", justifyContent: "center" }}></div>
+        
           <div className={styles.footer}>
-            © 2025 Shop Cầu Lông BMT • Được xây dựng với ❤️ bởi Team BMT
+            © 2025 Shop Cầu Lông BMT • Được xây dựng với Team BMT
           </div>
         </div>
       </div>

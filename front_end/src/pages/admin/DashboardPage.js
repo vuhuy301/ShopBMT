@@ -1,6 +1,4 @@
-
-// export default DashboardPage;
-// src/pages/admin/DashboardPage.jsx
+// src/pages/admin/DashboardPage.js
 import React, { useState, useEffect } from "react";
 import {
   getAllProducts,
@@ -11,7 +9,7 @@ import {
   getAllCategories,
 } from "../../services/admin/productAdminService";
 
-// Component preview ảnh + nút xóa
+// Component preview ảnh
 const ImagePreview = ({ file, onRemove }) => {
   const [preview, setPreview] = useState(null);
 
@@ -20,6 +18,7 @@ const ImagePreview = ({ file, onRemove }) => {
     const reader = new FileReader();
     reader.onloadend = () => setPreview(reader.result);
     reader.readAsDataURL(file);
+    return () => reader.abort();
   }, [file]);
 
   if (!file) return null;
@@ -29,7 +28,13 @@ const ImagePreview = ({ file, onRemove }) => {
       <img
         src={preview}
         alt="preview"
-        style={{ width: "120px", height: "120px", objectFit: "cover", borderRadius: "8px", border: "2px solid #ddd" }}
+        style={{
+          width: "120px",
+          height: "120px",
+          objectFit: "cover",
+          borderRadius: "8px",
+          border: "2px solid #ddd",
+        }}
       />
       <button
         type="button"
@@ -44,7 +49,7 @@ const ImagePreview = ({ file, onRemove }) => {
           borderRadius: "50%",
           width: "28px",
           height: "28px",
-          fontSize: "16px",
+          fontSize: "18px",
           cursor: "pointer",
         }}
       >
@@ -72,10 +77,11 @@ const DashboardPage = () => {
   const [categoryId, setCategoryId] = useState("");
   const [isFeatured, setIsFeatured] = useState(false);
 
-  const [imageFiles, setImageFiles] = useState([]); // File[]
-  const [details, setDetails] = useState([]);       // { text: string, imageFile: File|null }
-  const [variants, setVariants] = useState([]);     // { size, color, stock, imageFile }
+  const [imageFiles, setImageFiles] = useState([]);           // ảnh chính
+  const [details, setDetails] = useState([]);                 // mô tả chi tiết
+  const [colorVariants, setColorVariants] = useState([]);     // danh sách màu
 
+  // Load dữ liệu lần đầu
   useEffect(() => {
     const load = async () => {
       try {
@@ -98,12 +104,24 @@ const DashboardPage = () => {
   }, []);
 
   const resetForm = () => {
-    setName(""); setDescription(""); setPrice(""); setDiscountPrice("");
-    setBrandId(""); setCategoryId(""); setIsFeatured(false);
-    setImageFiles([]); setDetails([]); setVariants([]);
+    setName("");
+    setDescription("");
+    setPrice("");
+    setDiscountPrice("");
+    setBrandId("");
+    setCategoryId("");
+    setIsFeatured(false);
+    setImageFiles([]);
+    setDetails([]);
+    setColorVariants([]);
+    setIsEdit(false);
+    setCurrentId(null);
   };
 
-  const openAdd = () => { resetForm(); setIsEdit(false); setShowModal(true); };
+  const openAdd = () => {
+    resetForm();
+    setShowModal(true);
+  };
 
   const openEdit = (p) => {
     resetForm();
@@ -119,21 +137,21 @@ const DashboardPage = () => {
     setShowModal(true);
   };
 
-  // QUAN TRỌNG NHẤT: GỬI ĐÚNG TÊN FIELD PASCALCASE CHO .NET
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
 
+    // Thông tin cơ bản
     formData.append("Name", name.trim());
-    if (description) formData.append("Description", description.trim());
+    if (description.trim()) formData.append("Description", description.trim());
     formData.append("Price", price);
     if (discountPrice) formData.append("DiscountPrice", discountPrice);
     formData.append("BrandId", brandId);
     formData.append("CategoryId", categoryId);
     formData.append("IsFeatured", isFeatured.toString());
 
-    // Ảnh chính
-    imageFiles.forEach((f) => formData.append("ImageFiles", f));
+    // Ảnh chính sản phẩm
+    imageFiles.forEach((file) => formData.append("ImageFiles", file));
 
     // Chi tiết mô tả
     details.forEach((d, i) => {
@@ -142,28 +160,43 @@ const DashboardPage = () => {
       if (d.imageFile) formData.append(`Details[${i}].ImageFile`, d.imageFile);
     });
 
-    // Biến thể
-    variants.forEach((v, i) => {
-      formData.append(`Variants[${i}].Size`, v.size || "");
-      formData.append(`Variants[${i}].Color`, v.color || "");
-      formData.append(`Variants[${i}].Stock`, v.stock?.toString() || "0");
-      formData.append(`Variants[${i}].Price`, price);
-      if (v.discountPrice) formData.append(`Variants[${i}].DiscountPrice`, v.discountPrice);
-      if (v.imageFile) formData.append(`Variants[${i}].ImageFile`, v.imageFile);
+    // Biến thể màu - ĐÚNG 100% với backend
+    colorVariants.forEach((variant, i) => {
+      formData.append(`ColorVariants[${i}].Color`, variant.color?.trim() || "");
+
+      // Nhiều ảnh cho 1 màu
+      if (variant.imageFiles && variant.imageFiles.length > 0) {
+        variant.imageFiles.forEach((file) =>
+          formData.append(`ColorVariants[${i}].ImageFiles`, file)
+        );
+      }
+
+      // Danh sách size
+      if (variant.sizes && variant.sizes.length > 0) {
+        variant.sizes.forEach((size, j) => {
+          formData.append(`ColorVariants[${i}].Sizes[${j}].Size`, size.size?.trim() || "");
+          formData.append(`ColorVariants[${i}].Sizes[${j}].Stock`, size.stock?.toString() || "0");
+          if (size.price && size.price > 0) {
+            formData.append(`ColorVariants[${i}].Sizes[${j}].Price`, size.price.toString());
+          }
+        });
+      }
     });
 
     try {
-      isEdit
-        ? await updateProduct(currentId, formData)
-        : await createProduct(formData);
-
-      alert(isEdit ? "Cập nhật thành công!" : "Thêm sản phẩm thành công!");
+      if (isEdit) {
+        await updateProduct(currentId, formData);
+        alert("Cập nhật thành công!");
+      } else {
+        await createProduct(formData);
+        alert("Thêm sản phẩm thành công!");
+      }
       setShowModal(false);
       const prods = await getAllProducts();
       setProducts(prods);
     } catch (err) {
       console.error(err);
-      alert("Lỗi: " + (err.message || "Không thể lưu sản phẩm"));
+      alert("Lỗi: " + (err.response?.data?.message || err.message));
     }
   };
 
@@ -189,6 +222,7 @@ const DashboardPage = () => {
           border: "none",
           borderRadius: "8px",
           fontSize: "16px",
+          cursor: "pointer",
         }}
       >
         + Thêm sản phẩm mới
@@ -205,30 +239,23 @@ const DashboardPage = () => {
               style={{
                 border: "1px solid #eee",
                 padding: "15px",
-                margin: "10px 0",
+                margin: "12px 0",
                 borderRadius: "10px",
-                display: "flex",
-                justifyContent: "space-between",
-                background: "#fafafa",
+                background: "#f9f9f9",
               }}
             >
-              <div>
-                <strong>{p.name}</strong>{" "}
-                <small>
-                  ({p.brandName} - {p.categoryName})
-                </small>
-                <div style={{ fontSize: "14px", color: "#555" }}>
-                  Giá: {Number(p.price).toLocaleString()}₫
-                  {p.discountPrice && (
-                    <span style={{ color: "red", marginLeft: "8px" }}>
-                      → {Number(p.discountPrice).toLocaleString()}₫
-                    </span>
-                  )}
-                  <br />
-                  Tồn kho: {p.stock} {p.isFeatured && " [Nổi bật]"}
-                </div>
+              <strong>{p.name}</strong> ({p.brandName} - {p.categoryName})
+              <div style={{ fontSize: "14px", color: "#555" }}>
+                Giá: {Number(p.price).toLocaleString("vi-VN")}₫
+                {p.discountPrice && (
+                  <span style={{ color: "red", marginLeft: "10px" }}>
+                    → {Number(p.discountPrice).toLocaleString("vi-VN")}₫
+                  </span>
+                )}
+                <br />
+                Tồn kho: {p.stock} {p.isFeatured && <span style={{ color: "orange" }}> [Nổi bật]</span>}
               </div>
-              <div>
+              <div style={{ marginTop: "10px" }}>
                 <button
                   onClick={() => openEdit(p)}
                   style={{
@@ -260,13 +287,13 @@ const DashboardPage = () => {
         </div>
       )}
 
-      {/* Modal */}
+      {/* MODAL THÊM/SỬA */}
       {showModal && (
         <div
           style={{
             position: "fixed",
             inset: 0,
-            background: "rgba(0,0,0,0.8)",
+            background: "rgba(0,0,0,0.75)",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -278,65 +305,35 @@ const DashboardPage = () => {
               background: "#fff",
               padding: "30px",
               borderRadius: "12px",
-              width: "1000px",
+              width: "1100px",
               maxHeight: "90vh",
               overflowY: "auto",
             }}
           >
-            <h2 style={{ marginTop: 0 }}>
+            <h2 style={{ margin: 0 }}>
               {isEdit ? "Sửa sản phẩm" : "Thêm sản phẩm mới"}
             </h2>
-            <form onSubmit={handleSubmit}>
+
+            <form onSubmit={handleSubmit} style={{ marginTop: "20px" }}>
+              {/* Các field cơ bản */}
               <input
                 placeholder="Tên sản phẩm *"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  margin: "10px 0",
-                  borderRadius: "6px",
-                  border: "1px solid #ddd",
-                }}
+                style={{ width: "100%", padding: "12px", margin: "10px 0", borderRadius: "6px", border: "1px solid #ccc" }}
               />
-
               <textarea
                 placeholder="Mô tả"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  height: "100px",
-                  borderRadius: "6px",
-                  border: "1px solid #ddd",
-                  margin: "10px 0",
-                }}
+                style={{ width: "100%", padding: "12px", height: "100px", borderRadius: "6px", border: "1px solid #ccc", margin: "10px 0" }}
               />
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
-                <input
-                  type="number"
-                  placeholder="Giá gốc *"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  required
-                  style={{ padding: "12px" }}
-                />
-                <input
-                  type="number"
-                  placeholder="Giá giảm"
-                  value={discountPrice}
-                  onChange={(e) => setDiscountPrice(e.target.value)}
-                  style={{ padding: "12px" }}
-                />
-                <select
-                  value={brandId}
-                  onChange={(e) => setBrandId(e.target.value)}
-                  required
-                  style={{ padding: "12px" }}
-                >
+                <input type="number" placeholder="Giá gốc *" value={price} onChange={(e) => setPrice(e.target.value)} required />
+                <input type="number" placeholder="Giá giảm" value={discountPrice} onChange={(e) => setDiscountPrice(e.target.value)} />
+                <select value={brandId} onChange={(e) => setBrandId(e.target.value)} required>
                   <option value="">Chọn thương hiệu</option>
                   {brands.map((b) => (
                     <option key={b.id} value={b.id}>
@@ -344,12 +341,7 @@ const DashboardPage = () => {
                     </option>
                   ))}
                 </select>
-                <select
-                  value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
-                  required
-                  style={{ padding: "12px" }}
-                >
+                <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} required>
                   <option value="">Chọn danh mục</option>
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -360,24 +352,17 @@ const DashboardPage = () => {
               </div>
 
               <label style={{ display: "block", margin: "15px 0" }}>
-                <input
-                  type="checkbox"
-                  checked={isFeatured}
-                  onChange={(e) => setIsFeatured(e.target.checked)}
-                />{" "}
-                Sản phẩm nổi bật
+                <input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} /> Sản phẩm nổi bật
               </label>
 
-              <hr style={{ margin: "25px 0" }} />
+              <hr />
 
               <h4>Ảnh chính (nhiều ảnh)</h4>
               <input
                 type="file"
                 multiple
                 accept="image/*"
-                onChange={(e) =>
-                  setImageFiles([...imageFiles, ...Array.from(e.target.files)])
-                }
+                onChange={(e) => setImageFiles([...e.target.files])}
               />
               <div style={{ display: "flex", flexWrap: "wrap", marginTop: "10px" }}>
                 {imageFiles.map((f, i) => (
@@ -389,27 +374,25 @@ const DashboardPage = () => {
                 ))}
               </div>
 
-              <h4 style={{ marginTop: "25px" }}>Chi tiết mô tả</h4>
+              <h4 style={{ marginTop: "30px" }}>Chi tiết mô tả</h4>
               {details.map((d, i) => (
-                <div
-                  key={i}
-                  style={{
-                    border: "2px dashed #ccc",
-                    padding: "15px",
-                    borderRadius: "10px",
-                    margin: "15px 0",
-                  }}
-                >
+                <div key={i} style={{ border: "1px dashed #ccc", padding: "15px", margin: "10px 0", borderRadius: "8px" }}>
                   <input
-                    placeholder="Nội dung mô tả"
+                    placeholder="Nội dung"
                     value={d.text || ""}
                     onChange={(e) => {
                       const nd = [...details];
                       nd[i].text = e.target.value;
                       setDetails(nd);
                     }}
-                    style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-                  />
+                   style={{ 
+                    width: "100%",       // giữ nguyên rộng 100%
+                    padding: "10px",     // padding bên trong
+                    height: "120px",     // tăng chiều cao (có thể thay đổi tùy ý)
+                    fontSize: "16px",    // tăng cỡ chữ cho dễ nhìn
+                    boxSizing: "border-box"  // để padding không làm tràn kích thước
+                  }}
+                                  />
                   <input
                     type="file"
                     accept="image/*"
@@ -429,128 +412,159 @@ const DashboardPage = () => {
                       }}
                     />
                   )}
-                  <button
-                    type="button"
-                    onClick={() => setDetails((prev) => prev.filter((_, idx) => idx !== i))}
-                    style={{ color: "red", marginTop: "10px" }}
-                  >
+                  <button type="button" onClick={() => setDetails((prev) => prev.filter((_, idx) => idx !== i))} style={{ color: "red" }}>
                     Xóa đoạn
                   </button>
                 </div>
               ))}
-              <button
-                type="button"
-                onClick={() => setDetails([...details, { text: "", imageFile: null }])}
-                style={{
-                  padding: "10px 20px",
-                  background: "#007bff",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "6px",
-                }}
-              >
+              <button type="button" onClick={() => setDetails([...details, { text: "", imageFile: null }])}>
                 + Thêm đoạn mô tả
               </button>
 
-              <h4 style={{ marginTop: "30px" }}>Biến thể (Size + Màu)</h4>
-              {variants.map((v, i) => (
+              <h4 style={{ marginTop: "40px" }}>Biến thể màu</h4>
+              {colorVariants.map((variant, i) => (
                 <div
                   key={i}
                   style={{
-                    border: "2px dashed #999",
-                    padding: "15px",
-                    borderRadius: "10px",
-                    margin: "15px 0",
+                    border: "2px dashed #007bff",
+                    padding: "20px",
+                    margin: "20px 0",
+                    borderRadius: "12px",
+                    background: "#f0f8ff",
                   }}
                 >
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
-                    <input
-                      placeholder="Size (3U/ 4u)"
-                      value={v.size || ""}
-                      onChange={(e) => {
-                        const nv = [...variants];
-                        nv[i].size = e.target.value;
-                        setVariants(nv);
-                      }}
-                    />
-                    <input
-                      placeholder="Màu (DO , Xanh)"
-                      value={v.color || ""}
-                      onChange={(e) => {
-                        const nv = [...variants];
-                        nv[i].color = e.target.value;
-                        setVariants(nv);
-                      }}
-                    />
-                    <input
-                      type="number"
-                      placeholder="Số lượng"
-                      value={v.stock || ""}
-                      onChange={(e) => {
-                        const nv = [...variants];
-                        nv[i].stock = e.target.value;
-                        setVariants(nv);
-                      }}
-                    />
-                  </div>
-
-                  {/* ĐÃ SỬA DÒNG LỖI TẠI ĐÂY */}
                   <input
-                    type="file"
-                    accept="image/*"
+                    placeholder="Tên màu (Đỏ, Xanh, Trắng...)"
+                    value={variant.color || ""}
                     onChange={(e) => {
-                      const nv = [...variants];
-                      nv[i].imageFile = e.target.files[0] || null;
-                      setVariants(nv);
+                      const nv = [...colorVariants];
+                      nv[i].color = e.target.value;
+                      setColorVariants(nv);
                     }}
-                    style={{ margin: "10px 0" }}
+                    style={{ width: "100%", padding: "12px", fontWeight: "bold" }}
                   />
 
-                  {v.imageFile && (
-                    <ImagePreview
-                      file={v.imageFile}
-                      onRemove={() => {
-                        const nv = [...variants];
-                        nv[i].imageFile = null;
-                        setVariants(nv);
+                  <p style={{ margin: "10px 0 5px 0" }}>
+                    <strong>Ảnh của màu này:</strong>
+                  </p>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={(e) => {
+                      const nv = [...colorVariants];
+                      nv[i].imageFiles = [...(nv[i].imageFiles || []), ...e.target.files];
+                      setColorVariants(nv);
+                    }}
+                  />
+                  <div style={{ display: "flex", flexWrap: "wrap" }}>
+                    {variant.imageFiles?.map((f, j) => (
+                      <ImagePreview
+                        key={j}
+                        file={f}
+                        onRemove={() => {
+                          const nv = [...colorVariants];
+                          nv[i].imageFiles.splice(j, 1);
+                          setColorVariants(nv);
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  <h5 style={{ margin: "15px 0" }}>Size & Tồn kho</h5>
+                  {variant.sizes?.map((size, j) => (
+                    <div
+                      key={j}
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "2fr 1fr 1fr auto",
+                        gap: "10px",
+                        marginBottom: "8px",
                       }}
-                    />
-                  )}
+                    >
+                      <input
+                        placeholder="Size"
+                        value={size.size || ""}
+                        onChange={(e) => {
+                          const nv = [...colorVariants];
+                          nv[i].sizes[j].size = e.target.value;
+                          setColorVariants(nv);
+                        }}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Tồn kho"
+                        value={size.stock || ""}
+                        onChange={(e) => {
+                          const nv = [...colorVariants];
+                          nv[i].sizes[j].stock = parseInt(e.target.value) || 0;
+                          setColorVariants(nv);
+                        }}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Giá riêng (tùy chọn)"
+                        value={size.price || ""}
+                        onChange={(e) => {
+                          const nv = [...colorVariants];
+                          nv[i].sizes[j].price = e.target.value ? parseFloat(e.target.value) : null;
+                          setColorVariants(nv);
+                        }}
+                      />
+                      <button
+                        type="button"
+                        style={{ background: "#dc3545", color: "#fff" }}
+                        onClick={() => {
+                          const nv = [...colorVariants];
+                          nv[i].sizes.splice(j, 1);
+                          setColorVariants(nv);
+                        }}
+                      >
+                        Xóa
+                      </button>
+                    </div>
+                  ))}
                   <button
                     type="button"
-                    onClick={() => setVariants((prev) => prev.filter((_, idx) => idx !== i))}
-                    style={{ color: "red" }}
+                    onClick={() => {
+                      const nv = [...colorVariants];
+                      if (!nv[i].sizes) nv[i].sizes = [];
+                      nv[i].sizes.push({ size: "", stock: 0, price: null });
+                      setColorVariants(nv);
+                    }}
                   >
-                    Xóa biến thể
+                    + Thêm size
+                  </button>
+
+                  <button
+                    type="button"
+                    style={{ color: "red", marginTop: "20px", display: "block" }}
+                    onClick={() => setColorVariants((prev) => prev.filter((_, idx) => idx !== i))}
+                  >
+                    Xóa màu này
                   </button>
                 </div>
               ))}
+
               <button
                 type="button"
                 onClick={() =>
-                  setVariants([...variants, { size: "", color: "", stock: 0, imageFile: null }])
+                  setColorVariants([...colorVariants, { color: "", imageFiles: [], sizes: [] }])
                 }
-                style={{
-                  padding: "10px 20px",
-                  background: "#28a745",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "6px",
-                }}
+                style={{ margin: "20px 0" }}
               >
-                + Thêm biến thể
+                + Thêm một màu mới
               </button>
 
-              <div style={{ marginTop: "40px", textAlign: "right" }}>
+              <div style={{ marginTop: "50px", textAlign: "right" }}>
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
                   style={{
-                    marginRight: "15px",
+                    marginRight: "20px",
                     padding: "12px 24px",
                     background: "#6c757d",
                     color: "#fff",
-                    border: "none",
                     borderRadius: "8px",
                   }}
                 >
@@ -559,10 +573,9 @@ const DashboardPage = () => {
                 <button
                   type="submit"
                   style={{
-                    padding: "14px 32px",
+                    padding: "14px 40px",
                     background: "#28a745",
                     color: "#fff",
-                    border: "none",
                     borderRadius: "8px",
                     fontSize: "16px",
                   }}

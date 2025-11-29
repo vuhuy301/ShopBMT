@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProductById } from "../services/productService";
-
+const IMAGE_BASE = process.env.REACT_APP_IMAGE_BASE_URL;
 const ProductDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -42,14 +42,18 @@ const ProductDetails = () => {
       <div className="row">
         {/* Ảnh sản phẩm */}
         <div className="col-md-6">
-          <img src={mainImage} alt="" className="img-fluid rounded border" />
+          <img
+            src={IMAGE_BASE + mainImage}
+            alt=""
+            className="img-fluid rounded border"
+          />
 
           {/* Thumbnail */}
           <div className="d-flex gap-2 mt-3">
             {product.images.map((img, index) => (
               <img
                 key={index}
-                src={img.imageUrl}
+                src={ IMAGE_BASE + img.imageUrl}
                 width="70"
                 className={`border rounded p-1 ${mainImageIndex === index ? "border-primary" : ""
                   }`}
@@ -127,12 +131,13 @@ const ProductDetails = () => {
             {/* Ảnh nằm dưới */}
             {item.imageUrl && (
               <img
-                src={item.imageUrl}
-                alt=""
+                src={IMAGE_BASE + item.imageUrl}
+                alt={item.name || "product image"}
                 className="img-fluid rounded"
                 style={{ maxHeight: "600px" }}
               />
             )}
+
           </div>
         ))}
       </div>

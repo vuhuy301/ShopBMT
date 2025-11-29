@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import Header from "../components/Header";
+// import Header from "../components/Header";
 import styles from "./HomePage.module.css";
 import { useNavigate } from "react-router-dom";
 import { getCategories } from "../services/categoryService";
 import { getTopNewProductsByCategory } from "../services/productService";
-
+const IMAGE_BASE = process.env.REACT_APP_IMAGE_BASE_URL;
 const HomePage = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
@@ -102,8 +102,11 @@ const HomePage = () => {
                       >
                         <img
                           src={
-                            product.images.find(img => img.isPrimary)?.imageUrl ||
-                            product.images[0]?.imageUrl
+                            IMAGE_BASE +
+                            (
+                              product.images.find(img => img.isPrimary)?.imageUrl ||
+                              product.images[0]?.imageUrl
+                            )
                           }
                           alt={product.name}
                         />

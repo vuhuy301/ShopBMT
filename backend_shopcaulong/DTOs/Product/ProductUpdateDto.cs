@@ -16,6 +16,6 @@ namespace backend_shopcaulong.DTOs.Product
     public IFormFileCollection? ImageFiles { get; set; }
 
     public List<ProductDetailCreateDto>? Details { get; set; }
-    public List<ProductVariantCreateDto>? Variants { get; set; }
+    public List<ColorVariantDto> ColorVariants { get; set; } = new();
     }
 }

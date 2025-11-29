@@ -385,8 +385,14 @@ const DashboardPage = () => {
                       nd[i].text = e.target.value;
                       setDetails(nd);
                     }}
-                    style={{ width: "100%", padding: "10px" }}
-                  />
+                   style={{ 
+                    width: "100%",       // giữ nguyên rộng 100%
+                    padding: "10px",     // padding bên trong
+                    height: "120px",     // tăng chiều cao (có thể thay đổi tùy ý)
+                    fontSize: "16px",    // tăng cỡ chữ cho dễ nhìn
+                    boxSizing: "border-box"  // để padding không làm tràn kích thước
+                  }}
+                                  />
                   <input
                     type="file"
                     accept="image/*"

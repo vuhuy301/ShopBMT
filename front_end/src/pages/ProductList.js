@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./ProductList.module.css";
 import { getProducts } from "../services/productService";
-
+const IMAGE_BASE = process.env.REACT_APP_IMAGE_BASE_URL;
 const priceOptions = [
   { label: "Tất cả", min: 0, max: Infinity },
   { label: "Dưới 1 triệu", min: 0, max: 1000000 },
@@ -118,7 +118,11 @@ const ProductList = () => {
             return (
               <div key={product.id} className={styles.productCard}>
                 <div className={styles.imgWrapper}>
-                  <img src={mainImage} alt={product.name} />
+                  <img 
+                    src={IMAGE_BASE + mainImage} 
+                    alt={product.name} 
+                  />
+
                 </div>
                 <h6 className={styles.productName}
                   onClick={() => navigate(`/product/${product.id}`)}

@@ -1,24 +1,28 @@
-﻿namespace backend_shopcaulong.Models
+﻿using backend_shopcaulong.Models;
+
+public class CartItem
 {
-    public class CartItem
-    {
-        public int Id { get; set; }
-        public int CartId { get; set; }
-        public Cart Cart { get; set; }
+    public int Id { get; set; }
 
-        public int ProductId { get; set; }
-        public Product Product { get; set; }
+    public int CartId { get; set; }
+    public Cart Cart { get; set; }
 
-        public int? VariantId { get; set; }
-        public ProductVariant? Variant { get; set; }
+    public int ProductId { get; set; }
+    public Product Product { get; set; }
 
-        public int Quantity { get; set; }
+    // ⭐ Màu của sản phẩm (ColorVariant)
+    public int ColorVariantId { get; set; }
+    public ProductColorVariant ColorVariant { get; set; }
 
-        // Price lưu giá tại thời điểm thêm vào giỏ (tùy bạn chọn lưu hay lấy lại lúc Checkout)
-        public decimal Price { get; set; }
+    // ⭐ Size nằm trong màu (SizeVariant)
+    public int SizeVariantId { get; set; }
+    public ProductSizeVariant SizeVariant { get; set; }
 
-        // Selected flag — nếu FE muốn tích chọn các item để mua
-        public bool Selected { get; set; } = true;
-    }
+    // số lượng
+    public int Quantity { get; set; }
 
+    // Lưu giá tại thời điểm thêm vào giỏ
+    public decimal Price { get; set; }
+
+    public bool Selected { get; set; } = true;
 }

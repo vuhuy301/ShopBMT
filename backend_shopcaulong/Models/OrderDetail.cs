@@ -10,16 +10,22 @@
         public int ProductId { get; set; }
         public Product Product { get; set; }
 
-        // Số lượng sản phẩm
+        // ⭐ Màu của sản phẩm
+        public int ColorVariantId { get; set; }
+        public ProductColorVariant ColorVariant { get; set; }
+
+        // ⭐ Size của sản phẩm
+        public int SizeVariantId { get; set; }
+        public ProductSizeVariant SizeVariant { get; set; }
+
+        // ⭐ Số lượng mua
         public int Quantity { get; set; }
 
-        // Giá tại thời điểm mua (không lấy giá từ bảng Product)
+        // ⭐ Giá tại thời điểm mua
         public decimal Price { get; set; }
-        public int? VariantId { get; set; }
-        public ProductVariant? Variant { get; set; }
 
-
-        // Tổng tiền item
+        // ⭐ Tổng tiền item
         public decimal Total => Quantity * Price;
     }
+
 }

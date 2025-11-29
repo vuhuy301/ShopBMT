@@ -16,6 +16,7 @@ import ProductList from "../pages/ProductList";
 import ProductDetails from "../pages/ProductDetails";
 import LoginPage from "../pages/LoginPage";
 import AdminLayout from "../layouts/AdminLayout";
+import Cart from "../pages/Cart";
 // import EmployeeLayout from "../layouts/EmployeeLayout"; // bạn tạo sau
 
 // Role-based Route
@@ -44,6 +45,7 @@ const CustomerLayout = () => (
       <Route path="/category/:categoryId" element={<ProductList />} />
       <Route path="/product/:id" element={<ProductDetails />} />
       <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/cart" element={<Cart />} />
     </Routes>
     <Footer />
   </>

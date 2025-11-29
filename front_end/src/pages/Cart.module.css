@@ -1,0 +1,100 @@
+.cartContainer {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.cartHeader {
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.cartItem {
+  display: flex;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.cartItem:last-child {
+  border-bottom: none;
+}
+
+.itemImage {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  margin-right: 20px;
+}
+
+.itemInfo {
+  flex: 1;
+}
+
+.itemName {
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.itemSize {
+  color: #888;
+  font-size: 14px;
+}
+
+.quantityControl {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.quantityBtn {
+  width: 25px;
+  height: 25px;
+  text-align: center;
+  line-height: 25px;
+  border: 1px solid #ccc;
+  background: none;
+  cursor: pointer;
+}
+
+.quantityNumber {
+  margin: 0 10px;
+}
+
+.itemPrice {
+  color: #e74c3c;
+  font-weight: 500;
+}
+
+.removeBtn {
+  cursor: pointer;
+  font-size: 18px;
+  color: #888;
+}
+
+.totalContainer {
+  text-align: right;
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.orderBtn {
+  width: 100%;
+  margin-top: 15px;
+  padding: 12px;
+  background-color: #0040ff;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.orderBtn:hover {
+  background-color: #1d00c3;
+}

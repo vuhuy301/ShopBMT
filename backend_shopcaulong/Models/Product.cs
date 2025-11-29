@@ -1,32 +1,37 @@
-﻿namespace backend_shopcaulong.Models
+﻿using backend_shopcaulong.Models;
+
+public class Product
 {
-    public class Product
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
+    public int Id { get; set; }
+    public string Name { get; set; }
 
-        public string? Description { get; set; }
-        public decimal Price { get; set; }
+    public string? Description { get; set; }
+    public decimal Price { get; set; }
 
-        public int Stock { get; set; }
-        public decimal? DiscountPrice { get; set; }
+    public int Stock { get; set; }
+    public decimal? DiscountPrice { get; set; }
 
-        // Thương hiệu
-        public int BrandId { get; set; }
-        public Brand Brand { get; set; }
-        public int CategoryId { get; set; }
-        public Category Category { get; set; }
-        public ICollection<ProductPromotion> ProductPromotions { get; set; }
+    // Thương hiệu
+    public int BrandId { get; set; }
+    public Brand Brand { get; set; }
 
-        // 1 sp nhiều ảnh
-        public ICollection<ProductImage> Images { get; set; }
+    public int CategoryId { get; set; }
+    public Category Category { get; set; }
 
-        // 1 sp nhiều đoạn mô tả
-        public ICollection<ProductDetail> Details { get; set; }
+    public ICollection<ProductPromotion> ProductPromotions { get; set; }
 
-        public bool IsFeatured { get; set; }
-        public ICollection<StockHistory> StockHistories { get; set; }
-        public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    }
+    // 1 sp nhiều ảnh
+    public ICollection<ProductImage> Images { get; set; }
+
+    // 1 sp nhiều đoạn mô tả
+    public ICollection<ProductDetail> Details { get; set; }
+
+    // ⭐ THÊM NÀY ĐỂ DÙNG BIẾN THỂ
+    public ICollection<ProductColorVariant> ColorVariants { get; set; }
+    public ICollection<ProductSizeVariant> SizeVariants { get; set; }
+
+    public bool IsFeatured { get; set; }
+    public ICollection<StockHistory> StockHistories { get; set; }
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

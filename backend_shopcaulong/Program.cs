@@ -29,12 +29,12 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IBrandService, BrandService>();
-
+builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
-
+builder.Services.AddScoped<IUploadService, UploadService>();
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -110,13 +110,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseCors("AllowAll");
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseDefaultFiles();
+app.UseCors("AllowAll");
+
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseStaticFiles();
-app.UseDefaultFiles();
+
 app.MapControllers();
 
 app.Run();

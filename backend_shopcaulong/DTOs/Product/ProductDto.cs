@@ -8,6 +8,7 @@
         public decimal Price { get; set; }
         public int Stock { get; set; }
         public decimal? DiscountPrice { get; set; }
+        
         public int BrandId { get; set; }
         public string BrandName { get; set; }
         public bool IsFeatured { get; set; }
@@ -17,6 +18,6 @@
 
         public List<ProductImageDto> Images { get; set; } = new();
         public List<ProductDetailDto> Details { get; set; } = new();
-        public List<ProductVariantDto> Variants { get; set; } = new();
+        public List<ColorVariantDto> ColorVariants { get; set; } = new();
     }
 }

@@ -68,7 +68,6 @@ namespace backend_shopcaulong.Services
                             Id = s.Id,
                             Size = s.Size,
                             Stock = s.Stock,
-                            Price = s.Price
                         }).ToList()
                         : new List<SizeVariantDto>()
                 }).ToList()
@@ -235,7 +234,6 @@ namespace backend_shopcaulong.Services
                         {
                             Size = s.Size,
                             Stock = s.Stock,
-                            Price = s.Price ?? dto.Price
                         });
                     }
 
@@ -378,7 +376,6 @@ namespace backend_shopcaulong.Services
                         {
                             Size = s.Size,
                             Stock = s.Stock,
-                            Price = s.Price ?? product.Price
                         });
                     }
 

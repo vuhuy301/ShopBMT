@@ -229,7 +229,7 @@ namespace backend_shopcaulong.Services
                 // Ảnh cho biến thể màu
                 if (cvDto.ImageFiles != null && cvDto.ImageFiles.Count > 0)
                 {
-                    var urls = await _uploadService.UploadProductImagesAsync(cvDto.ImageFiles);
+                    var urls = await _uploadService.UploadVariantImagesAsync(cvDto.ImageFiles);
 
                     colorVariant.Images = urls.Select((url, i) => new ProductImage
                     {
@@ -456,7 +456,7 @@ namespace backend_shopcaulong.Services
                     // Thêm ảnh mới
                     if (cvDto.ImageFiles != null && cvDto.ImageFiles.Count > 0)
                     {
-                        var newUrls = await _uploadService.UploadProductImagesAsync(cvDto.ImageFiles);
+                        var newUrls = await _uploadService.UploadVariantImagesAsync(cvDto.ImageFiles);
                         foreach (var url in newUrls)
                         {
                             cv.Images.Add(new ProductImage

@@ -56,7 +56,7 @@ namespace backend_shopcaulong.Controllers
 
             try
             {
-                var urls = await _uploadService.UploadProductImagesAsync(files);
+                var urls = await _uploadService.UploadVariantImagesAsync(files);
                 return Ok(new
                 {
                     message = $"Upload thành công {urls.Count} ảnh cho một màu (Color Variant)!",

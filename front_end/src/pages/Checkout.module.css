@@ -1,0 +1,91 @@
+.checkoutContainer {
+  max-width: 700px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.section {
+  background: #fff;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.sectionTitle {
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.textarea {
+  min-height: 80px;
+}
+
+.radioLabel {
+  display: block;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.orderItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.itemImage {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  object-fit: cover;
+  margin-right: 12px;
+}
+
+.itemInfo {
+  flex: 1;
+}
+
+.itemName {
+  font-weight: bold;
+}
+
+.itemDetail {
+  font-size: 14px;
+  color: #555;
+}
+
+.itemTotal {
+  font-weight: bold;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+.orderBtn {
+  width: 100%;
+  padding: 15px;
+  background: #ff4d4f;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  border-radius: 8px;
+  cursor: pointer;
+}

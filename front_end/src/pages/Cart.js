@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./Cart.module.css";
 import { getCart, addToCart, removeFromCart, updateQuantity } from "../utils/cartUtils";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
-
+ const navigate = useNavigate();
   useEffect(() => {
     setCartItems(getCart());
   }, []);
@@ -70,7 +71,12 @@ const Cart = () => {
             Tổng tiền: {formatPrice(totalPrice)}
           </div>
 
-          <button className={styles.orderBtn}>ĐẶT HÀNG</button>
+          <button
+            className={styles.orderBtn}
+            onClick={() => navigate("/checkout")}
+          >
+            ĐẶT HÀNG
+          </button>
         </>
       )}
     </div>

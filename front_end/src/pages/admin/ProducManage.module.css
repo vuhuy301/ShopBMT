@@ -1,0 +1,65 @@
+.table-responsive {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 15px rgba(0, 64, 128, 0.2);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.table {
+  border-collapse: separate;
+  border-spacing: 0 12px;
+  background-color: white;
+}
+
+.table thead {
+  background-color: #004080;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #cce6ff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.table td, .table th {
+  vertical-align: middle;
+  padding: 12px 15px;
+  text-align: center;
+}
+
+.table td img {
+  border-radius: 8px;
+  border: 1px solid #004080;
+  box-shadow: 0 1px 5px rgba(0, 64, 128, 0.3);
+}
+
+.btn-warning {
+  background-color: #0073e6;
+  border: none;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.btn-warning:hover {
+  background-color: #005bb5;
+}
+
+.btn-danger {
+  background-color: #cc3300;
+  border: none;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.btn-danger:hover {
+  background-color: #991f00;
+}
+
+.text-center {
+  color: #666;
+  font-style: italic;
+  margin-top: 3rem;
+}

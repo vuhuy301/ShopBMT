@@ -148,7 +148,7 @@ const ProductList = () => {
       </div>
 
       {/* Pagination */}
-      <div className="d-flex justify-content-center mt-4">
+      <div className="d-flex justify-content-center mt-4 mb-4">
         <button
           className="btn btn-outline-primary me-2"
           disabled={currentPage <= 1}

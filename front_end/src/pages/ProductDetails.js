@@ -45,14 +45,27 @@ const ProductDetails = () => {
   // Lấy ảnh hiển thị theo biến thể
   // ------------------------------
   const getImages = () => {
-    if (selectedColor && selectedColor.imageUrls?.length > 0) {
-      return selectedColor.imageUrls.map((url) => ({ imageUrl: url }));
-    }
-    return product.images;
-  };
+  // Nếu đang chọn màu → ưu tiên ảnh biến thể
+  if (selectedColor && selectedColor.imageUrls?.length > 0) {
+    const variantImages = selectedColor.imageUrls.map(url => ({
+      imageUrl: url
+    }));
 
-  const images = getImages();
-  const mainImage = images[mainImageIndex]?.imageUrl;
+    // Thêm ảnh chính của product (nếu có) vào đầu danh sách
+    return [
+      ...(product.images?.length > 0 
+          ? [{ imageUrl: product.images.find(i => i.isPrimary)?.imageUrl }]
+          : []),
+      ...variantImages
+    ];
+  }
+
+  // Không chọn màu → lấy toàn bộ ảnh từ product.images
+  return product.images ?? [];
+};
+
+const images = getImages();
+const mainImage = images[mainImageIndex]?.imageUrl;
 
   // ------------------------------
   // Giá cuối cùng

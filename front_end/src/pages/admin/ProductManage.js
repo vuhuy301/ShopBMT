@@ -1,6 +1,6 @@
 import React from "react";
-import "./ProducList.module.css"
-const ProductList = ({ products, onEdit, onDelete }) => {
+import "./ProducManage.module.css"
+const ProducManage = ({ products, onEdit, onDelete }) => {
   if (products.length === 0) {
     return <div className="text-center py-5 text-muted">Chưa có sản phẩm nào</div>;
   }
@@ -52,4 +52,4 @@ const ProductList = ({ products, onEdit, onDelete }) => {
   );
 };
 
-export default ProductList;
+export default ProducManage;

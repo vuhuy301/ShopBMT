@@ -8,6 +8,7 @@ import {
   getAllBrands,
   getAllCategories,
 } from "../../services/admin/productAdminService";
+import styles from './DashboardPage.module.css';
 
 const IMAGE_BASE = process.env.REACT_APP_IMAGE_BASE_URL || "https://localhost:7002/";
 
@@ -270,7 +271,7 @@ const DashboardPage = () => {
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Segoe UI, sans-serif" }}>
+    <div className={styles.dashboard_page} style={{ padding: "20px", fontFamily: "Segoe UI, sans-serif" }}>
       <h1>Quản Lý Sản Phẩm</h1>
 
       <button

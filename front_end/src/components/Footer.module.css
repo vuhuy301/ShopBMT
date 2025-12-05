@@ -1,9 +1,9 @@
 .footer {
   background: #111;
   color: #ddd;
-  margin-top: 40px;
   padding-top: 20px;
   padding-bottom: 10px;
+  margin-top: auto;
 }
 
 .title {

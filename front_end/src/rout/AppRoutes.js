@@ -5,80 +5,73 @@ import {
   Routes,
   Route,
   Navigate,
-  useLocation,
 } from "react-router-dom";
 
-// Pages & Layouts
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+
 import Homepage from "../pages/HomePage";
 import ProductList from "../pages/ProductList";
 import ProductDetails from "../pages/ProductDetails";
 import LoginPage from "../pages/LoginPage";
-import AdminLayout from "../layouts/AdminLayout";
 import Cart from "../pages/Cart";
-// import EmployeeLayout from "../layouts/EmployeeLayout"; // bạn tạo sau
+import Checkout from "../pages/Checkout";
+
+import AdminLayout from "../layouts/AdminLayout";
+import DashBoardPage from "../pages/admin/DashboardPage";
 
 // Role-based Route
 const RoleRoute = ({ children, allowedRoles = [] }) => {
   const token = localStorage.getItem("accessToken");
-  const role = localStorage.getItem("role"); // "Admin", "Employee", "Customer"
-  const location = useLocation();
+  const role = localStorage.getItem("role");
 
-  if (!token) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-
-  if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
-    return <Navigate to="/" replace />;
-  }
+  if (!token) return <Navigate to="/login" replace />;
+  if (!allowedRoles.includes(role)) return <Navigate to="/" replace />;
 
   return children;
 };
 
-// Layout cho khách hàng
+// Layout khách hàng
 const CustomerLayout = () => (
-  <>
+  <div className="layout-wrapper">
     <Header />
     <Routes>
       <Route path="/" element={<Homepage />} />
       <Route path="/category/:categoryId" element={<ProductList />} />
       <Route path="/product/:id" element={<ProductDetails />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
       <Route path="/cart" element={<Cart />} />
+      <Route path="/checkout" element={<Checkout />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
     <Footer />
-  </>
+  </div>
 );
 
 const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
+
+        {/* Login */}
         <Route path="/login" element={<LoginPage />} />
 
-        {/* Khách hàng */}
+        {/* ================= CUSTOMER ================= */}
         <Route path="/*" element={<CustomerLayout />} />
 
-        {/* Admin */}
+        {/* ================= ADMIN ================= */}
         <Route
-          path="/admin/*"
+          path="/admin"
           element={
             <RoleRoute allowedRoles={["Admin"]}>
               <AdminLayout />
             </RoleRoute>
           }
-        />
+        >
+          <Route index element={<Navigate to="/admin/products" replace />} />
+          <Route path="/admin/products" element={<DashBoardPage />} />
+        </Route>
 
-        {/* Nhân viên */}
-        {/* <Route
-          path="/employee/*"
-          element={
-            <RoleRoute allowedRoles={["Employee"]}>
-              <EmployeeLayout />
-            </RoleRoute>
-          }
-        /> */}
+
       </Routes>
     </BrowserRouter>
   );

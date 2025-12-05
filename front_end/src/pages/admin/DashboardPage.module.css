@@ -1,6 +1,6 @@
-.dashboard-page {
+.dashboard_page {
   padding: 20px;
-  margin-left: 250px;
+margin-left: var(--sidebar-width);
   margin-top: 60px;
   min-height: calc(100vh - 60px);
   background: #ecf0f1;

@@ -1,0 +1,143 @@
+import React, { useState, useEffect } from "react";
+import styles from "./Checkout.module.css";
+import { getCart } from "../utils/cartUtils";
+
+const Checkout = () => {
+    const [cartItems, setCartItems] = useState([]);
+    const [paymentMethod, setPaymentMethod] = useState("cod");
+    const [customer, setCustomer] = useState({
+        name: "",
+        phone: "",
+        address: "",
+    });
+
+    useEffect(() => {
+        setCartItems(getCart());
+    }, []);
+
+    const totalPrice = cartItems.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+    );
+
+    const formatPrice = (price) => price.toLocaleString("vi-VN") + " đ";
+
+    const handleOrder = () => {
+        if (!customer.name || !customer.phone || !customer.address) {
+            alert("Vui lòng điền đầy đủ thông tin giao hàng.");
+            return;
+        }
+
+        const orderData = {
+            customer,
+            paymentMethod,
+            cartItems,
+            totalPrice,
+        };
+
+        console.log("ORDER DATA:", orderData);
+        alert("Đặt hàng thành công (demo)!");
+    };
+
+    return (
+        <div className={styles.checkoutContainer}>
+            <h3 className={styles.title}>Thanh toán</h3>
+
+            {/* Thông tin giao hàng */}
+            <div className={styles.section}>
+                <h4 className={styles.sectionTitle}>Thông tin giao hàng</h4>
+
+                <input
+                    type="text"
+                    placeholder="Họ và tên"
+                    className={styles.input}
+                    value={customer.name}
+                    onChange={(e) => setCustomer({ ...customer, name: e.target.value })}
+                />
+
+                <input
+                    type="text"
+                    placeholder="Số điện thoại"
+                    className={styles.input}
+                    value={customer.phone}
+                    onChange={(e) => setCustomer({ ...customer, phone: e.target.value })}
+                />
+
+                <textarea
+                    placeholder="Địa chỉ giao hàng"
+                    className={styles.textarea}
+                    value={customer.address}
+                    onChange={(e) => setCustomer({ ...customer, address: e.target.value })}
+                ></textarea>
+            </div>
+
+            {/* Phương thức thanh toán */}
+            <div className={styles.section}>
+                <h4 className={styles.sectionTitle}>Phương thức thanh toán</h4>
+
+                <label className={styles.radioLabel}>
+                    <input
+                        type="radio"
+                        value="cod"
+                        checked={paymentMethod === "cod"}
+                        onChange={() => setPaymentMethod("cod")}
+                    />
+                    Thanh toán khi nhận hàng (COD)
+                </label>
+
+                <label className={styles.radioLabel}>
+                    <input
+                        type="radio"
+                        value="bank"
+                        checked={paymentMethod === "bank"}
+                        onChange={() => setPaymentMethod("bank")}
+                    />
+                    Chuyển khoản ngân hàng
+                </label>
+            </div>
+
+            {/* Danh sách sản phẩm */}
+            <div className={styles.section}>
+                <h4 className={styles.sectionTitle}>Đơn hàng của bạn</h4>
+
+                {cartItems.map((item, index) => (
+                    <div className={styles.orderItem}>
+                        <img src={item.image} alt={item.name} className={styles.itemImage} />
+
+                        <div className={styles.itemInfo}>
+                            <div className={styles.itemName}>{item.name}</div>
+
+                            {item.color && (
+                                <div className={styles.itemDetail}>Màu: {item.color}</div>
+                            )}
+
+                            {item.size && (
+                                <div className={styles.itemDetail}>Size: {item.size}</div>
+                            )}
+
+                            <div className={styles.itemDetail}>
+                                SL: {item.quantity} × {formatPrice(item.price)}
+                            </div>
+                        </div>
+
+                        <div className={styles.itemTotal}>
+                            {formatPrice(item.price * item.quantity)}
+                        </div>
+                    </div>
+
+                ))}
+
+                <div className={styles.totalRow}>
+                    <span>Tổng cộng:</span>
+                    <strong>{formatPrice(totalPrice)}</strong>
+                </div>
+            </div>
+
+            <button className={styles.orderBtn} onClick={handleOrder}>
+                XÁC NHẬN ĐẶT HÀNG
+            </button>
+        </div>
+    );
+};
+
+export default Checkout;

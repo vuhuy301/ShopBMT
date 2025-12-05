@@ -236,3 +236,12 @@
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(255, 51, 102, 0.3);
 }
+.bubble a {
+  color: #ff6b9d !important;
+  font-weight: bold !important;
+  text-decoration: underline !important;
+}
+
+.bubble a:hover {
+  color: #ff3366 !important;
+}

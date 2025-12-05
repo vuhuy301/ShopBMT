@@ -134,57 +134,44 @@ class Product(BaseModel):
     details: List[Dict[str, Any]] = []
     colorVariants: List[ColorVariant] = []
 
-# ==========================================================
-# CHUNKING
-# ==========================================================
-# THAY THẾ HÀM create_product_documents bằng cái này
-def create_product_documents(product: dict) -> List[Document]:
-    price = product.get("discountPrice") or product["price"]
-    name = product["name"]
-    brand = product["brandName"]
-    description = product.get("description", "")
-    category = product.get("categoryName", "")
-    featured = "hot" if product.get("isFeatured", False) else ""
-    
+# THAY TOÀN BỘ HÀM create_product_documents BẰNG CÁI NÀY
+def create_product_documents(product: Product) -> List[Document]:
+    price = product.discountPrice or product.price
+    product_id = product.id
+    product_url = f"http://localhost:3000/product/{product_id}"
+
     docs = []
-    
-    # CHUNK 1: THÔNG TIN TỔNG QUÁT (1 DUY NHẤT)
-    full_info = f"{name} {brand} {category} {featured} giá {price:,.0f}đ. {description}"
-    docs.append(
-        Document(
-            page_content=full_info,
-            metadata={
-                "product_id": product["id"], 
-                "type": "full_info",
-                "name": name,
-                "brand": brand,
-                "price": price,
-                "discount_price": product.get("discountPrice"),
-                "description": description
-            }
-        )
-    )
-    
-    # CHUNK 2: TỪNG MÀU (GỘP TẤT CẢ SIZE)
-    for cv in product.get("colorVariants", []):
-        color = cv.get("color", "không màu")
-        available_sizes = [sz["size"] for sz in cv.get("sizes", []) if sz["stock"] > 0]
+
+    info_text = f"{product.name} {product.brandName} giá {price:,.0f}đ"
+    if product.description:
+        info_text += f". {product.description}"
+    info_text += f" Xem chi tiết: {product_url}"
+
+    docs.append(Document(
+        page_content=info_text,
+        metadata={
+            "product_id": product_id,
+            "type": "full_info",
+            "url": product_url
+        }
+    ))
+
+    for cv in product.colorVariants or []:
+        color = (cv.color or "không màu").strip()
+        available_sizes = [s.size for s in (cv.sizes or []) if s.stock > 0]
         if available_sizes:
-            sizes_text = ", ".join(available_sizes)
-            color_variant = f"{name} màu {color} có size {sizes_text} giá {price:,.0f}đ còn hàng"
-            docs.append(
-                Document(
-                    page_content=color_variant,
-                    metadata={
-                        "product_id": product["id"],
-                        "type": "color_variant",
-                        "color": color,
-                        "available_sizes": available_sizes,
-                        "price": price
-                    }
-                )
-            )
-    
+            sizes_str = ", ".join(available_sizes)
+            variant_text = f"{product.name} màu {color} có size {sizes_str} giá {price:,.0f}đ còn hàng. Xem chi tiết: {product_url}"
+            docs.append(Document(
+                page_content=variant_text,
+                metadata={
+                    "product_id": product_id,
+                    "type": "variant",
+                    "color": color,
+                    "url": product_url
+                }
+            ))
+
     return docs
 
 def delete_product_chunks(product_id: int) -> int:
@@ -210,26 +197,22 @@ def build_qa_chain():
         return
     retriever = vectorstore.as_retriever(search_kwargs={"k": 10, "fetch_k": 40})
     template = """
-        Bạn là Linh – nhân viên bán hàng siêu dễ thương, nhanh nhẹn của Shop Cầu Lông Pro.
+        Bạn là Linh – nhân viên bán hàng siêu dễ thương của Shop Cầu Lông Pro.
 
-        Lịch sử trò chuyện:
-        {history}
-
-        Dữ liệu sản phẩm hiện có:
+        DỮ LIỆU SẢN PHẨM (CÓ CHỨA LINK CHI TIẾT):
         {context}
 
         Khách hỏi:
         {question}
 
-        QUY TẮC BẮT BUỘC:
-        - Chỉ trả lời dựa trên dữ liệu trên, không bịa đặt
-        - **GỘP MÀU/SIZE CỦA CÙNG MỘT SẢN PHẨM – KHÔNG LẶP**
-        - Ví dụ: "Yonex 88D Pro giá 3.4tr có màu Đỏ (3U, 4U), Xanh (3U) còn hàng"
-        - Gợi ý tối đa 3 sản phẩm phù hợp nhất
-        - Nếu chưa rõ → hỏi lại nhẹ nhàng
-        - Ngắn gọn, thân thiện, emoji vừa phải
+        QUY TẮC KHÔNG ĐƯỢC PHÁ:
+        - TUYỆT ĐỐI DÙNG LINK TRONG DỮ LIỆU (có dạng "Xem chi tiết: http...")
+        - Copy nguyên link → bọc trong [xem chi tiết](url)
+        - Không bịa link
+        - Gợi ý tối đa 3 sản phẩm
+        - Gộp màu/size
+        - Dễ thương, emoji vừa phải
         """
-
     prompt = ChatPromptTemplate.from_template(template)
     qa_chain = (
         RunnableParallel({
@@ -306,7 +289,7 @@ async def debug_chunks_post(
 async def add_product(product: Product):
     global vectorstore
     delete_product_chunks(product.id)
-    docs = create_product_documents(product.dict())
+    docs = create_product_documents(product)
     if vectorstore is None:
         vectorstore = FAISS.from_documents(docs, get_embedding())
     else:
@@ -321,7 +304,7 @@ async def update_product(product: Product):
     print(f"[AI] Nhận yêu cầu update sản phẩm ID: {product.id} - {product.name}")  # ← THÊM DÒNG NÀY
 
     delete_product_chunks(product.id)
-    docs = create_product_documents(product.dict())
+    docs = create_product_documents(product)  # ← SỬA
     if vectorstore is None:
         vectorstore = FAISS.from_documents(docs, get_embedding())
     else:
@@ -346,7 +329,7 @@ async def delete_product(product_id: int):
 @app.post("/reindex_all")
 async def rebuild(products: List[Product]):
     global vectorstore
-    all_docs = [doc for p in products for doc in create_product_documents(p.dict())]
+    all_docs = [doc for p in products for doc in create_product_documents(p)]  # ← SỬA
     vectorstore = FAISS.from_documents(all_docs, get_embedding())
     vectorstore.save_local(str(DB_FOLDER))
     build_qa_chain()

@@ -1,5 +1,7 @@
+
 // src/components/Chatbot.js
 import React, { useState, useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown"; // THÊM DÒNG NÀY
 import styles from "./ChatBot.module.css";
 
 const Chatbot = () => {
@@ -10,28 +12,24 @@ const Chatbot = () => {
   const messagesEndRef = useRef(null);
 
   const API_URL = "http://localhost:8000";
-  const JWT_KEY = "accessToken"; // ← Đúng với LoginPage.js của bạn
+  const JWT_KEY = "accessToken";
 
-  // Lấy token + giải mã lấy user_id
   const getToken = () => localStorage.getItem(JWT_KEY);
   const getUserId = () => {
     const token = getToken();
     if (!token) return null;
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
-      return payload.sub; // ← "2", "15", v.v.
+      return payload.sub;
     } catch {
       return null;
     }
   };
 
-  // Session cho khách vãng lai (hết hạn sau 7 ngày)
   const getGuestSessionId = () => {
     const sid = localStorage.getItem("chat_session_id");
     const expires = localStorage.getItem("chat_session_expires");
-    if (sid && expires && new Date(expires) > new Date()) {
-      return sid;
-    }
+    if (sid && expires && new Date(expires) > new Date()) return sid;
     localStorage.removeItem("chat_session_id");
     localStorage.removeItem("chat_session_expires");
     return null;
@@ -40,17 +38,14 @@ const Chatbot = () => {
   const saveGuestSessionId = (sid) => {
     localStorage.setItem("chat_session_id", sid);
     const expires = new Date();
-    expires.setDate(expires.getDate() + 7); // 7 ngày
+    expires.setDate(expires.getDate() + 7);
     localStorage.setItem("chat_session_expires", expires.toISOString());
   };
 
-  // Load lịch sử khi mở chatbot
   useEffect(() => {
     if (!isOpen) return;
-
     const userId = getUserId();
     if (userId) {
-      // Đã đăng nhập → lấy lịch sử theo user_id
       fetch(`${API_URL}/my_chat_history?user_id=${userId}`)
         .then(r => r.json())
         .then(data => {
@@ -65,7 +60,6 @@ const Chatbot = () => {
         })
         .catch(() => setMessages([{ role: "ai", content: "Dạ chào anh/chị! Linh sẵn sàng hỗ trợ rồi ạ" }]));
     } else {
-      // Chưa đăng nhập → dùng session_id tạm
       setMessages([{ role: "ai", content: "Dạ em chào anh/chị! Linh đây ạ, anh/chị cần tư vấn gì nè?" }]);
     }
   }, [isOpen]);
@@ -76,7 +70,6 @@ const Chatbot = () => {
 
   const sendMessage = async () => {
     if (!input.trim() || isTyping) return;
-
     const userMsg = { role: "user", content: input };
     setMessages(prev => [...prev, userMsg]);
     setInput("");
@@ -95,13 +88,10 @@ const Chatbot = () => {
           session_id: !userId ? guestSessionId : undefined
         }),
       });
-
       const data = await res.json();
-
       if (data.session_id && !userId) {
         saveGuestSessionId(data.session_id);
       }
-
       setMessages(prev => [...prev, { role: "ai", content: data.answer }]);
     } catch (err) {
       setMessages(prev => [...prev, { role: "ai", content: "Oops! Linh đang hơi chậm, anh/chị thử lại nha~" }]);
@@ -136,9 +126,36 @@ const Chatbot = () => {
                 {msg.role === "ai" && (
                   <img src="https://i.ibb.co.com/0jZJ7YJ/linh-cute.png" alt="Linh" className={styles.msgAvatar} />
                 )}
-                <div className={styles.bubble}>{msg.content}</div>
+                
+                {/* CHỖ QUAN TRỌNG: DÙNG ReactMarkdown ĐỂ HIỂN THỊ LINK */}
+                <div className={styles.bubble}>
+                  {msg.role === "ai" ? (
+                    <ReactMarkdown
+                      components={{
+                        a: ({ node, ...props }) => (
+                          <a
+                            {...props}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              color: "#ff6b9d",
+                              fontWeight: "bold",
+                              textDecoration: "underline",
+                              wordBreak: "break-word"
+                            }}
+                          />
+                        ),
+                      }}
+                    >
+                      {msg.content}
+                    </ReactMarkdown>
+                  ) : (
+                    <div>{msg.content}</div>
+                  )}
+                </div>
               </div>
             ))}
+
             {isTyping && (
               <div className={styles.message}>
                 <img src="https://i.ibb.co.com/0jZJ7YJ/linh-cute.png" alt="Linh" className={styles.msgAvatar} />

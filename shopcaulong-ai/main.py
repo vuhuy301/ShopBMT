@@ -134,28 +134,44 @@ class Product(BaseModel):
     details: List[Dict[str, Any]] = []
     colorVariants: List[ColorVariant] = []
 
-# ==========================================================
-# CHUNKING
-# ==========================================================
-def create_product_documents(product: dict) -> List[Document]:
-    price = product.get("discountPrice") or product["price"]
-    name = product["name"]
-    brand = product["brandName"]
-    docs = [
-        Document(
-            page_content=f"{name} {brand} giá {price:,.0f}đ",
-            metadata={"product_id": product["id"], "type": "info"},
-        )
-    ]
-    for cv in product.get("colorVariants", []):
-        for sz in cv.get("sizes", []):
-            if sz["stock"] > 0:
-                docs.append(
-                    Document(
-                        page_content=f"{name} màu {cv['color']} size {sz['size']} giá {price:,.0f}đ còn hàng",
-                        metadata={"product_id": product["id"], "color": cv["color"], "size": sz["size"]},
-                    )
-                )
+# THAY TOÀN BỘ HÀM create_product_documents BẰNG CÁI NÀY
+def create_product_documents(product: Product) -> List[Document]:
+    price = product.discountPrice or product.price
+    product_id = product.id
+    product_url = f"http://localhost:3000/product/{product_id}"
+
+    docs = []
+
+    info_text = f"{product.name} {product.brandName} giá {price:,.0f}đ"
+    if product.description:
+        info_text += f". {product.description}"
+    info_text += f" Xem chi tiết: {product_url}"
+
+    docs.append(Document(
+        page_content=info_text,
+        metadata={
+            "product_id": product_id,
+            "type": "full_info",
+            "url": product_url
+        }
+    ))
+
+    for cv in product.colorVariants or []:
+        color = (cv.color or "không màu").strip()
+        available_sizes = [s.size for s in (cv.sizes or []) if s.stock > 0]
+        if available_sizes:
+            sizes_str = ", ".join(available_sizes)
+            variant_text = f"{product.name} màu {color} có size {sizes_str} giá {price:,.0f}đ còn hàng. Xem chi tiết: {product_url}"
+            docs.append(Document(
+                page_content=variant_text,
+                metadata={
+                    "product_id": product_id,
+                    "type": "variant",
+                    "color": color,
+                    "url": product_url
+                }
+            ))
+
     return docs
 
 def delete_product_chunks(product_id: int) -> int:
@@ -181,23 +197,22 @@ def build_qa_chain():
         return
     retriever = vectorstore.as_retriever(search_kwargs={"k": 10, "fetch_k": 40})
     template = """
-Bạn là Linh – nhân viên bán hàng siêu dễ thương, nhanh nhẹn của Shop Cầu Lông Pro.
+        Bạn là Linh – nhân viên bán hàng siêu dễ thương của Shop Cầu Lông Pro.
 
-Lịch sử trò chuyện:
-{history}
+        DỮ LIỆU SẢN PHẨM (CÓ CHỨA LINK CHI TIẾT):
+        {context}
 
-Dữ liệu sản phẩm hiện có:
-{context}
+        Khách hỏi:
+        {question}
 
-Khách hỏi:
-{question}
-
-Quy tắc bắt buộc:
-- Chỉ trả lời dựa trên dữ liệu trên, không bịa
-- Gợi ý tối đa 4 sản phẩm phù hợp nhất (tên + giá + màu + size còn hàng)
-- Nếu chưa rõ màu/size → hỏi lại nhẹ nhàng, ngọt ngào
-- Trả lời ngắn gọn, thân thiện, dùng emoji vừa phải
-"""
+        QUY TẮC KHÔNG ĐƯỢC PHÁ:
+        - TUYỆT ĐỐI DÙNG LINK TRONG DỮ LIỆU (có dạng "Xem chi tiết: http...")
+        - Copy nguyên link → bọc trong [xem chi tiết](url)
+        - Không bịa link
+        - Gợi ý tối đa 3 sản phẩm
+        - Gộp màu/size
+        - Dễ thương, emoji vừa phải
+        """
     prompt = ChatPromptTemplate.from_template(template)
     qa_chain = (
         RunnableParallel({
@@ -221,12 +236,60 @@ async def root():
         "chunks": total,
         "active_sessions": len(store)
     }
+# THÊM NGAY SAU ROUTE /reindex_all HOẶC CUỐI FILE TRƯỚC STARTUP
 
+@app.post("/debug_chunks")
+async def debug_chunks_post(
+    limit: int = 50,
+    product_id: Optional[int] = None,
+    include_metadata: bool = True
+):
+    """
+    Xem tất cả chunk hiện có trong FAISS (dùng POST)
+    - limit: số lượng chunk tối đa trả về (mặc định 50)
+    - product_id: lọc theo sản phẩm (nếu có)
+    - include_metadata: có hiện metadata không
+    """
+    if not vectorstore or vectorstore.index.ntotal == 0:
+        return {
+            "total_chunks_in_db": 0,
+            "returned_chunks": 0,
+            "chunks": [],
+            "message": "Chưa có dữ liệu nào được chunk"
+        }
+
+    total = vectorstore.index.ntotal
+    results = []
+
+    for i in range(min(limit, total)):
+        doc_id = vectorstore.index_to_docstore_id[i]
+        doc = vectorstore.docstore.search(doc_id)
+        if isinstance(doc, Document):
+            item = {
+                "index": i,
+                "content": doc.page_content
+            }
+            if include_metadata:
+                item["metadata"] = doc.metadata
+
+            # Lọc theo product_id nếu có
+            if product_id is not None:
+                if doc.metadata.get("product_id") != product_id:
+                    continue
+
+            results.append(item)
+
+    return {
+        "total_chunks_in_db": total,
+        "returned_chunks": len(results),
+        "chunks": results,
+        "message": f"Đã chunk {total} mẩu dữ liệu từ sản phẩm"
+    }
 @app.post("/add_product")
 async def add_product(product: Product):
     global vectorstore
     delete_product_chunks(product.id)
-    docs = create_product_documents(product.dict())
+    docs = create_product_documents(product)
     if vectorstore is None:
         vectorstore = FAISS.from_documents(docs, get_embedding())
     else:
@@ -238,13 +301,20 @@ async def add_product(product: Product):
 @app.post("/update_product")
 async def update_product(product: Product):
     global vectorstore
-    if vectorstore is None:
-        vectorstore = FAISS.from_texts(["placeholder"], get_embedding())
+    print(f"[AI] Nhận yêu cầu update sản phẩm ID: {product.id} - {product.name}")  # ← THÊM DÒNG NÀY
+
     delete_product_chunks(product.id)
-    docs = create_product_documents(product.dict())
-    vectorstore.add_documents(docs)
+    docs = create_product_documents(product)  # ← SỬA
+    if vectorstore is None:
+        vectorstore = FAISS.from_documents(docs, get_embedding())
+    else:
+        vectorstore.add_documents(docs)
+    
     vectorstore.save_local(str(DB_FOLDER))
     build_qa_chain()
+    
+    print(f"[AI] Đã chunk {len(docs)} mẩu cho sản phẩm {product.name}")  # ← THÊM DÒNG NÀY
+    
     return {"status": "OK", "message": f"Đã cập nhật {product.name}"}
 
 @app.post("/delete_product")
@@ -259,7 +329,7 @@ async def delete_product(product_id: int):
 @app.post("/reindex_all")
 async def rebuild(products: List[Product]):
     global vectorstore
-    all_docs = [doc for p in products for doc in create_product_documents(p.dict())]
+    all_docs = [doc for p in products for doc in create_product_documents(p)]  # ← SỬA
     vectorstore = FAISS.from_documents(all_docs, get_embedding())
     vectorstore.save_local(str(DB_FOLDER))
     build_qa_chain()

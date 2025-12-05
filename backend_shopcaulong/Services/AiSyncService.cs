@@ -12,48 +12,51 @@ namespace backend_shopcaulong.Services
 
     public AiSyncService(HttpClient http) => _http = http;
 
-    public async Task SyncProductAsync(ProductDto product)
-    {
-        var json = JsonSerializer.Serialize(product, new JsonSerializerOptions
+        public async Task SyncProductAsync(ProductDto product)
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+            var json = JsonSerializer.Serialize(product, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            
+            var response = await _http.PostAsync("/update_product", content); // ĐÃ SỬA
 
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var response = await _http.PostAsync($"{_url}/upsert_product", content);
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[AI] Sync thất bại: {response.StatusCode} - {error}");
+            }
+            else
+            {
+                Console.WriteLine($"[AI] Sync thành công sản phẩm: {product.Name}");
+            }
+        }
 
-        if (!response.IsSuccessStatusCode)
-            Console.WriteLine($"[AI] Sync thất bại: {await response.Content.ReadAsStringAsync()}");
-    }
+        public async Task DeleteProductAsync(int productId)
+        {
+            var json = JsonSerializer.Serialize(new { product_id = productId });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _http.PostAsync("/delete_product", content); // ĐÃ SỬA
 
-    public async Task DeleteProductAsync(int productId)
-    {
-        var json = JsonSerializer.Serialize(new { product_id = productId });
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        await _http.PostAsync($"{_url}/delete_product", content);
-        // Không throw lỗi → không làm hỏng xóa sản phẩm
-    }
+            if (!response.IsSuccessStatusCode)
+                Console.WriteLine($"[AI] Xóa chunk thất bại ID: {productId}");
+        }
 
-    public async Task RebuildAllAsync(List<ProductDto> products)
+        public async Task RebuildAllAsync(List<ProductDto> products)
         {
             var json = JsonSerializer.Serialize(products, new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
-
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _http.PostAsync($"{_url}/reindex_all", content);
+            
+            var response = await _http.PostAsync("/reindex_all", content); // ĐÃ SỬA
 
             if (response.IsSuccessStatusCode)
-            {
-                var result = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"[AI] Rebuild thành công: {result}");
-            }
+                Console.WriteLine("[AI] Rebuild toàn bộ thành công!");
             else
-            {
-                var error = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"[AI] Rebuild thất bại: {response.StatusCode} - {error}");
-            }
+                Console.WriteLine($"[AI] Rebuild thất bại: {await response.Content.ReadAsStringAsync()}");
         }
 }
 }

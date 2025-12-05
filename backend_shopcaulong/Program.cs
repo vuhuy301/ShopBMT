@@ -103,9 +103,11 @@ builder.Services.AddSwaggerGen(c =>
     c.IncludeXmlComments(xmlPath);
 });
 
-// Program.cs – thêm 2 dòng này
-builder.Services.AddHttpClient<IAiSyncService, AiSyncService>();
-builder.Services.AddScoped<IAiSyncService,AiSyncService>();
+builder.Services.AddHttpClient<IAiSyncService, AiSyncService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:8000"); // hoặc từ config
+});
+
 
 var app = builder.Build();
 

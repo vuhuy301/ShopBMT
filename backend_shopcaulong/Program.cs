@@ -102,6 +102,11 @@ builder.Services.AddSwaggerGen(c =>
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
 });
+
+// Program.cs – thêm 2 dòng này
+builder.Services.AddHttpClient<IAiSyncService, AiSyncService>();
+builder.Services.AddScoped<IAiSyncService,AiSyncService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

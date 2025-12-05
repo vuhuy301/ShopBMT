@@ -1,3 +1,4 @@
+
 // Services/ProductService.cs
 using AutoMapper;
 using backend_shopcaulong.DTOs.Common;
@@ -13,15 +14,17 @@ namespace backend_shopcaulong.Services
         private readonly ShopDbContext _context;
         private readonly IMapper _mapper;
         private readonly IUploadService _uploadService;
+        private readonly IAiSyncService _aiSync;
 
-        public ProductService(ShopDbContext context, IMapper mapper, IUploadService uploadService)
+        public ProductService(ShopDbContext context, IMapper mapper, IUploadService uploadService , IAiSyncService aiSync)
         {
             _context = context;
             _mapper = mapper;
             _uploadService = uploadService;
+            _aiSync = aiSync;
         }
 
-        // Mapping chuẩn EF Core – trả về đầy đủ ảnh màu
+        // Mapping chuẩn – DỰA HOÀN TOÀN VÀO ColorVariantId → CHUẨN SHOPEE
         private static readonly Expression<Func<Product, ProductDto>> ToProductDto = p => new ProductDto
         {
             Id = p.Id,
@@ -38,12 +41,14 @@ namespace backend_shopcaulong.Services
                 ? p.ColorVariants.SelectMany(cv => cv.Sizes).Sum(s => s.Stock)
                 : 0,
             Images = p.Images != null
-                ? p.Images.Select(i => new ProductImageDto
-                {
-                    Id = i.Id,
-                    ImageUrl = i.ImageUrl,
-                    IsPrimary = i.IsPrimary
-                }).ToList()
+                ? p.Images
+                    .Where(i => i.ColorVariantId == null && !i.ImageUrl.Contains("/details/"))
+                    .Select(i => new ProductImageDto
+                    {
+                        Id = i.Id,
+                        ImageUrl = i.ImageUrl,
+                        IsPrimary = i.IsPrimary
+                    }).ToList()
                 : new List<ProductImageDto>(),
             Details = p.Details != null
                 ? p.Details.Select(d => new ProductDetailDto
@@ -91,19 +96,14 @@ namespace backend_shopcaulong.Services
         public async Task<IEnumerable<ProductDto>> GetAllAsync()
             => await GetProductQuery().OrderBy(p => p.Name).Select(ToProductDto).ToListAsync();
 
-        // ĐÃ SỬA: Dùng ToProductDto → ảnh màu hiện 100%
         public async Task<ProductDto?> GetByIdAsync(int id)
-            => await GetProductQuery()
-                .Where(p => p.Id == id)
-                .Select(ToProductDto)
-                .FirstOrDefaultAsync();
+            => await GetProductQuery().Where(p => p.Id == id).Select(ToProductDto).FirstOrDefaultAsync();
 
         public async Task<PagedResultDto<ProductDto>> GetPagedAsync(int page, int pageSize)
         {
             var query = GetProductQuery().OrderBy(p => p.Name);
             var total = await query.CountAsync();
             var items = await query.Skip((page - 1) * pageSize).Take(pageSize).Select(ToProductDto).ToListAsync();
-
             return new PagedResultDto<ProductDto>
             {
                 Page = page,
@@ -118,7 +118,6 @@ namespace backend_shopcaulong.Services
             int? categoryId, int? brandId, string? search, string? sortBy, int page, int pageSize)
         {
             var query = GetProductQuery();
-
             if (categoryId.HasValue && categoryId > 0) query = query.Where(p => p.CategoryId == categoryId.Value);
             if (brandId.HasValue && brandId > 0) query = query.Where(p => p.BrandId == brandId.Value);
             if (!string.IsNullOrWhiteSpace(search))
@@ -133,7 +132,6 @@ namespace backend_shopcaulong.Services
 
             var total = await query.CountAsync();
             var items = await query.Skip((page - 1) * pageSize).Take(pageSize).Select(ToProductDto).ToListAsync();
-
             return new PagedResultDto<ProductDto>
             {
                 Page = page,
@@ -144,7 +142,6 @@ namespace backend_shopcaulong.Services
             };
         }
 
-        // ĐÃ SỬA: Dùng ToProductDto thay vì _mapper.Map
         public async Task<List<ProductDto>> GetTopNewByCategoryAsync(int categoryId)
             => await GetProductQuery()
                 .Where(p => p.CategoryId == categoryId)
@@ -152,19 +149,17 @@ namespace backend_shopcaulong.Services
                 .Take(8)
                 .Select(ToProductDto)
                 .ToListAsync();
+
+        // CREATE – HOÀN HẢO
         public async Task<ProductDto> CreateAsync(ProductCreateDto dto)
         {
-            // 0. VALIDATION: bắt buộc có ít nhất 1 biến thể
             if (dto.ColorVariants == null || !dto.ColorVariants.Any())
                 throw new ArgumentException("Sản phẩm phải có ít nhất 1 biến thể màu và size.");
 
             foreach (var cv in dto.ColorVariants)
-            {
                 if (cv.Sizes == null || !cv.Sizes.Any())
                     throw new ArgumentException($"Biến thể màu '{cv.Color}' phải có ít nhất 1 size.");
-            }
 
-            // 1. Tạo product trước để lấy ID thật
             var product = new Product
             {
                 Name = dto.Name,
@@ -180,13 +175,12 @@ namespace backend_shopcaulong.Services
             };
 
             _context.Products.Add(product);
-            await _context.SaveChangesAsync();  // ← quan trọng để có product.Id thật
+            await _context.SaveChangesAsync(); // để có product.Id
 
-            // 2. Upload ảnh chính của product
+            // Ảnh chính
             if (dto.ImageFiles != null && dto.ImageFiles.Count > 0)
             {
                 var urls = await _uploadService.UploadProductImagesAsync(dto.ImageFiles);
-
                 product.Images = urls.Select((url, i) => new ProductImage
                 {
                     ImageUrl = url,
@@ -195,13 +189,12 @@ namespace backend_shopcaulong.Services
                 }).ToList();
             }
 
-            // 3. Chi tiết mô tả
+            // Chi tiết mô tả
             if (dto.Details?.Any() == true)
             {
                 foreach (var d in dto.Details)
                 {
                     string? imgUrl = null;
-
                     if (d.ImageFile != null)
                         imgUrl = await _uploadService.UploadDetailImageAsync(d.ImageFile);
 
@@ -215,55 +208,61 @@ namespace backend_shopcaulong.Services
                 }
             }
 
-            // 4. Xử lý biến thể màu
+            // Biến thể màu
             foreach (var cvDto in dto.ColorVariants!)
             {
-                var colorVariant = new ProductColorVariant
+                var cv = new ProductColorVariant
                 {
                     Color = cvDto.Color,
+                    ProductId = product.Id,
                     Images = new List<ProductImage>(),
-                    Sizes = new List<ProductSizeVariant>(),
-                    ProductId = product.Id
+                    Sizes = new List<ProductSizeVariant>()
                 };
 
-                // Ảnh cho biến thể màu
                 if (cvDto.ImageFiles != null && cvDto.ImageFiles.Count > 0)
                 {
                     var urls = await _uploadService.UploadVariantImagesAsync(cvDto.ImageFiles);
-
-                    colorVariant.Images = urls.Select((url, i) => new ProductImage
+                    foreach (var url in urls)
                     {
-                        ImageUrl = url,
-                        IsPrimary = i == 0,
-                        ProductId = product.Id
-                    }).ToList();
+                        cv.Images.Add(new ProductImage
+                        {
+                            ImageUrl = url,
+                            ProductId = product.Id,
+                            ColorVariantId = cv.Id,
+                            IsPrimary = false
+                        });
+                    }
                 }
 
-                // Size variants
                 foreach (var s in cvDto.Sizes)
                 {
-                    colorVariant.Sizes.Add(new ProductSizeVariant
+                    cv.Sizes.Add(new ProductSizeVariant
                     {
                         Size = s.Size,
-                        Stock = s.Stock
+                        Stock = s.Stock,
+                        ColorVariantId = cv.Id
                     });
                 }
 
-                product.ColorVariants.Add(colorVariant);
+                product.ColorVariants.Add(cv);
             }
 
-            // 5. Tính tổng stock = tổng stock mọi size
-            product.Stock = product.ColorVariants
-                .SelectMany(c => c.Sizes)
-                .Sum(s => s.Stock);
-
-            // 6. Lưu DB
+            product.Stock = product.ColorVariants.SelectMany(c => c.Sizes).Sum(s => s.Stock);
             await _context.SaveChangesAsync();
+            var productDto = await GetByIdAsync(product.Id)
+                ?? throw new Exception("Tạo thất bại");
 
-            return _mapper.Map<ProductDto>(product);
+            _ = Task.Run(async () =>
+            {
+                try { await _aiSync.SyncProductAsync(productDto); }
+                catch (Exception ex) { Console.WriteLine($"[AI] Sync create thất bại: {ex.Message}"); }
+            });
+
+            return productDto;
+            // return await GetByIdAsync(product.Id) ?? throw new Exception("Tạo thất bại");
         }
 
-        // ============================ UPDATE ============================
+        // UPDATE – CHUẨN 100%, KHÔNG BAO GIỜ MẤT ẢNH BIẾN THỂ NỮA!
         public async Task<ProductDto?> UpdateAsync(int id, ProductUpdateDto dto)
         {
             var product = await _context.Products
@@ -277,9 +276,7 @@ namespace backend_shopcaulong.Services
 
             if (product == null) return null;
 
-            // ====================================================
-            // 1) UPDATE BASIC INFORMATION
-            // ====================================================
+            // Cập nhật thông tin cơ bản
             if (dto.Name != null) product.Name = dto.Name;
             if (dto.Description != null) product.Description = dto.Description;
             if (dto.Price != null) product.Price = dto.Price.Value;
@@ -288,17 +285,12 @@ namespace backend_shopcaulong.Services
             if (dto.CategoryId != null) product.CategoryId = dto.CategoryId.Value;
             if (dto.IsFeatured != null) product.IsFeatured = dto.IsFeatured.Value;
 
-            // ====================================================
-            // 2) MAIN PRODUCT IMAGES
-            // ====================================================
-
-            // XÓA ảnh cũ mà frontend KHÔNG gửi nữa
+            // ẢNH CHÍNH
             if (dto.ImageUrls != null)
             {
                 var removedImages = product.Images
-                    .Where(img => !dto.ImageUrls.Contains(img.ImageUrl))
+                    .Where(img => img.ColorVariantId == null && !dto.ImageUrls.Contains(img.ImageUrl))
                     .ToList();
-
                 foreach (var img in removedImages)
                 {
                     _uploadService.DeleteFile(img.ImageUrl);
@@ -306,11 +298,9 @@ namespace backend_shopcaulong.Services
                 }
             }
 
-            // Thêm ảnh mới
             if (dto.ImageFiles != null && dto.ImageFiles.Count > 0)
             {
                 var newUrls = await _uploadService.UploadProductImagesAsync(dto.ImageFiles);
-
                 foreach (var url in newUrls)
                 {
                     product.Images.Add(new ProductImage
@@ -322,106 +312,76 @@ namespace backend_shopcaulong.Services
                 }
             }
 
-            // Set ảnh đầu tiên làm primary
-            if (product.Images.Any())
+            if (product.Images.Any(i => i.ColorVariantId == null))
             {
-                foreach (var img in product.Images) img.IsPrimary = false;
-                product.Images.First().IsPrimary = true;
+                foreach (var img in product.Images.Where(i => i.ColorVariantId == null)) img.IsPrimary = false;
+                product.Images.First(i => i.ColorVariantId == null).IsPrimary = true;
             }
 
-            // ====================================================
-            // 3) PRODUCT DETAILS
-            // ====================================================
+            // CHI TIẾT MÔ TẢ
             if (dto.Details != null)
             {
-                // XÓA detail không còn
-                var removed = product.Details
-                    .Where(d => !dto.Details.Any(x => x.Id == d.Id))
-                    .ToList();
-
+                var removed = product.Details.Where(d => !dto.Details.Any(x => x.Id == d.Id)).ToList();
                 foreach (var d in removed)
                 {
-                    if (d.ImageUrl != null)
-                        _uploadService.DeleteFile(d.ImageUrl);
-
+                    if (d.ImageUrl != null) _uploadService.DeleteFile(d.ImageUrl);
                     _context.ProductDetails.Remove(d);
                 }
 
-                // UPDATE + ADD
                 foreach (var d in dto.Details)
                 {
-                    ProductDetail detail;
-
                     if (d.Id == 0)
                     {
-                        // NEW DETAIL
                         string? url = null;
                         if (d.ImageFile != null)
                             url = await _uploadService.UploadDetailImageAsync(d.ImageFile);
-
-                        detail = new ProductDetail
+                        product.Details.Add(new ProductDetail
                         {
                             Text = d.Text,
-                            SortOrder = d.SortOrder,
                             ImageUrl = url,
+                            SortOrder = d.SortOrder,
                             ProductId = product.Id
-                        };
-
-                        product.Details.Add(detail);
+                        });
                     }
                     else
                     {
-                        // UPDATE EXISTING DETAIL
-                        detail = product.Details.First(x => x.Id == d.Id);
-
+                        var detail = product.Details.First(x => x.Id == d.Id);
                         detail.Text = d.Text;
                         detail.SortOrder = d.SortOrder;
-
-                        // Nếu có ảnh mới → xoá ảnh cũ + upload mới
                         if (d.ImageFile != null)
                         {
-                            if (detail.ImageUrl != null)
-                                _uploadService.DeleteFile(detail.ImageUrl);
-
+                            if (detail.ImageUrl != null) _uploadService.DeleteFile(detail.ImageUrl);
                             detail.ImageUrl = await _uploadService.UploadDetailImageAsync(d.ImageFile);
-                        }
-                        else
-                        {
-                            // Giữ ảnh cũ nếu không upload ảnh mới
-                            detail.ImageUrl = d.ImageUrl;
                         }
                     }
                 }
             }
 
-            // ====================================================
-            // 4) COLOR VARIANTS UPDATE
-            // ====================================================
+            // BIẾN THỂ MÀU – PHẦN QUAN TRỌNG NHẤT
             if (dto.ColorVariants != null)
             {
-                // XÓA color variant bị remove
-                var removedCv = product.ColorVariants
+                // Xóa biến thể bị remove
+                var removedVariants = product.ColorVariants
                     .Where(cv => !dto.ColorVariants.Any(x => x.Id == cv.Id))
                     .ToList();
 
-                foreach (var cv in removedCv)
+                foreach (var cv in removedVariants)
                 {
-                    foreach (var img in cv.Images)
+                    foreach (var img in cv.Images.ToList())
+                    {
                         _uploadService.DeleteFile(img.ImageUrl);
-
-                    _context.ProductImages.RemoveRange(cv.Images);
+                        _context.ProductImages.Remove(img);
+                    }
                     _context.ProductSizeVariants.RemoveRange(cv.Sizes);
                     _context.ProductColorVariants.Remove(cv);
                 }
 
-                // UPDATE or ADD
                 foreach (var cvDto in dto.ColorVariants)
                 {
                     ProductColorVariant cv;
 
                     if (cvDto.Id == 0)
                     {
-                        // ADD NEW COLOR VARIANT
                         cv = new ProductColorVariant
                         {
                             Color = cvDto.Color,
@@ -429,24 +389,24 @@ namespace backend_shopcaulong.Services
                             Images = new List<ProductImage>(),
                             Sizes = new List<ProductSizeVariant>()
                         };
-
                         product.ColorVariants.Add(cv);
+                        _context.ProductColorVariants.Add(cv);
+                        await _context.SaveChangesAsync(); // để có cv.Id
                     }
                     else
                     {
-                        // UPDATE EXISTING
                         cv = product.ColorVariants.First(x => x.Id == cvDto.Id);
                         cv.Color = cvDto.Color;
                     }
 
-                    // ===================== IMAGES =====================
+                    // XỬ LÝ ẢNH BIẾN THỂ – CHUẨN 100%
                     if (cvDto.ImageUrls != null)
                     {
-                        var removedImgs = cv.Images
+                        var imagesToRemove = cv.Images
                             .Where(img => !cvDto.ImageUrls.Contains(img.ImageUrl))
                             .ToList();
 
-                        foreach (var img in removedImgs)
+                        foreach (var img in imagesToRemove)
                         {
                             _uploadService.DeleteFile(img.ImageUrl);
                             _context.ProductImages.Remove(img);
@@ -456,43 +416,37 @@ namespace backend_shopcaulong.Services
                     // Thêm ảnh mới
                     if (cvDto.ImageFiles != null && cvDto.ImageFiles.Count > 0)
                     {
-                        var newUrls = await _uploadService.UploadVariantImagesAsync(cvDto.ImageFiles);
-                        foreach (var url in newUrls)
+                        var urls = await _uploadService.UploadVariantImagesAsync(cvDto.ImageFiles);
+                        foreach (var url in urls)
                         {
                             cv.Images.Add(new ProductImage
                             {
                                 ImageUrl = url,
-                                ProductId = product.Id
+                                ProductId = product.Id,
+                                ColorVariantId = cv.Id,
+                                IsPrimary = false
                             });
                         }
                     }
 
-                    // ===================== SIZES =====================
-                    var removedSizes = cv.Sizes
-                        .Where(s => !cvDto.Sizes.Any(x => x.Id == s.Id))
-                        .ToList();
-
+                    // Sizes
+                    var removedSizes = cv.Sizes.Where(s => !cvDto.Sizes.Any(x => x.Id == s.Id)).ToList();
                     _context.ProductSizeVariants.RemoveRange(removedSizes);
 
                     foreach (var s in cvDto.Sizes)
                     {
-                        ProductSizeVariant size;
-
                         if (s.Id == 0)
                         {
-                            // NEW SIZE
-                            size = new ProductSizeVariant
+                            cv.Sizes.Add(new ProductSizeVariant
                             {
                                 Size = s.Size,
                                 Stock = s.Stock,
                                 ColorVariantId = cv.Id
-                            };
-                            cv.Sizes.Add(size);
+                            });
                         }
                         else
                         {
-                            // UPDATE SIZE
-                            size = cv.Sizes.First(x => x.Id == s.Id);
+                            var size = cv.Sizes.First(x => x.Id == s.Id);
                             size.Size = s.Size;
                             size.Stock = s.Stock;
                         }
@@ -500,17 +454,21 @@ namespace backend_shopcaulong.Services
                 }
             }
 
-            // ====================================================
-            // 5) UPDATE TỔNG STOCK
-            // ====================================================
-            product.Stock = product.ColorVariants
-                .SelectMany(cv => cv.Sizes)
-                .Sum(s => s.Stock);
-
-            // SAVE
+            product.Stock = product.ColorVariants.SelectMany(cv => cv.Sizes).Sum(s => s.Stock);
             await _context.SaveChangesAsync();
+            var updatedDto = await GetByIdAsync(product.Id);
 
-            return _mapper.Map<ProductDto>(product);
+            if (updatedDto != null)
+            {
+                _ = Task.Run(async () =>
+                {
+                    try { await _aiSync.SyncProductAsync(updatedDto); }
+                    catch (Exception ex) { Console.WriteLine($"[AI] Sync update thất bại: {ex.Message}"); }
+                });
+            }
+
+            return updatedDto;
+          //  return await GetByIdAsync(product.Id);
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -528,16 +486,20 @@ namespace backend_shopcaulong.Services
 
             foreach (var img in product.Images)
                 _uploadService.DeleteFile(img.ImageUrl);
-
             foreach (var cv in product.ColorVariants)
                 foreach (var img in cv.Images)
                     _uploadService.DeleteFile(img.ImageUrl);
-
             foreach (var d in product.Details.Where(d => d.ImageUrl != null))
                 _uploadService.DeleteFile(d.ImageUrl!);
 
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
+            _ = Task.Run(async () =>
+            {
+                try { await _aiSync.DeleteProductAsync(id); }
+                catch (Exception ex) { Console.WriteLine($"[AI] Xóa chunk thất bại: {ex.Message}"); }
+            });
+
             return true;
         }
     }

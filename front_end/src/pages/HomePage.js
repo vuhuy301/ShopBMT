@@ -4,6 +4,8 @@ import styles from "./HomePage.module.css";
 import { useNavigate } from "react-router-dom";
 import { getCategories } from "../services/categoryService";
 import { getTopNewProductsByCategory } from "../services/productService";
+import ChatBot from "../components/ChatBot";
+
 const IMAGE_BASE = process.env.REACT_APP_IMAGE_BASE_URL;
 const HomePage = () => {
   const navigate = useNavigate();
@@ -134,6 +136,7 @@ const HomePage = () => {
 
         </div>
       </div>
+      <ChatBot />
     </>
   );
 };

@@ -102,6 +102,13 @@ builder.Services.AddSwaggerGen(c =>
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
 });
+
+builder.Services.AddHttpClient<IAiSyncService, AiSyncService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:8000"); // hoặc từ config
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

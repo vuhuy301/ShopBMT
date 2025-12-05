@@ -58,6 +58,13 @@ namespace backend_shopcaulong.Controllers.Admin
             if (!result) return NotFound();
             return NoContent();
         }
+        // [HttpPost("reindex-ai")]
+        // public async Task<IActionResult> ReindexAi()
+        // {
+        //     var products = await _productService.GetAllProductsAsync(); // Lấy hết từ DB
+        //     await _aiSyncService.RebuildAllAsync(products);
+        //     return Ok("Đã gửi yêu cầu rebuild AI thành công! Vui lòng đợi 5-30s tùy số lượng sản phẩm.");
+        // }
 
     }
 }

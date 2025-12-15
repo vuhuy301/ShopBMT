@@ -90,23 +90,28 @@ const ProductDetails = () => {
 
   // Thêm vào giỏ hàng
   const handleAddToCart = () => {
-    if (product.colorVariants?.length > 0 && !selectedSize) {
-      alert("Vui lòng chọn size trước khi thêm vào giỏ hàng!");
-      return;
-    }
+  if (product.colorVariants?.length > 0 && !selectedSize) {
+    alert("Vui lòng chọn size trước khi thêm vào giỏ hàng!");
+    return;
+  }
 
-    addToCart({
-      id: product.id,
-      name: product.name,
-      price: finalPrice,
-      image: IMAGE_BASE + mainDisplayImage,
-      size: selectedSize?.size || null,
-      color: selectedColor?.color || null,
-      quantity: 1,
-    });
+  addToCart({
+    productId: product.id,               // ✅ ID sản phẩm
+    name: product.name,
+    price: finalPrice,
+    image: IMAGE_BASE + mainDisplayImage,
 
-    alert("Đã thêm vào giỏ hàng!");
-  };
+    colorVariantId: selectedColor?.id,   // ✅ ID màu
+    color: selectedColor?.color,
+
+    sizeVariantId: selectedSize?.id,     // ✅ ID size
+    size: selectedSize?.size,
+
+    quantity: 1,
+  });
+
+  alert("Đã thêm vào giỏ hàng!");
+};
 
   const formatPrice = (price) => price?.toLocaleString("vi-VN") + " đ";
 

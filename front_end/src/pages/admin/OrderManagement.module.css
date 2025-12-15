@@ -1,0 +1,77 @@
+.container {
+    padding: 24px;
+    margin-left: var(--sidebar-width);
+}
+
+.title {
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+.filter {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.filter select,
+.filter input {
+    padding: 8px;
+}
+
+.orderCard {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 20px;
+    background: #fff;
+}
+
+.orderHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.status {
+    margin-left: 10px;
+    padding: 4px 8px;
+    background: #eee;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.customer {
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.table th,
+.table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    font-size: 14px;
+}
+
+.total {
+    text-align: right;
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.pagination button {
+    padding: 6px 12px;
+}

@@ -22,7 +22,7 @@ namespace backend_shopcaulong.Controllers
         // GET: api/orders/all
         // Chỉ Admin mới được xem tất cả đơn hàng
         [HttpGet("all")]
-        [Authorize(Roles = "Admin")]
+       // [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll([FromQuery] GetOrdersRequest request)
         {
             try

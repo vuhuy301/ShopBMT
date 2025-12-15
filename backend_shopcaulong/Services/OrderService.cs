@@ -88,5 +88,96 @@ namespace backend_shopcaulong.Services
                 throw;
             }
         }
+        public async Task<List<OrderDto>> GetAllOrdersAsync(GetOrdersRequest request)
+        {
+            var query = _context.Orders
+                .Include(o => o.Items)
+                    .ThenInclude(od => od.Product)
+                .Include(o => o.Items)
+                    .ThenInclude(od => od.ColorVariant)
+                .Include(o => o.Items)
+                    .ThenInclude(od => od.SizeVariant)
+                .AsQueryable();
+
+            // Filter
+            if (!string.IsNullOrEmpty(request.Status))
+                query = query.Where(o => o.Status == request.Status);
+
+            if (request.FromDate.HasValue)
+                query = query.Where(o => o.CreatedAt >= request.FromDate.Value);
+
+            if (request.ToDate.HasValue)
+                query = query.Where(o => o.CreatedAt <= request.ToDate.Value);
+
+            // Paging
+            query = query.OrderByDescending(o => o.CreatedAt)
+                         .Skip((request.Page - 1) * request.PageSize)
+                         .Take(request.PageSize);
+
+            var orders = await query.ToListAsync();
+
+            return orders.Select(o => MapToOrderDto(o)).ToList();
+        }
+
+        public async Task<List<OrderDto>> GetMyOrdersAsync(int userId, GetOrdersRequest request)
+        {
+            var query = _context.Orders
+                .Where(o => o.UserId == userId) // Chỉ orders của user này
+                .Include(o => o.Items)
+                    .ThenInclude(od => od.Product)
+                .Include(o => o.Items)
+                    .ThenInclude(od => od.ColorVariant)
+                .Include(o => o.Items)
+                    .ThenInclude(od => od.SizeVariant)
+                .AsQueryable();
+
+            // Filter tương tự
+            if (!string.IsNullOrEmpty(request.Status))
+                query = query.Where(o => o.Status == request.Status);
+
+            if (request.FromDate.HasValue)
+                query = query.Where(o => o.CreatedAt >= request.FromDate.Value);
+
+            if (request.ToDate.HasValue)
+                query = query.Where(o => o.CreatedAt <= request.ToDate.Value);
+
+            // Paging
+            query = query.OrderByDescending(o => o.CreatedAt)
+                         .Skip((request.Page - 1) * request.PageSize)
+                         .Take(request.PageSize);
+
+            var orders = await query.ToListAsync();
+
+            return orders.Select(o => MapToOrderDto(o)).ToList();
+        }
+
+        private OrderDto MapToOrderDto(Order order)
+        {
+            return new OrderDto
+            {
+                Id = order.Id,
+                UserId = order.UserId,
+                CustomerName = order.CustomerName,
+                TotalAmount = order.TotalAmount,
+                CreatedAt = order.CreatedAt,
+                Status = order.Status,
+                PaymentMethod = order.PaymentMethod,
+                ShippingAddress = order.ShippingAddress,
+                Phone = order.Phone,
+                Note = order.Note,
+                Items = order.Items.Select(od => new OrderDetailDto
+                {
+                    Id = od.Id,
+                    ProductId = od.ProductId,
+                    ProductName = od.Product?.Name ?? "N/A",
+                    ColorVariantId = od.ColorVariantId,
+                    Color = od.ColorVariant?.Color ?? "N/A",
+                    SizeVariantId = od.SizeVariantId,
+                    Size = od.SizeVariant?.Size ?? "N/A",
+                    Quantity = od.Quantity,
+                    Price = od.Price
+                }).ToList()
+            };
+        }
     }
 }

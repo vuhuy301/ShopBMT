@@ -1,6 +1,6 @@
 .productGrid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); /* 6 sản phẩm 1 hàng */
+  grid-template-columns: repeat(4, 1fr); /* 6 sản phẩm 1 hàng */
   gap: 20px;
 }
 

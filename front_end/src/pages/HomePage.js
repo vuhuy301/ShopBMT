@@ -4,6 +4,7 @@ import styles from "./HomePage.module.css";
 import { useNavigate } from "react-router-dom";
 import { getCategories } from "../services/categoryService";
 import { getTopNewProductsByCategory } from "../services/productService";
+import CategoryMenu from "../components/CategoryMenu";
 import ChatBot from "../components/ChatBot";
 
 const IMAGE_BASE = process.env.REACT_APP_IMAGE_BASE_URL;
@@ -44,20 +45,7 @@ const HomePage = () => {
 
           {/* LEFT CATEGORY MENU */}
           <div className="col-md-3">
-            <div className={styles.categoryMenu}>
-              <h5 className={styles.categoryTitle}>Danh Mục Sản Phẩm</h5>
-              <ul>
-                {categories.map((category) => (
-                  <li
-                    key={category.id}
-                    style={{ cursor: "pointer" }}
-                    onClick={() => navigate(`/category/${category.id}`)}
-                  >
-                    {category.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
+             <CategoryMenu categories={categories} />
           </div>
 
           {/* MAIN CONTENT */}

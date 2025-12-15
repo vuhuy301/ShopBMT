@@ -75,7 +75,7 @@ const Header = () => {
               </span>
 
               {role === "Admin" && (
-                <Link to="/admin/dashboard" className="me-3 text-info small">
+                <Link to="/admin" className="me-3 text-info small">
                   (Quản trị)
                 </Link>
               )}

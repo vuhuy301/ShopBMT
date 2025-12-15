@@ -1,86 +1,77 @@
-// src/services/admin/productAdminService.js
+const BASE_URL = process.env.REACT_APP_API_URL;
 
-const BASE_URL = process.env.REACT_APP_API_URL || "https://localhost:7002/api";
-
-// Chỉ đọc body 1 lần duy nhất → không bao giờ lỗi "body already read"
-const handleError = async (response) => {
-  if (response.ok) return null;
-
-  let message = "Lỗi không xác định";
-  const contentType = response.headers.get("content-type");
-
+export const getProducts = async ({ categoryId, page = 1, pageSize = 12, search = "" }) => {
   try {
-    if (contentType && contentType.includes("application/json")) {
-      const errorData = await response.json();
-      message = errorData.message || errorData.title || JSON.stringify(errorData);
-    } else {
-      message = await response.text();
-    }
+    const queryParams = new URLSearchParams({
+      categoryId,
+      page,
+      pageSize,
+    });
+
+    if (search) queryParams.append("search", search);
+
+    const res = await fetch(`${BASE_URL}/Products/filter?${queryParams.toString()}`);
+
+    if (!res.ok) throw new Error("Failed to fetch products");
+    const data = await res.json();
+    return data;
   } catch (err) {
-    message = `HTTP ${response.status} - ${response.statusText}`;
+    console.error(err);
+    return { items: [], totalItems: 0, totalPages: 0, page: 1, pageSize: 12 };
   }
-
-  throw new Error(message || `HTTP ${response.status}`);
-};
-
-const jsonHeaders = {
-  "Content-Type": "application/json",
-  Accept: "application/json",
-};
-
-// ==================== PRODUCT ====================
-export const getAllProducts = async () => {
-  const res = await fetch(`${BASE_URL}/admin/AdminProducts`, {
-    headers: jsonHeaders,
-  });
-  const err = await handleError(res);
-  if (err) throw err;
-  return res.json();
 };
 
 export const createProduct = async (formData) => {
-  const response = await fetch(`${BASE_URL}/admin/AdminProducts`, {
-    method: "POST",
-    body: formData, // không set header → browser tự thêm boundary
-  });
-  const err = await handleError(response);
-  if (err) throw err;
-  const ct = response.headers.get("content-type");
-  return ct && ct.includes("application/json") ? response.json() : true;
+  try {
+    const res = await fetch(`${BASE_URL}/Admin/AdminProducts`, {
+      method: "POST",
+      body: formData
+    });
+
+    if (!res.ok) throw new Error("Create product failed");
+
+    return await res.json();
+  } catch (err) {
+    console.error("❌ Create product error:", err);
+    throw err;
+  }
+};
+
+export const getProductById = async (id) => {
+  try {
+    const response = await fetch(`${BASE_URL}/api/Products/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Lỗi lấy sản phẩm ID: ${id}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("getProductById error:", error);
+    return null;
+  }
 };
 
 export const updateProduct = async (id, formData) => {
-  const response = await fetch(`${BASE_URL}/admin/AdminProducts/${id}`, {
-    method: "PUT",
-    body: formData,
-  });
-  const err = await handleError(response);
-  if (err) throw err;
-  const ct = response.headers.get("content-type");
-  return ct && ct.includes("application/json") ? response.json() : true;
-};
+  try {
+    const response = await fetch(`${BASE_URL}/admin/AdminProducts/${id}`, {
+      method: "PUT",
+      body: formData, 
+    });
 
-export const deleteProduct = async (id) => {
-  const res = await fetch(`${BASE_URL}/admin/AdminProducts/${id}`, {
-    method: "DELETE",
-    headers: jsonHeaders,
-  });
-  const err = await handleError(res);
-  if (err) throw err;
-  return res.status === 204 || res.status === 200;
-};
+    if (!response.ok) {
+      throw new Error("Update product failed");
+    }
 
-// ==================== BRAND & CATEGORY ====================
-export const getAllBrands = async () => {
-  const res = await fetch(`${BASE_URL}/admin/AdminBrands`, { headers: jsonHeaders });
-  const err = await handleError(res);
-  if (err) throw err;
-  return res.json();
-};
-
-export const getAllCategories = async () => {
-  const res = await fetch(`${BASE_URL}/admin/AdminCategories`, { headers: jsonHeaders });
-  const err = await handleError(res);
-  if (err) throw err;
-  return res.json();
+    return await response.json();
+  } catch (error) {
+    console.error("Error updateProduct:", error);
+    throw error;
+  }
 };

@@ -79,44 +79,6 @@ namespace backend_shopcaulong.Controllers
             return Ok(new { message = "Toggled select" });
         }
 
-        /// <summary>
-        /// Thanh toán giỏ hàng.
-        /// </summary>
-        [HttpPost("checkout")]
-        public async Task<IActionResult> Checkout([FromBody] CheckoutRequestDto dto)
-        {
-            int userId = GetCurrentUserId();
-            var result = await _cartService.CheckoutAsync(userId, dto);
-            return Ok(result);
-        }
-
-        /// <summary>
-        /// Lấy tất cả đơn hàng của người dùng hiện tại.
-        /// </summary>
-        [HttpGet("my-orders")]
-        public async Task<IActionResult> GetMyOrders()
-        {
-            var userId = GetCurrentUserId();
-            var orders = await _orderService.GetMyOrdersAsync(userId);
-            return Ok(orders);
-        }
-
-        /// <summary>
-        /// Lấy chi tiết đơn hàng của người dùng theo ID đơn hàng.
-        /// </summary>
-        /// <param name="orderId">ID đơn hàng.</param>
-        [HttpGet("my-orders/{orderId}")]
-        public async Task<IActionResult> GetMyOrderDetail(int orderId)
-        {
-            var userId = GetCurrentUserId();
-            var order = await _orderService.GetOrderByIdForUserAsync(orderId, userId);
-
-            if (order == null)
-                return NotFound("Không tìm thấy đơn hàng hoặc bạn không có quyền xem");
-
-            return Ok(order);
-        }
-
         // ====== Lấy userId từ JWT ======
         private int GetCurrentUserId()
         {

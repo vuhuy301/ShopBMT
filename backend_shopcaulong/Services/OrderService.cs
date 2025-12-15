@@ -23,7 +23,7 @@ namespace backend_shopcaulong.Services
             var order = new Order
             {
                 UserId = userId,
-                CustomerName = request.Name.Trim(),
+                CustomerName = string.IsNullOrWhiteSpace(request.Name) ? "Khách lẻ" : request.Name.Trim(),
                 TotalAmount = totalAmount,
                 CreatedAt = DateTime.Now,
                 Status = "Pending",
@@ -37,45 +37,32 @@ namespace backend_shopcaulong.Services
             try
             {
                 _context.Orders.Add(order);
-                await _context.SaveChangesAsync(); // Lưu để lấy Order.Id
+                await _context.SaveChangesAsync(); // Lưu để có Order.Id
 
                 foreach (var item in request.Items)
                 {
-                    // Tìm SizeVariant chính xác (phải thuộc ColorVariant đúng)
                     var sizeVariant = await _context.ProductSizeVariants
+                        .Include(sv => sv.ColorVariant)
+                            .ThenInclude(cv => cv!.Product)
                         .FirstOrDefaultAsync(sv =>
                             sv.Id == item.SizeVariantId &&
                             sv.ColorVariantId == item.ColorVariantId);
 
                     if (sizeVariant == null)
-                    {
-                        var color = await _context.ProductColorVariants
-                            .Where(c => c.Id == item.ColorVariantId)
-                            .Select(c => c.Color)
-                            .FirstOrDefaultAsync();
+                        throw new Exception($"Không tìm thấy biến thể size ID {item.SizeVariantId} cho màu ID {item.ColorVariantId}.");
 
-                        throw new Exception($"Không tìm thấy biến thể size ID {item.SizeVariantId} cho màu {color ?? item.ColorVariantId.ToString()}.");
-                    }
+                    string productName = sizeVariant.ColorVariant?.Product?.Name ?? "Sản phẩm";
+                    string colorName = sizeVariant.ColorVariant?.Color ?? "N/A";
+                    string sizeName = sizeVariant.Size;
 
-                    // Kiểm tra tồn kho
                     if (sizeVariant.Stock < item.Quantity)
-                    {
-                        var productName = await _context.Products
-                            .Where(p => p.Id == item.ProductId)
-                            .Select(p => p.Name)
-                            .FirstOrDefaultAsync();
-
-                        throw new Exception($"Sản phẩm \"{productName}\" " +
-                                            $"màu {sizeVariant.ColorVariant.Color} " +
-                                            $"size {sizeVariant.Size} " +
-                                            $"chỉ còn {sizeVariant.Stock} sản phẩm (bạn chọn {item.Quantity}).");
-                    }
+                        throw new Exception($"Sản phẩm \"{productName}\" màu {colorName} size {sizeName} chỉ còn {sizeVariant.Stock} sản phẩm (bạn chọn {item.Quantity}).");
 
                     // Trừ tồn kho
                     sizeVariant.Stock -= item.Quantity;
 
-                    // Tạo chi tiết đơn hàng
-                    var orderDetail = new OrderDetail
+                    // Lưu chi tiết đơn hàng
+                    _context.OrderDetails.Add(new OrderDetail
                     {
                         OrderId = order.Id,
                         ProductId = item.ProductId,
@@ -83,9 +70,7 @@ namespace backend_shopcaulong.Services
                         SizeVariantId = item.SizeVariantId,
                         Quantity = item.Quantity,
                         Price = item.Price
-                    };
-
-                    _context.OrderDetails.Add(orderDetail);
+                    });
                 }
 
                 await _context.SaveChangesAsync();

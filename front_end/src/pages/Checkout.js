@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Checkout.module.css";
 import { getCart } from "../utils/cartUtils";
+import { placeOrder } from "../services/orderService";
 
 const Checkout = () => {
     const [cartItems, setCartItems] = useState([]);
     const [paymentMethod, setPaymentMethod] = useState("cod");
+    const [note, setNote] = useState("");
     const [customer, setCustomer] = useState({
         name: "",
         phone: "",
@@ -20,23 +22,49 @@ const Checkout = () => {
         0
     );
 
-    const formatPrice = (price) => price.toLocaleString("vi-VN") + " đ";
+    const formatPrice = (price) => price?.toLocaleString("vi-VN") + " đ";
 
-    const handleOrder = () => {
+    const handleOrder = async () => {
         if (!customer.name || !customer.phone || !customer.address) {
             alert("Vui lòng điền đầy đủ thông tin giao hàng.");
             return;
         }
 
+        if (cartItems.length === 0) {
+            alert("Giỏ hàng đang trống.");
+            return;
+        }
+
+        const items = cartItems.map(item => ({
+            productId: item.productId,
+            colorVariantId: item.colorVariantId || 0,
+            sizeVariantId: item.sizeVariantId || 0,
+            quantity: item.quantity,
+            price: item.price
+        }));
+
         const orderData = {
-            customer,
+            name: customer.name,
+            phone: customer.phone,
+            address: customer.address,
+            note,
             paymentMethod,
-            cartItems,
-            totalPrice,
+            items
         };
 
-        console.log("ORDER DATA:", orderData);
-        alert("Đặt hàng thành công (demo)!");
+        try {
+            const result = await placeOrder(orderData);
+            console.log("ORDER SUCCESS:", result);
+            alert("Đặt hàng thành công!");
+
+            setCartItems([]);
+            setCustomer({ name: "", phone: "", address: "" });
+            setNote("");
+            setPaymentMethod("cod");
+        } catch (error) {
+            console.error(error);
+            alert("Đặt hàng thất bại. Vui lòng thử lại.");
+        }
     };
 
     return (
@@ -68,6 +96,13 @@ const Checkout = () => {
                     className={styles.textarea}
                     value={customer.address}
                     onChange={(e) => setCustomer({ ...customer, address: e.target.value })}
+                ></textarea>
+
+                <textarea
+                    placeholder="Ghi chú (tuỳ chọn)"
+                    className={styles.textarea}
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
                 ></textarea>
             </div>
 
@@ -101,7 +136,7 @@ const Checkout = () => {
                 <h4 className={styles.sectionTitle}>Đơn hàng của bạn</h4>
 
                 {cartItems.map((item, index) => (
-                    <div className={styles.orderItem}>
+                    <div className={styles.orderItem} key={index}>
                         <img src={item.image} alt={item.name} className={styles.itemImage} />
 
                         <div className={styles.itemInfo}>
@@ -124,7 +159,6 @@ const Checkout = () => {
                             {formatPrice(item.price * item.quantity)}
                         </div>
                     </div>
-
                 ))}
 
                 <div className={styles.totalRow}>

@@ -9,5 +9,6 @@ namespace backend_shopcaulong.DTOs.Order
         public string PaymentMethod { get; set; } = "cod";       // "cod" hoặc "bank" (sẽ map sang COD/Bank)
 
         public List<OrderItemRequest> Items { get; set; } = new();
+
     }
 }

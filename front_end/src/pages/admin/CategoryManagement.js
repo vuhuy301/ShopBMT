@@ -1,0 +1,94 @@
+import React, { useState, useEffect } from "react";
+import styles from "./CategoryManagement.module.css";
+import { getCategories, addCategory, updateCategory } from "../../services/categoryService";
+
+const CategoryManagement = () => {
+  const [categories, setCategories] = useState([]);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [editingId, setEditingId] = useState(null);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    const data = await getCategories();
+    setCategories(data);
+  };
+
+  const handleAddOrUpdate = async () => {
+    if (!name.trim()) return;
+
+    if (editingId) {
+      const updated = await updateCategory(editingId, name, description);
+      if (updated) {
+        setCategories(categories.map(c => (c.id === editingId ? updated : c)));
+        setEditingId(null);
+      }
+    } else {
+      const newCategory = await addCategory(name, description);
+      if (newCategory) setCategories([...categories, newCategory]);
+    }
+
+    setName("");
+    setDescription("");
+  };
+
+  const handleEdit = (category) => {
+    setEditingId(category.id);
+    setName(category.name);
+    setDescription(category.description || "");
+  };
+
+
+  return (
+    <div className={styles.container}>
+      <h2 className={styles.title}>Quản lý danh mục sản phẩm</h2>
+
+      <div className={styles.form}>
+        <input
+          placeholder="Tên danh mục"
+          value={name}
+          onChange={e => setName(e.target.value)}
+        />
+        <input
+          placeholder="Mô tả"
+          value={description}
+          onChange={e => setDescription(e.target.value)}
+        />
+        <button onClick={handleAddOrUpdate}>
+          {editingId ? "Cập nhật" : "Thêm"}
+        </button>
+      </div>
+
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Tên danh mục</th>
+            <th>Mô tả</th>
+            <th>Số lượng sản phẩm</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          {categories.map((c, index) => (
+            <tr key={c.id}>
+              <td>{index + 1}</td>
+              <td>{c.name}</td>
+              <td>{c.description}</td>
+              <td>{c.productCount || 0}</td>
+              <td>
+                <button className={styles.editBtn} onClick={() => handleEdit(c)}>Sửa</button>
+                <button className={styles.deleteBtn}>Xóa</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default CategoryManagement;

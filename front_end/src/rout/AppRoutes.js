@@ -18,7 +18,12 @@ import Cart from "../pages/Cart";
 import Checkout from "../pages/Checkout";
 
 import AdminLayout from "../layouts/AdminLayout";
-import DashBoardPage from "../pages/admin/DashboardPage";
+import ProductAdmin from "../pages/admin/ProductAdmin";
+import AddProductPage from "../pages/admin/AddProductPage";
+import ProductDetailPage from "../pages/admin/ProductDetailPage";
+import ProductUpdatePage from "../pages/admin/UpdateProductPage";
+import BrandManagement from "../pages/admin/BrandManagement";
+import CategoryManagement from "../pages/admin/CategoryManagement";
 
 // Role-based Route
 const RoleRoute = ({ children, allowedRoles = [] }) => {
@@ -68,7 +73,12 @@ const AppRouter = () => {
           }
         >
           <Route index element={<Navigate to="/admin/products" replace />} />
-          <Route path="/admin/products" element={<DashBoardPage />} />
+          <Route path="/admin/products" element={<ProductAdmin />} />
+          <Route path="/admin/add-product" element={<AddProductPage />} />
+          <Route path="/admin/product/:id" element={<ProductDetailPage />} />
+             <Route path="/admin/product/:id/edit" element={<ProductUpdatePage />} />
+          <Route path="/admin/brands" element={<BrandManagement />} />
+           <Route path="/admin/categories" element={<CategoryManagement />} />
         </Route>
 
 

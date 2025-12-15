@@ -8,6 +8,7 @@
         public int? UserId { get; set; }
         public User? User { get; set; }
         // Tổng tiền đơn hàng
+        public string CustomerName { get; set; } = string.Empty;
         public decimal TotalAmount { get; set; }
 
         // Thời gian tạo đơn
@@ -19,6 +20,8 @@
         public string PaymentMethod { get; set; }  // COD, VNPay, Momo
         public string ShippingAddress { get; set; }
         public string Phone { get; set; }
+
+        public string? Note { get; set; }
 
         // Danh sách sản phẩm trong đơn
         public ICollection<OrderDetail> Items { get; set; }

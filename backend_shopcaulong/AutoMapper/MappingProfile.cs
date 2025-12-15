@@ -81,11 +81,7 @@ namespace backend_shopcaulong.AutoMapper
             CreateMap<User, UserDto>()
                 .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Name));
 
-            CreateMap<Order, OrderDto>()
-                .ForMember(dest => dest.UserFullName,
-                    opt => opt.MapFrom(src => src.User != null ? src.User.FullName : "Khách vãng lai"))
-                .ForMember(dest => dest.TotalAmount,
-                    opt => opt.MapFrom(src => src.Items.Sum(i => i.Price * i.Quantity)));
+            
         }
     }
 }

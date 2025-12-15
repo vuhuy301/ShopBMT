@@ -10,7 +10,6 @@ namespace backend_shopcaulong.Services
         Task UpdateItemAsync(int userId, CartUpdateItemDto dto);
         Task RemoveItemAsync(int userId, int cartItemId);
         Task ToggleSelectAsync(int userId, int cartItemId);
-        Task<OrderResultDto> CheckoutAsync(int userId, CheckoutRequestDto dto);
     }
 
 }

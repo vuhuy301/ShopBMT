@@ -151,6 +151,82 @@ namespace backend_shopcaulong.Services
             return orders.Select(o => MapToOrderDto(o)).ToList();
         }
 
+        public async Task<OrderDto> UpdateOrderStatusAsync(int orderId, string newStatus, int adminUserId)
+        {
+            var validStatuses = new HashSet<string> { "Pending", "Paid", "Shipping", "Completed", "Cancelled" };
+            
+            if (!validStatuses.Contains(newStatus))
+                throw new Exception("Trạng thái không hợp lệ. Chỉ chấp nhận: Pending, Paid, Shipping, Completed, Cancelled.");
+
+            var order = await _context.Orders
+                .Include(o => o.Items)
+                    .ThenInclude(od => od.Product)
+                .Include(o => o.Items)
+                    .ThenInclude(od => od.ColorVariant)
+                .Include(o => o.Items)
+                    .ThenInclude(od => od.SizeVariant)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+
+            if (order == null)
+                throw new Exception("Không tìm thấy đơn hàng.");
+
+            // Tùy chọn: Ghi log ai thay đổi (nếu bạn có bảng OrderHistory)
+            // Ví dụ: _context.OrderHistories.Add(new OrderHistory { OrderId = orderId, ChangedBy = adminUserId, OldStatus = order.Status, NewStatus = newStatus, ChangedAt = DateTime.Now });
+
+            // Logic nghiệp vụ tùy shop (ví dụ: không cho quay lại trạng thái cũ, hoặc hoàn kho nếu hủy)
+            if (newStatus == "Cancelled" && order.Status != "Pending" && order.Status != "Paid")
+            {
+                // Tùy chính sách shop: chỉ hủy được khi chưa giao
+                throw new Exception("Chỉ có thể hủy đơn hàng khi đang ở trạng thái Pending hoặc Paid.");
+            }
+
+            // Nếu hủy đơn và ở trạng thái chưa giao → hoàn lại tồn kho
+            if (newStatus == "Cancelled" && (order.Status == "Pending" || order.Status == "Paid"))
+            {
+                foreach (var item in order.Items)
+                {
+                    var sizeVariant = await _context.ProductSizeVariants
+                        .FirstOrDefaultAsync(sv => sv.Id == item.SizeVariantId && sv.ColorVariantId == item.ColorVariantId);
+
+                    if (sizeVariant != null)
+                    {
+                        sizeVariant.Stock += item.Quantity; // Hoàn kho
+                    }
+                }
+            }
+
+            order.Status = newStatus;
+
+            await _context.SaveChangesAsync();
+
+            return MapToOrderDto(order);
+        }
+        public async Task<OrderDto?> GetOrderBySearchAsync(int? orderId = null, string? phone = null)
+        {
+            if (!orderId.HasValue && string.IsNullOrWhiteSpace(phone))
+                throw new ArgumentException("Vui lòng cung cấp mã đơn hàng hoặc số điện thoại.");
+
+            phone = phone?.Trim();
+
+            var query = _context.Orders
+                .Include(o => o.Items)
+                .ThenInclude(od => od.Product)
+                .Include(o => o.Items)
+                .ThenInclude(od => od.ColorVariant)
+                .Include(o => o.Items)
+                .ThenInclude(od => od.SizeVariant)
+                .AsQueryable();
+
+            if (orderId.HasValue)
+                query = query.Where(o => o.Id == orderId.Value);
+
+            if (!string.IsNullOrWhiteSpace(phone))
+                query = query.Where(o => o.Phone == phone);
+
+            var order = await query.FirstOrDefaultAsync();
+
+            return order == null ? null : MapToOrderDto(order);
+        }
         private OrderDto MapToOrderDto(Order order)
         {
             return new OrderDto

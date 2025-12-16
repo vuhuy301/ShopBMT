@@ -92,22 +92,31 @@ namespace backend_shopcaulong.Services
         {
             var query = _context.Orders
                 .Include(o => o.Items)
-                    .ThenInclude(od => od.Product)
+                .ThenInclude(od => od.Product)
                 .Include(o => o.Items)
-                    .ThenInclude(od => od.ColorVariant)
+                .ThenInclude(od => od.ColorVariant)
                 .Include(o => o.Items)
-                    .ThenInclude(od => od.SizeVariant)
+                .ThenInclude(od => od.SizeVariant)
                 .AsQueryable();
 
-            // Filter
-            if (!string.IsNullOrEmpty(request.Status))
-                query = query.Where(o => o.Status == request.Status);
+            // Chỉ lọc status nếu có giá trị thực sự
+            if (!string.IsNullOrWhiteSpace(request.Status))
+            {
+                query = query.Where(o => o.Status == request.Status.Trim());
+            }
 
-            if (request.FromDate.HasValue)
+            // Chỉ lọc FromDate nếu là ngày hợp lệ (không phải năm 0001)
+            if (request.FromDate.HasValue && request.FromDate.Value.Year >= 1900)
+            {
                 query = query.Where(o => o.CreatedAt >= request.FromDate.Value);
+            }
 
-            if (request.ToDate.HasValue)
-                query = query.Where(o => o.CreatedAt <= request.ToDate.Value);
+            // Chỉ lọc ToDate nếu là ngày hợp lệ + lấy đến hết ngày
+            if (request.ToDate.HasValue && request.ToDate.Value.Year >= 1900)
+            {
+                var endOfDay = request.ToDate.Value.Date.AddDays(1).AddTicks(-1);
+                query = query.Where(o => o.CreatedAt <= endOfDay);
+            }
 
             // Paging
             // query = query.OrderByDescending(o => o.CreatedAt)
@@ -122,24 +131,28 @@ namespace backend_shopcaulong.Services
         public async Task<List<OrderDto>> GetMyOrdersAsync(int userId, GetOrdersRequest request)
         {
             var query = _context.Orders
-                .Where(o => o.UserId == userId) // Chỉ orders của user này
+                .Where(o => o.UserId == userId)
                 .Include(o => o.Items)
-                    .ThenInclude(od => od.Product)
+                .ThenInclude(od => od.Product)
                 .Include(o => o.Items)
-                    .ThenInclude(od => od.ColorVariant)
+                .ThenInclude(od => od.ColorVariant)
                 .Include(o => o.Items)
-                    .ThenInclude(od => od.SizeVariant)
+                .ThenInclude(od => od.SizeVariant)
                 .AsQueryable();
 
-            // Filter tương tự
             if (!string.IsNullOrEmpty(request.Status))
                 query = query.Where(o => o.Status == request.Status);
 
-            if (request.FromDate.HasValue)
+            if (request.FromDate.HasValue && request.FromDate.Value.Year > 1900)
+            {
                 query = query.Where(o => o.CreatedAt >= request.FromDate.Value);
+            }
 
-            if (request.ToDate.HasValue)
-                query = query.Where(o => o.CreatedAt <= request.ToDate.Value);
+            if (request.ToDate.HasValue && request.ToDate.Value.Year > 1900)
+            {
+                var endOfDay = request.ToDate.Value.Date.AddDays(1).AddTicks(-1);
+                query = query.Where(o => o.CreatedAt <= endOfDay);
+            }
 
             // Paging
             // query = query.OrderByDescending(o => o.CreatedAt)

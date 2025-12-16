@@ -92,27 +92,36 @@ namespace backend_shopcaulong.Services
         {
             var query = _context.Orders
                 .Include(o => o.Items)
-                    .ThenInclude(od => od.Product)
+                .ThenInclude(od => od.Product)
                 .Include(o => o.Items)
-                    .ThenInclude(od => od.ColorVariant)
+                .ThenInclude(od => od.ColorVariant)
                 .Include(o => o.Items)
-                    .ThenInclude(od => od.SizeVariant)
+                .ThenInclude(od => od.SizeVariant)
                 .AsQueryable();
 
-            // Filter
-            if (!string.IsNullOrEmpty(request.Status))
-                query = query.Where(o => o.Status == request.Status);
+            // Chỉ lọc status nếu có giá trị thực sự
+            if (!string.IsNullOrWhiteSpace(request.Status))
+            {
+                query = query.Where(o => o.Status == request.Status.Trim());
+            }
 
-            if (request.FromDate.HasValue)
+            // Chỉ lọc FromDate nếu là ngày hợp lệ (không phải năm 0001)
+            if (request.FromDate.HasValue && request.FromDate.Value.Year >= 1900)
+            {
                 query = query.Where(o => o.CreatedAt >= request.FromDate.Value);
+            }
 
-            if (request.ToDate.HasValue)
-                query = query.Where(o => o.CreatedAt <= request.ToDate.Value);
+            // Chỉ lọc ToDate nếu là ngày hợp lệ + lấy đến hết ngày
+            if (request.ToDate.HasValue && request.ToDate.Value.Year >= 1900)
+            {
+                var endOfDay = request.ToDate.Value.Date.AddDays(1).AddTicks(-1);
+                query = query.Where(o => o.CreatedAt <= endOfDay);
+            }
 
             // Paging
-            query = query.OrderByDescending(o => o.CreatedAt)
-                         .Skip((request.Page - 1) * request.PageSize)
-                         .Take(request.PageSize);
+            // query = query.OrderByDescending(o => o.CreatedAt)
+            //              .Skip((request.Page - 1) * request.PageSize)
+            //              .Take(request.PageSize);
 
             var orders = await query.ToListAsync();
 
@@ -122,35 +131,115 @@ namespace backend_shopcaulong.Services
         public async Task<List<OrderDto>> GetMyOrdersAsync(int userId, GetOrdersRequest request)
         {
             var query = _context.Orders
-                .Where(o => o.UserId == userId) // Chỉ orders của user này
+                .Where(o => o.UserId == userId)
                 .Include(o => o.Items)
-                    .ThenInclude(od => od.Product)
+                .ThenInclude(od => od.Product)
                 .Include(o => o.Items)
-                    .ThenInclude(od => od.ColorVariant)
+                .ThenInclude(od => od.ColorVariant)
                 .Include(o => o.Items)
-                    .ThenInclude(od => od.SizeVariant)
+                .ThenInclude(od => od.SizeVariant)
                 .AsQueryable();
 
-            // Filter tương tự
             if (!string.IsNullOrEmpty(request.Status))
                 query = query.Where(o => o.Status == request.Status);
 
-            if (request.FromDate.HasValue)
+            if (request.FromDate.HasValue && request.FromDate.Value.Year > 1900)
+            {
                 query = query.Where(o => o.CreatedAt >= request.FromDate.Value);
+            }
 
-            if (request.ToDate.HasValue)
-                query = query.Where(o => o.CreatedAt <= request.ToDate.Value);
+            if (request.ToDate.HasValue && request.ToDate.Value.Year > 1900)
+            {
+                var endOfDay = request.ToDate.Value.Date.AddDays(1).AddTicks(-1);
+                query = query.Where(o => o.CreatedAt <= endOfDay);
+            }
 
             // Paging
-            query = query.OrderByDescending(o => o.CreatedAt)
-                         .Skip((request.Page - 1) * request.PageSize)
-                         .Take(request.PageSize);
+            // query = query.OrderByDescending(o => o.CreatedAt)
+            //              .Skip((request.Page - 1) * request.PageSize)
+            //              .Take(request.PageSize);
 
             var orders = await query.ToListAsync();
 
             return orders.Select(o => MapToOrderDto(o)).ToList();
         }
 
+        public async Task<OrderDto> UpdateOrderStatusAsync(int orderId, string newStatus, int adminUserId)
+        {
+            var validStatuses = new HashSet<string> { "Pending", "Paid", "Shipping", "Completed", "Cancelled" };
+            
+            if (!validStatuses.Contains(newStatus))
+                throw new Exception("Trạng thái không hợp lệ. Chỉ chấp nhận: Pending, Paid, Shipping, Completed, Cancelled.");
+
+            var order = await _context.Orders
+                .Include(o => o.Items)
+                    .ThenInclude(od => od.Product)
+                .Include(o => o.Items)
+                    .ThenInclude(od => od.ColorVariant)
+                .Include(o => o.Items)
+                    .ThenInclude(od => od.SizeVariant)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+
+            if (order == null)
+                throw new Exception("Không tìm thấy đơn hàng.");
+
+            // Tùy chọn: Ghi log ai thay đổi (nếu bạn có bảng OrderHistory)
+            // Ví dụ: _context.OrderHistories.Add(new OrderHistory { OrderId = orderId, ChangedBy = adminUserId, OldStatus = order.Status, NewStatus = newStatus, ChangedAt = DateTime.Now });
+
+            // Logic nghiệp vụ tùy shop (ví dụ: không cho quay lại trạng thái cũ, hoặc hoàn kho nếu hủy)
+            if (newStatus == "Cancelled" && order.Status != "Pending" && order.Status != "Paid")
+            {
+                // Tùy chính sách shop: chỉ hủy được khi chưa giao
+                throw new Exception("Chỉ có thể hủy đơn hàng khi đang ở trạng thái Pending hoặc Paid.");
+            }
+
+            // Nếu hủy đơn và ở trạng thái chưa giao → hoàn lại tồn kho
+            if (newStatus == "Cancelled" && (order.Status == "Pending" || order.Status == "Paid"))
+            {
+                foreach (var item in order.Items)
+                {
+                    var sizeVariant = await _context.ProductSizeVariants
+                        .FirstOrDefaultAsync(sv => sv.Id == item.SizeVariantId && sv.ColorVariantId == item.ColorVariantId);
+
+                    if (sizeVariant != null)
+                    {
+                        sizeVariant.Stock += item.Quantity; // Hoàn kho
+                    }
+                }
+            }
+
+            order.Status = newStatus;
+
+            await _context.SaveChangesAsync();
+
+            return MapToOrderDto(order);
+        }
+        public async Task<OrderDto?> GetOrderBySearchAsync(int? orderId = null, string? phone = null)
+        {
+            if (!orderId.HasValue && string.IsNullOrWhiteSpace(phone))
+                throw new ArgumentException("Vui lòng cung cấp mã đơn hàng hoặc số điện thoại.");
+
+            phone = phone?.Trim();
+
+            var query = _context.Orders
+                .Include(o => o.Items)
+                .ThenInclude(od => od.Product)
+                .Include(o => o.Items)
+                .ThenInclude(od => od.ColorVariant)
+                .Include(o => o.Items)
+                .ThenInclude(od => od.SizeVariant)
+                .AsQueryable();
+
+            if (orderId.HasValue)
+                query = query.Where(o => o.Id == orderId.Value);
+
+            if (!string.IsNullOrWhiteSpace(phone))
+                query = query.Where(o => o.Phone == phone);
+
+            var order = await query.FirstOrDefaultAsync();
+
+            return order == null ? null : MapToOrderDto(order);
+        }
         private OrderDto MapToOrderDto(Order order)
         {
             return new OrderDto

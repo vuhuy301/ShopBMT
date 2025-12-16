@@ -1,5 +1,3 @@
-
-using backend_shopcaulong.DTOs;
 using backend_shopcaulong.DTOs.Order;
 
 namespace backend_shopcaulong.Services
@@ -13,5 +11,9 @@ namespace backend_shopcaulong.Services
 
         // Mới: Get my orders cho user
         Task<List<OrderDto>> GetMyOrdersAsync(int userId, GetOrdersRequest request);
+
+        Task<OrderDto> UpdateOrderStatusAsync(int orderId, string newStatus, int adminUserId);
+
+        Task<OrderDto?> GetOrderBySearchAsync(int? orderId = null, string? phone = null);
     }
 }

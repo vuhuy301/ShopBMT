@@ -110,9 +110,9 @@ namespace backend_shopcaulong.Services
                 query = query.Where(o => o.CreatedAt <= request.ToDate.Value);
 
             // Paging
-            query = query.OrderByDescending(o => o.CreatedAt)
-                         .Skip((request.Page - 1) * request.PageSize)
-                         .Take(request.PageSize);
+            // query = query.OrderByDescending(o => o.CreatedAt)
+            //              .Skip((request.Page - 1) * request.PageSize)
+            //              .Take(request.PageSize);
 
             var orders = await query.ToListAsync();
 
@@ -142,9 +142,9 @@ namespace backend_shopcaulong.Services
                 query = query.Where(o => o.CreatedAt <= request.ToDate.Value);
 
             // Paging
-            query = query.OrderByDescending(o => o.CreatedAt)
-                         .Skip((request.Page - 1) * request.PageSize)
-                         .Take(request.PageSize);
+            // query = query.OrderByDescending(o => o.CreatedAt)
+            //              .Skip((request.Page - 1) * request.PageSize)
+            //              .Take(request.PageSize);
 
             var orders = await query.ToListAsync();
 

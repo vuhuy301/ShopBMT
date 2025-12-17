@@ -30,9 +30,6 @@ namespace backend_shopcaulong.Models
         public DbSet<Promotion> Promotions { get; set; }
         public DbSet<ProductColorVariant> ProductColorVariants { get; set; }
         public DbSet<ProductSizeVariant> ProductSizeVariants { get; set; }
-
-        public DbSet<Cart> Carts { get; set; }
-        public DbSet<CartItem> CartItems { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -92,38 +89,6 @@ namespace backend_shopcaulong.Models
                 .HasForeignKey(sh => sh.ColorVariantId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
-            // ===== CART & CARTITEM =====
-            modelBuilder.Entity<Cart>()
-                .HasMany(c => c.Items)
-                .WithOne(i => i.Cart)
-                .HasForeignKey(i => i.CartId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<CartItem>()
-                .HasOne(ci => ci.Product)
-                .WithMany()
-                .HasForeignKey(ci => ci.ProductId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<CartItem>()
-                .HasOne(ci => ci.ColorVariant)
-                .WithMany()
-                .HasForeignKey(ci => ci.ColorVariantId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<CartItem>()
-                .HasOne(ci => ci.SizeVariant)
-                .WithMany()
-                .HasForeignKey(ci => ci.SizeVariantId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // ===== CART - USER =====
-            modelBuilder.Entity<Cart>()
-                .HasOne(c => c.User)
-                .WithMany(u => u.Carts)
-                .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             // ===== ORDER & ORDERDETAIL =====
             modelBuilder.Entity<Order>()

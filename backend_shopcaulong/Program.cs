@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Reflection;
+using backend_shopcaulong.Services.Banners;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ShopDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DbContext")));
@@ -36,6 +37,8 @@ builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IUploadService, UploadService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IBannerService, BannerService>();
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

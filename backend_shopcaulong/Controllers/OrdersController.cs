@@ -27,7 +27,7 @@ namespace backend_shopcaulong.Controllers
         {
             try
             {
-                var orders = await _orderService.GetAllOrdersAsync(request);
+                var orders = await _orderService.GetOrdersAsync(request);
                 return Ok(orders);
             }
             catch (Exception ex)
@@ -82,7 +82,7 @@ namespace backend_shopcaulong.Controllers
         }
         // PUT: api/orders/{id}/status - Chỉ Admin
         [HttpPut("{id}/status")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateOrderStatusRequest request)
         {
             if (!ModelState.IsValid)
@@ -105,19 +105,7 @@ namespace backend_shopcaulong.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-        [HttpGet("search")]
-        public async Task<IActionResult> SearchOrder([FromQuery] int? orderId, [FromQuery] string? phone)
-        {
-            if (!orderId.HasValue && string.IsNullOrWhiteSpace(phone))
-                return BadRequest("Vui lòng nhập mã đơn hàng hoặc số điện thoại.");
-
-            var order = await _orderService.GetOrderBySearchAsync(orderId, phone);
-
-            if (order == null)
-                return NotFound("Không tìm thấy đơn hàng.");
-
-            return Ok(order);
-        }
+       
         /// <summary>
         /// Lấy UserId từ JWT token nếu người dùng đã đăng nhập.
         /// Nếu không có token hoặc token không hợp lệ → trả về null (dùng cho khách vãng lai).

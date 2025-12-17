@@ -88,45 +88,60 @@ namespace backend_shopcaulong.Services
                 throw;
             }
         }
-        public async Task<List<OrderDto>> GetAllOrdersAsync(GetOrdersRequest request)
+        public async Task<List<OrderDto>> GetOrdersAsync(GetOrdersRequest request)
         {
             var query = _context.Orders
                 .Include(o => o.Items)
-                .ThenInclude(od => od.Product)
+                    .ThenInclude(od => od.Product)
                 .Include(o => o.Items)
-                .ThenInclude(od => od.ColorVariant)
+                    .ThenInclude(od => od.ColorVariant)
                 .Include(o => o.Items)
-                .ThenInclude(od => od.SizeVariant)
+                    .ThenInclude(od => od.SizeVariant)
                 .AsQueryable();
 
-            // Chỉ lọc status nếu có giá trị thực sự
+            // 🔍 Search theo OrderId
+            if (request.OrderId.HasValue)
+            {
+                query = query.Where(o => o.Id == request.OrderId.Value);
+            }
+
+            // 🔍 Search theo Phone
+            if (!string.IsNullOrWhiteSpace(request.Phone))
+            {
+                query = query.Where(o => o.Phone == request.Phone.Trim());
+            }
+
+            // 🔎 Filter Status
             if (!string.IsNullOrWhiteSpace(request.Status))
             {
                 query = query.Where(o => o.Status == request.Status.Trim());
             }
 
-            // Chỉ lọc FromDate nếu là ngày hợp lệ (không phải năm 0001)
+            // 📅 FromDate
             if (request.FromDate.HasValue && request.FromDate.Value.Year >= 1900)
             {
                 query = query.Where(o => o.CreatedAt >= request.FromDate.Value);
             }
 
-            // Chỉ lọc ToDate nếu là ngày hợp lệ + lấy đến hết ngày
+            // 📅 ToDate (đến hết ngày)
             if (request.ToDate.HasValue && request.ToDate.Value.Year >= 1900)
             {
                 var endOfDay = request.ToDate.Value.Date.AddDays(1).AddTicks(-1);
                 query = query.Where(o => o.CreatedAt <= endOfDay);
             }
 
-            // Paging
-            // query = query.OrderByDescending(o => o.CreatedAt)
-            //              .Skip((request.Page - 1) * request.PageSize)
-            //              .Take(request.PageSize);
+            // 📌 Sort
+            query = query.OrderByDescending(o => o.CreatedAt);
+
+            // 📄 Paging
+            query = query
+                .Skip((request.Page - 1) * request.PageSize)
+                .Take(request.PageSize);
 
             var orders = await query.ToListAsync();
-
-            return orders.Select(o => MapToOrderDto(o)).ToList();
+            return orders.Select(MapToOrderDto).ToList();
         }
+
 
         public async Task<List<OrderDto>> GetMyOrdersAsync(int userId, GetOrdersRequest request)
         {
@@ -214,32 +229,7 @@ namespace backend_shopcaulong.Services
 
             return MapToOrderDto(order);
         }
-        public async Task<OrderDto?> GetOrderBySearchAsync(int? orderId = null, string? phone = null)
-        {
-            if (!orderId.HasValue && string.IsNullOrWhiteSpace(phone))
-                throw new ArgumentException("Vui lòng cung cấp mã đơn hàng hoặc số điện thoại.");
-
-            phone = phone?.Trim();
-
-            var query = _context.Orders
-                .Include(o => o.Items)
-                .ThenInclude(od => od.Product)
-                .Include(o => o.Items)
-                .ThenInclude(od => od.ColorVariant)
-                .Include(o => o.Items)
-                .ThenInclude(od => od.SizeVariant)
-                .AsQueryable();
-
-            if (orderId.HasValue)
-                query = query.Where(o => o.Id == orderId.Value);
-
-            if (!string.IsNullOrWhiteSpace(phone))
-                query = query.Where(o => o.Phone == phone);
-
-            var order = await query.FirstOrDefaultAsync();
-
-            return order == null ? null : MapToOrderDto(order);
-        }
+        
         private OrderDto MapToOrderDto(Order order)
         {
             return new OrderDto

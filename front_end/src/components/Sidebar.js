@@ -25,7 +25,7 @@ const Sidebar = () => {
       { path: "/admin/orders", icon: <BiAlignRight />, label: "Đơn hàng" },
       { path: "/admin/categories", icon: <BiSolidUserDetail />, label: "Danh mục sản phẩm" },
       { path: "/admin/brands", icon: <BiSolidHourglass />, label: "Thương hiệu" },
-      { path: "/admin/inventory", icon: <BiInfoSquare />, label: "Kho hàng" },
+      { path: "/admin/banners", icon: <BiInfoSquare />, label: "Banner" },
       { path: "/admin/payment", icon: <BiCreditCard />, label: "Giao dịch" },
       { path: "/admin/report", icon: <BiSolidReport />, label: "Báo cáo" },
       { path: "/admin/profile", icon: <BiInfoSquare />, label: "Thông tin cá nhân" },

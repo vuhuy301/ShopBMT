@@ -62,13 +62,16 @@ const HomePage = () => {
             {/* 3 Box nhỏ */}
             <div className="row g-3 mt-2 mb-3">
               <div className="col-md-4">
-                <div className={styles.featureBox}>RACKET COLLECTION</div>
+                <div className={styles.featureBox}>Vận chuyển TOÀN QUỐC <br></br>
+Thanh toán khi nhận hàng</div>
               </div>
               <div className="col-md-4">
-                <div className={styles.featureBox}>OUTFIT</div>
+                <div className={styles.featureBox}>Bảo đảm chất lượng<br></br>
+Sản phẩm bảo đảm chất lượng.</div>
               </div>
               <div className="col-md-4">
-                <div className={styles.featureBox}>ACCESSORIES</div>
+                <div className={styles.featureBox}>Tiến hành THANH TOÁN<br></br>
+Với nhiều PHƯƠNG THỨC</div>
               </div>
             </div>
 

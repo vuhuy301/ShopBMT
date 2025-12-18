@@ -14,10 +14,8 @@
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        // Nếu bạn muốn lưu địa chỉ, số điện thoại…
         public string? Phone { get; set; }
         public string? Address { get; set; }
-        public ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
         // Reset Password token và thời gian hết hạn lưu trực tiếp trong User
         public string? ResetPasswordToken { get; set; }

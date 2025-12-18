@@ -26,7 +26,7 @@ public class Product
     // 1 sp nhiều đoạn mô tả
     public ICollection<ProductDetail> Details { get; set; }
 
-    // ⭐ THÊM NÀY ĐỂ DÙNG BIẾN THỂ
+    // THÊM NÀY ĐỂ DÙNG BIẾN THỂ
     public ICollection<ProductColorVariant> ColorVariants { get; set; }
     public ICollection<ProductSizeVariant> SizeVariants { get; set; }
 

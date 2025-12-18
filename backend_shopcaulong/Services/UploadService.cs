@@ -88,6 +88,13 @@ namespace backend_shopcaulong.Services
 
             return urls;
         }
+        // Thêm method này vào class UploadService
+        public async Task<string?> UploadBannerImageAsync(IFormFile? file)
+        {
+            if (file == null || file.Length == 0) return null;
+
+            return (await UploadFilesAsync(new[] { file }, "images/banners")).FirstOrDefault();
+        }
 
         // Xóa file
         public void DeleteFile(string? fileUrl)

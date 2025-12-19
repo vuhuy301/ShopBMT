@@ -25,6 +25,7 @@ import ProductUpdatePage from "../pages/admin/UpdateProductPage";
 import BrandManagement from "../pages/admin/BrandManagement";
 import CategoryManagement from "../pages/admin/CategoryManagement";
 import OrderManagement from "../pages/admin/OrderManagement";
+import BannerManager from "../pages/admin/BannerManagement";
 
 // Role-based Route
 const RoleRoute = ({ children, allowedRoles = [] }) => {
@@ -81,6 +82,7 @@ const AppRouter = () => {
           <Route path="/admin/brands" element={<BrandManagement />} />
           <Route path="/admin/categories" element={<CategoryManagement />} />
           <Route path="/admin/orders" element={<OrderManagement />} />
+          <Route path="/admin/banners" element={<BannerManager />} />
         </Route>
 
 

@@ -87,14 +87,44 @@ def get_session_history(session_id: str) -> ChatMessageHistory:
 # ==========================================================
 # EMBEDDING & LLM
 # ==========================================================
+# @lru_cache()
+# def get_embedding():
+#     print("Khởi tạo embedding multilingual-e5-small...")
+#     return HuggingFaceEmbeddings(
+#         model_name="intfloat/multilingual-e5-small",
+#         model_kwargs={"device": "cpu"},
+#         encode_kwargs={"normalize_embeddings": True},
+#     )
+from langchain_openai import OpenAIEmbeddings
+
+product_doc_ids = {}  # mapping product_id → list docstore_ids đã add
+
 @lru_cache()
 def get_embedding():
-    print("Khởi tạo embedding multilingual-e5-small...")
+    """
+    Ưu tiên dùng OpenAI Embedding.
+    Nếu fail → fallback về HuggingFace để test.
+    """
+    openai_key = os.getenv("OPENAI_API_KEY")
+
+    if openai_key:
+        try:
+            print("Đang sử dụng OpenAI Embeddings (text-embedding-3-small)...")
+            return OpenAIEmbeddings(
+                model="text-embedding-3-small",
+                api_key=openai_key,
+                max_retries=2,
+            )
+        except Exception as e:
+            print("❌ Lỗi OpenAI Embedding, chuyển qua HuggingFace:", e)
+
+    print(" Fallback sang HuggingFace Embedding (multilingual-e5-small)")
     return HuggingFaceEmbeddings(
         model_name="intfloat/multilingual-e5-small",
         model_kwargs={"device": "cpu"},
         encode_kwargs={"normalize_embeddings": True},
     )
+
 
 @lru_cache()
 def get_llm():
@@ -174,18 +204,46 @@ def create_product_documents(product: Product) -> List[Document]:
 
     return docs
 
+# def delete_product_chunks(product_id: int) -> int:
+#     if not vectorstore or vectorstore.index.ntotal == 0:
+#         return 0
+#     ids_to_delete = []
+#     for i in range(vectorstore.index.ntotal):
+#         doc_id = vectorstore.index_to_docstore_id[i]
+#         doc = vectorstore.docstore.search(doc_id)
+#         if isinstance(doc, Document) and doc.metadata.get("product_id") == product_id:
+#             ids_to_delete.append(doc_id)
+#     if ids_to_delete:
+#         vectorstore.delete(ids_to_delete)
+#     return len(ids_to_delete)
 def delete_product_chunks(product_id: int) -> int:
+    """
+    Xóa theo doc_ids đã lưu trong product_doc_ids (nhanh hơn).
+    Nếu không có thì fallback sang phương pháp cũ.
+    """
     if not vectorstore or vectorstore.index.ntotal == 0:
         return 0
+
+    # Trường hợp đã có mapping → xóa nhanh
+    if product_id in product_doc_ids:
+        ids_to_delete = product_doc_ids[product_id]
+        vectorstore.delete(ids_to_delete)
+        del product_doc_ids[product_id]
+        return len(ids_to_delete)
+
+    # Fallback cách cũ:
     ids_to_delete = []
     for i in range(vectorstore.index.ntotal):
         doc_id = vectorstore.index_to_docstore_id[i]
         doc = vectorstore.docstore.search(doc_id)
         if isinstance(doc, Document) and doc.metadata.get("product_id") == product_id:
             ids_to_delete.append(doc_id)
+
     if ids_to_delete:
         vectorstore.delete(ids_to_delete)
+
     return len(ids_to_delete)
+
 
 # ==========================================================
 # QA CHAIN
@@ -196,23 +254,53 @@ def build_qa_chain():
         qa_chain = None
         return
     retriever = vectorstore.as_retriever(search_kwargs={"k": 10, "fetch_k": 40})
-    template = """
-        Bạn là Linh – nhân viên bán hàng siêu dễ thương của Shop Cầu Lông Pro.
+    # template = """
+    #     Bạn là Linh – nhân viên bán hàng siêu dễ thương của Shop Cầu Lông Pro.
 
-        DỮ LIỆU SẢN PHẨM (CÓ CHỨA LINK CHI TIẾT):
+    #     DỮ LIỆU SẢN PHẨM (CÓ CHỨA LINK CHI TIẾT):
+    #     {context}
+
+    #     Khách hỏi:
+    #     {question}
+
+    #     QUY TẮC KHÔNG ĐƯỢC PHÁ:
+    #     - TUYỆT ĐỐI DÙNG LINK TRONG DỮ LIỆU (có dạng "Xem chi tiết: http...")
+    #     - Copy nguyên link → bọc trong [xem chi tiết](url)
+    #     - Không bịa link
+    #     - Gợi ý tối đa 3 sản phẩm
+    #     - Gộp màu/size
+    #     - Dễ thương, emoji vừa phải
+    #     """
+    template = """
+        Bạn là Linh – nhân viên tư vấn của Shop Cầu Lông Pro. 
+        Bạn CHỈ được trả lời dựa trên thông tin có trong {context}. 
+        Nếu khách hỏi điều gì không có trong context → phải trả lời rằng “Linh chưa thấy thông tin này trong kho ạ”.
+
+        QUY TẮC:
+        1. Không được bịa đặt, không đoán, không tự tạo thông số.
+        2. Chỉ dùng đúng link xuất hiện trong dữ liệu: [xem chi tiết](URL)
+        3. Tối đa 3 sản phẩm phù hợp nhất.
+        4. Gộp màu/size của cùng một sản phẩm thành một nội dung duy nhất.
+        5. Giọng nói thân thiện, tự nhiên, lịch sự. Hạn chế emoji.
+        6. Nếu context rỗng → yêu cầu khách mô tả rõ hơn hoặc báo rằng không có dữ liệu.
+
+        7. Sau khi trả lời, Linh được phép đưa ra:
+        - 1–2 gợi ý câu hỏi phù hợp để khách hỏi tiếp
+        - Hoặc đề xuất tiêu chí lựa chọn (giá, thương hiệu, trình độ chơi…)
+
+        8. Linh KHÔNG được bịa khi gợi ý follow-up.
+
+        ---------------------
+        DỮ LIỆU TRONG KHO (context):
         {context}
 
-        Khách hỏi:
+        CÂU HỎI CỦA KHÁCH:
         {question}
 
-        QUY TẮC KHÔNG ĐƯỢC PHÁ:
-        - TUYỆT ĐỐI DÙNG LINK TRONG DỮ LIỆU (có dạng "Xem chi tiết: http...")
-        - Copy nguyên link → bọc trong [xem chi tiết](url)
-        - Không bịa link
-        - Gợi ý tối đa 3 sản phẩm
-        - Gộp màu/size
-        - Dễ thương, emoji vừa phải
+        TRẢ LỜI:
+
         """
+
     prompt = ChatPromptTemplate.from_template(template)
     qa_chain = (
         RunnableParallel({
@@ -293,7 +381,10 @@ async def add_product(product: Product):
     if vectorstore is None:
         vectorstore = FAISS.from_documents(docs, get_embedding())
     else:
-        vectorstore.add_documents(docs)
+        # vectorstore.add_documents(docs)
+        doc_ids = vectorstore.add_documents(docs)
+        product_doc_ids[product.id] = doc_ids
+
     vectorstore.save_local(str(DB_FOLDER))
     build_qa_chain()
     return {"status": "OK", "message": f"Đã thêm {product.name}"}
@@ -308,7 +399,10 @@ async def update_product(product: Product):
     if vectorstore is None:
         vectorstore = FAISS.from_documents(docs, get_embedding())
     else:
-        vectorstore.add_documents(docs)
+        # vectorstore.add_documents(docs)
+        doc_ids = vectorstore.add_documents(docs)
+        product_doc_ids[product.id] = doc_ids
+
     
     vectorstore.save_local(str(DB_FOLDER))
     build_qa_chain()
@@ -326,13 +420,46 @@ async def delete_product(product_id: int):
     build_qa_chain()
     return {"status": "OK", "deleted_chunks": deleted}
 
+# @app.post("/reindex_all")
+# async def rebuild(products: List[Product]):
+#     global vectorstore
+#     all_docs = [doc for p in products for doc in create_product_documents(p)]  # ← SỬA
+#     vectorstore = FAISS.from_documents(all_docs, get_embedding())
+#     vectorstore.save_local(str(DB_FOLDER))
+#     build_qa_chain()
+#     return {"status": "OK", "chunks": len(all_docs)}
 @app.post("/reindex_all")
 async def rebuild(products: List[Product]):
-    global vectorstore
-    all_docs = [doc for p in products for doc in create_product_documents(p)]  # ← SỬA
+    global vectorstore, product_doc_ids
+
+    # Reset mapping mới
+    product_doc_ids = {}
+
+    # Gom toàn bộ tài liệu
+    all_docs = []
+    for p in products:
+        docs = create_product_documents(p)
+        all_docs.extend(docs)
+        product_doc_ids[p.id] = []  # tạm tạo danh sách rỗng, sẽ gán thật ở bước dưới
+
+    # Build FAISS từ đầu
     vectorstore = FAISS.from_documents(all_docs, get_embedding())
+
+    # Sau khi build FAISS → doc_ids được sinh theo thứ tự
+    # vì all_docs là list phẳng, ta cần ánh xạ lại product_id → list doc_ids
+    current_index = 0
+    for p in products:
+        docs_count = len(create_product_documents(p))
+        ids = []
+        for i in range(docs_count):
+            ids.append(vectorstore.index_to_docstore_id[current_index + i])
+        product_doc_ids[p.id] = ids
+        current_index += docs_count
+
+    # Lưu database
     vectorstore.save_local(str(DB_FOLDER))
     build_qa_chain()
+
     return {"status": "OK", "chunks": len(all_docs)}
 
 # ==================== CHAT PAYLOAD ====================
@@ -346,7 +473,6 @@ async def chat(payload: ChatPayload):
     if not qa_chain:
         raise HTTPException(500, "Chưa có dữ liệu sản phẩm!")
 
-    # Frontend đã gửi sẵn user_id hoặc session_id → tin tưởng luôn!
     if payload.user_id:
         session_id = f"user_{payload.user_id}"
     elif payload.session_id:

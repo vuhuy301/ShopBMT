@@ -1,6 +1,7 @@
 using backend_shopcaulong.Models;
 using Microsoft.EntityFrameworkCore;
 using backend_shopcaulong.DTOs.Order;
+using backend_shopcaulong.DTOs.Notification;
 
 namespace backend_shopcaulong.Services
 {
@@ -10,10 +11,13 @@ namespace backend_shopcaulong.Services
 
         private readonly IEmailSender _emailSender;
 
-        public OrderService(ShopDbContext context, IEmailSender emailSender)
+        private readonly INotificationService _notificationService;
+
+        public OrderService(ShopDbContext context, IEmailSender emailSender, INotificationService notificationService)
         {
             _context = context;
             _emailSender = emailSender;
+            _notificationService = notificationService;
         }
 
         public async Task<CreateOrderResponse> CreateOrderAsync(CreateOrderRequest request, int? userId = null)
@@ -92,6 +96,42 @@ namespace backend_shopcaulong.Services
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+                try
+                {
+                    // Lấy danh sách User là Admin hoặc Staff
+                    var adminStaffUserIds = await _context.Users.Include(u => u.Role)
+                        .Where(u => u.Role.Name == "Admin" || u.Role.Name == "Staff")
+                        .Select(u => u.Id)
+                        .ToListAsync();
+
+                    if (adminStaffUserIds.Any())
+                    {
+                        var notificationDto = new CreateNotificationDto
+                        {
+                            Title = "Đơn hàng mới",
+                            Message = $"Có đơn hàng mới #{order.Id} từ {customerName} - Tổng: {totalAmount:N0}₫",
+                            Type = "NewOrder",
+                            ReferenceId = order.Id
+                        };
+
+                        // Tạo thông báo cho từng admin/staff
+                        foreach (var adminId in adminStaffUserIds)
+                        {
+                            notificationDto.UserId = adminId;
+                            await _notificationService.CreateAsync(notificationDto);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Không làm hỏng đơn hàng nếu gửi thông báo lỗi
+                    // Có thể log lại để theo dõi
+                    Console.WriteLine($"Lỗi khi gửi thông báo đơn hàng mới: {ex.Message}");
+                    // Hoặc dùng ILogger nếu bạn có inject
+                }
+
+                // ==================================================================
 
                 return new CreateOrderResponse
                 {

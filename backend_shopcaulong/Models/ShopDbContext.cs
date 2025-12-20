@@ -30,6 +30,8 @@ namespace backend_shopcaulong.Models
         public DbSet<Promotion> Promotions { get; set; }
         public DbSet<ProductColorVariant> ProductColorVariants { get; set; }
         public DbSet<ProductSizeVariant> ProductSizeVariants { get; set; }
+
+        public DbSet<Notification> Notifications {get;set;}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -135,7 +137,40 @@ namespace backend_shopcaulong.Models
                 .HasOne(pp => pp.Promotion)
                 .WithMany(p => p.ProductPromotions)
                 .HasForeignKey(pp => pp.PromotionId);
+
+            // ===== USER - NOTIFICATION =====
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.User)
+                .WithMany()
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Notification>()
+                .HasIndex(n => n.UserId);
+
+            modelBuilder.Entity<Notification>()
+                .HasIndex(n => new { n.UserId, n.IsRead });
+
+            modelBuilder.Entity<Notification>()
+                .HasIndex(n => n.CreatedAt);
+
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.Property(n => n.Title)
+                    .HasMaxLength(200)
+                    .IsRequired();
+
+                entity.Property(n => n.Message)
+                    .HasMaxLength(500)
+                    .IsRequired();
+
+                entity.Property(n => n.Type)
+                    .HasMaxLength(50)
+                    .IsRequired();
+            });
+
         }
+        
 
     }
 }

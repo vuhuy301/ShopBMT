@@ -1,6 +1,7 @@
 using backend_shopcaulong.Models;
 using Microsoft.EntityFrameworkCore;
 using backend_shopcaulong.DTOs.Order;
+using backend_shopcaulong.DTOs.Notification;
 
 namespace backend_shopcaulong.Services
 {
@@ -8,9 +9,15 @@ namespace backend_shopcaulong.Services
     {
         private readonly ShopDbContext _context;
 
-        public OrderService(ShopDbContext context)
+        private readonly IEmailSender _emailSender;
+
+        private readonly INotificationService _notificationService;
+
+        public OrderService(ShopDbContext context, IEmailSender emailSender, INotificationService notificationService)
         {
             _context = context;
+            _emailSender = emailSender;
+            _notificationService = notificationService;
         }
 
         public async Task<CreateOrderResponse> CreateOrderAsync(CreateOrderRequest request, int? userId = null)
@@ -19,11 +26,25 @@ namespace backend_shopcaulong.Services
                 throw new Exception("Giỏ hàng trống.");
 
             decimal totalAmount = request.Items.Sum(i => i.Price * i.Quantity);
+            User? user = null;
+
+            if (userId.HasValue)
+            {
+                user = await _context.Users
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.Id == userId.Value);
+            }
+            string customerName =
+            !string.IsNullOrWhiteSpace(request.Name)
+                ? request.Name.Trim()
+                : !string.IsNullOrWhiteSpace(user?.FullName)
+                    ? user.FullName
+                    : "Quý khách";
 
             var order = new Order
             {
                 UserId = userId,
-                CustomerName = string.IsNullOrWhiteSpace(request.Name) ? "Khách lẻ" : request.Name.Trim(),
+                CustomerName = customerName,
                 TotalAmount = totalAmount,
                 CreatedAt = DateTime.Now,
                 Status = "Pending",
@@ -75,6 +96,42 @@ namespace backend_shopcaulong.Services
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+                try
+                {
+                    // Lấy danh sách User là Admin hoặc Staff
+                    var adminStaffUserIds = await _context.Users.Include(u => u.Role)
+                        .Where(u => u.Role.Name == "Admin" || u.Role.Name == "Staff")
+                        .Select(u => u.Id)
+                        .ToListAsync();
+
+                    if (adminStaffUserIds.Any())
+                    {
+                        var notificationDto = new CreateNotificationDto
+                        {
+                            Title = "Đơn hàng mới",
+                            Message = $"Có đơn hàng mới #{order.Id} từ {customerName} - Tổng: {totalAmount:N0}₫",
+                            Type = "NewOrder",
+                            ReferenceId = order.Id
+                        };
+
+                        // Tạo thông báo cho từng admin/staff
+                        foreach (var adminId in adminStaffUserIds)
+                        {
+                            notificationDto.UserId = adminId;
+                            await _notificationService.CreateAsync(notificationDto);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Không làm hỏng đơn hàng nếu gửi thông báo lỗi
+                    // Có thể log lại để theo dõi
+                    Console.WriteLine($"Lỗi khi gửi thông báo đơn hàng mới: {ex.Message}");
+                    // Hoặc dùng ILogger nếu bạn có inject
+                }
+
+                // ==================================================================
 
                 return new CreateOrderResponse
                 {
@@ -179,12 +236,18 @@ namespace backend_shopcaulong.Services
             return orders.Select(o => MapToOrderDto(o)).ToList();
         }
 
-        public async Task<OrderDto> UpdateOrderStatusAsync(int orderId, string newStatus, int adminUserId)
+        public async Task<OrderDto> UpdateOrderStatusAsync(
+            int orderId,
+            string newStatus,
+            int adminUserId)
         {
-            var validStatuses = new HashSet<string> { "Pending", "Paid", "Shipping", "Completed", "Cancelled" };
-            
+            var validStatuses = new HashSet<string>
+            {
+                "Pending", "Paid", "Shipping", "Completed", "Cancelled"
+            };
+
             if (!validStatuses.Contains(newStatus))
-                throw new Exception("Trạng thái không hợp lệ. Chỉ chấp nhận: Pending, Paid, Shipping, Completed, Cancelled.");
+                throw new Exception("Trạng thái không hợp lệ.");
 
             var order = await _context.Orders
                 .Include(o => o.Items)
@@ -193,42 +256,64 @@ namespace backend_shopcaulong.Services
                     .ThenInclude(od => od.ColorVariant)
                 .Include(o => o.Items)
                     .ThenInclude(od => od.SizeVariant)
+                .Include(o => o.User) // ⚠️ BẮT BUỘC: để lấy email
                 .FirstOrDefaultAsync(o => o.Id == orderId);
 
             if (order == null)
                 throw new Exception("Không tìm thấy đơn hàng.");
 
-            // Tùy chọn: Ghi log ai thay đổi (nếu bạn có bảng OrderHistory)
-            // Ví dụ: _context.OrderHistories.Add(new OrderHistory { OrderId = orderId, ChangedBy = adminUserId, OldStatus = order.Status, NewStatus = newStatus, ChangedAt = DateTime.Now });
-
-            // Logic nghiệp vụ tùy shop (ví dụ: không cho quay lại trạng thái cũ, hoặc hoàn kho nếu hủy)
-            if (newStatus == "Cancelled" && order.Status != "Pending" && order.Status != "Paid")
+            // ❌ Không cho hủy sai trạng thái
+            if (newStatus == "Cancelled" &&
+                order.Status != "Pending" &&
+                order.Status != "Paid")
             {
-                // Tùy chính sách shop: chỉ hủy được khi chưa giao
-                throw new Exception("Chỉ có thể hủy đơn hàng khi đang ở trạng thái Pending hoặc Paid.");
+                throw new Exception("Chỉ có thể hủy đơn khi Pending hoặc Paid.");
             }
 
-            // Nếu hủy đơn và ở trạng thái chưa giao → hoàn lại tồn kho
-            if (newStatus == "Cancelled" && (order.Status == "Pending" || order.Status == "Paid"))
+            // 🔁 Hoàn kho khi hủy
+            if (newStatus == "Cancelled" &&
+                (order.Status == "Pending" || order.Status == "Paid"))
             {
                 foreach (var item in order.Items)
                 {
                     var sizeVariant = await _context.ProductSizeVariants
-                        .FirstOrDefaultAsync(sv => sv.Id == item.SizeVariantId && sv.ColorVariantId == item.ColorVariantId);
+                        .FirstOrDefaultAsync(sv =>
+                            sv.Id == item.SizeVariantId &&
+                            sv.ColorVariantId == item.ColorVariantId);
 
                     if (sizeVariant != null)
-                    {
-                        sizeVariant.Stock += item.Quantity; // Hoàn kho
-                    }
+                        sizeVariant.Stock += item.Quantity;
                 }
             }
 
+            var oldStatus = order.Status;
             order.Status = newStatus;
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(); // ✅ LƯU TRƯỚC
+            string customerName =
+                !string.IsNullOrWhiteSpace(order.CustomerName)
+                    ? order.CustomerName
+                    : !string.IsNullOrWhiteSpace(order.User?.FullName)
+                        ? order.User.FullName
+                        : "Quý khách";
+
+            // =========================
+            // 📧 GỬI EMAIL THÔNG BÁO
+            // =========================
+            if (!string.IsNullOrEmpty(order.User?.Email))
+            {
+                await _emailSender.SendOrderStatusEmailAsync(
+                    toEmail: order.User.Email,
+                    customerName: customerName,
+                    orderId: order.Id,
+                    newStatus: newStatus,
+                    totalAmount: order.TotalAmount
+                );
+            }
 
             return MapToOrderDto(order);
         }
+
         
         private OrderDto MapToOrderDto(Order order)
         {

@@ -8,6 +8,13 @@ namespace backend_shopcaulong.Services
     public class OrderService : IOrderService
     {
         private readonly ShopDbContext _context;
+        private readonly IEmailSender _emailSender;
+
+
+        public OrderService(ShopDbContext context, IEmailSender emailSender)
+        {
+            _context = context;
+            _emailSender = emailSender;
 
         private readonly IEmailSender _emailSender;
 
@@ -18,6 +25,7 @@ namespace backend_shopcaulong.Services
             _context = context;
             _emailSender = emailSender;
             _notificationService = notificationService;
+
         }
 
         public async Task<CreateOrderResponse> CreateOrderAsync(CreateOrderRequest request, int? userId = null)
@@ -51,7 +59,8 @@ namespace backend_shopcaulong.Services
                 PaymentMethod = request.PaymentMethod.ToLower() == "cod" ? "COD" : "Bank",
                 ShippingAddress = request.Address.Trim(),
                 Phone = request.Phone.Trim(),
-                Note = request.Note?.Trim()
+                Note = request.Note?.Trim(),
+                CustomerEmail = request.Email?.Trim()
             };
 
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -96,6 +105,19 @@ namespace backend_shopcaulong.Services
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+
+                // Gửi email thông báo đơn hàng mới
+                if (!string.IsNullOrWhiteSpace(order.CustomerEmail))
+                {
+                    await _emailSender.SendOrderStatusEmailAsync(
+                        order.CustomerEmail,
+                        order.CustomerName,
+                        order.Id,
+                        order.Status,
+                        order.TotalAmount
+                    );
+                }
 
                 try
                 {
@@ -314,7 +336,28 @@ namespace backend_shopcaulong.Services
             return MapToOrderDto(order);
         }
 
-        
+
+        public async Task<OrderDto> GetOrderByIdAsync(int orderId)
+        {
+            var order = await _context.Orders
+      .Include(o => o.Items)
+          .ThenInclude(od => od.Product)
+              .ThenInclude(p => p.Images) // thêm này
+      .Include(o => o.Items)
+          .ThenInclude(od => od.SizeVariant)
+              .ThenInclude(sv => sv.ColorVariant)
+                  .ThenInclude(cv => cv.Images) // thêm này
+      .FirstOrDefaultAsync(o => o.Id == orderId);
+
+            if (order == null)
+                throw new Exception("Không tìm thấy đơn hàng.");
+
+            return MapToOrderDto(order);
+        }
+
+
+
+    
         private OrderDto MapToOrderDto(Order order)
         {
             return new OrderDto
@@ -329,6 +372,7 @@ namespace backend_shopcaulong.Services
                 ShippingAddress = order.ShippingAddress,
                 Phone = order.Phone,
                 Note = order.Note,
+                Email = order.CustomerEmail,
                 Items = order.Items.Select(od => new OrderDetailDto
                 {
                     Id = od.Id,
@@ -339,7 +383,17 @@ namespace backend_shopcaulong.Services
                     SizeVariantId = od.SizeVariantId,
                     Size = od.SizeVariant?.Size ?? "N/A",
                     Quantity = od.Quantity,
-                    Price = od.Price
+                    Price = od.Price,
+                    ImageUrl =
+                od.ColorVariant?.Images?
+                    .FirstOrDefault(i => i.IsPrimary)?.ImageUrl
+                ?? od.ColorVariant?.Images?
+                    .FirstOrDefault()?.ImageUrl
+                ?? od.Product?.Images?
+                    .FirstOrDefault(i => i.IsPrimary)?.ImageUrl
+                ?? od.Product?.Images?
+                    .FirstOrDefault()?.ImageUrl
+                ?? ""
                 }).ToList()
             };
         }

@@ -3,25 +3,9 @@
   margin-left: var(--sidebar-width);
 }
 
-.form {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.form input[type="text"] {
-  padding: 8px;
-  flex: 1;
-}
-
-.checkbox {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.form button {
-  padding: 8px 16px;
+.addBtn {
+  margin-bottom: 15px;
+  padding: 8px 14px;
   cursor: pointer;
 }
 
@@ -39,14 +23,48 @@
 
 .table img {
   width: 120px;
-  object-fit: cover;
 }
 
 .delete {
   margin-left: 8px;
   background: #e74c3c;
-  color: #fff;
+  color: white;
   border: none;
   padding: 6px 10px;
   cursor: pointer;
+}
+
+/* MODAL */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  width: 400px;
+  border-radius: 6px;
+}
+
+.preview {
+  width: 100%;
+  margin: 10px 0;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }

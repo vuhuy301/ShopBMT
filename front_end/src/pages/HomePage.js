@@ -4,6 +4,7 @@ import styles from "./HomePage.module.css";
 import { useNavigate } from "react-router-dom";
 import { getCategories } from "../services/categoryService";
 import { getTopNewProductsByCategory } from "../services/productService";
+import { getAllBanners } from "../services/bannerService";
 import CategoryMenu from "../components/CategoryMenu";
 import ChatBot from "../components/ChatBot";
 
@@ -13,6 +14,8 @@ const HomePage = () => {
   const [categories, setCategories] = useState([]);
   const [productsByCategory, setProductsByCategory] = useState({}); // lưu sản phẩm theo categoryId
 
+  const [banners, setBanners] = useState([]);
+  const [currentBanner, setCurrentBanner] = useState(0);
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -38,6 +41,36 @@ const HomePage = () => {
     if (categories.length > 0) fetchProducts();
   }, [categories]);
 
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const data = await getAllBanners();
+
+        // ✅ lọc banner đang active
+        const activeBanners = data.filter(b => b.isActive === true);
+
+        setBanners(activeBanners);
+      } catch (err) {
+        console.error("Load banner failed:", err);
+      }
+    };
+
+    fetchBanners();
+  }, []);
+
+  useEffect(() => {
+    if (banners.length <= 1) return;
+
+    const timer = setInterval(() => {
+      setCurrentBanner(prev =>
+        prev === banners.length - 1 ? 0 : prev + 1
+      );
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, [banners]);
+
+
   return (
     <>
       <div className="container mt-3">
@@ -45,7 +78,7 @@ const HomePage = () => {
 
           {/* LEFT CATEGORY MENU */}
           <div className="col-md-3">
-             <CategoryMenu categories={categories} />
+            <CategoryMenu categories={categories} />
           </div>
 
           {/* MAIN CONTENT */}
@@ -53,25 +86,33 @@ const HomePage = () => {
 
             {/* Banner lớn */}
             <div className={styles.mainBanner}>
-              <img
-                src="https://file.hstatic.net/200000852613/file/tuyen_dung_fb__1__5df2c07130b3404ca13cb74e549cb983_1024x1024.png"
-                alt="banner"
-              />
+              {banners.length > 0 && (
+                <a
+                  href={banners[currentBanner].link || "#"}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <img
+                    src={IMAGE_BASE + banners[currentBanner].imageUrl}
+                    alt="banner"
+                  />
+                </a>
+              )}
             </div>
 
             {/* 3 Box nhỏ */}
             <div className="row g-3 mt-2 mb-3">
               <div className="col-md-4">
                 <div className={styles.featureBox}>Vận chuyển TOÀN QUỐC <br></br>
-Thanh toán khi nhận hàng</div>
+                  Thanh toán khi nhận hàng</div>
               </div>
               <div className="col-md-4">
                 <div className={styles.featureBox}>Bảo đảm chất lượng<br></br>
-Sản phẩm bảo đảm chất lượng.</div>
+                  Sản phẩm bảo đảm chất lượng.</div>
               </div>
               <div className="col-md-4">
                 <div className={styles.featureBox}>Tiến hành THANH TOÁN<br></br>
-Với nhiều PHƯƠNG THỨC</div>
+                  Với nhiều PHƯƠNG THỨC</div>
               </div>
             </div>
 

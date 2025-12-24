@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Cart.module.css";
 import { getCart, addToCart, removeFromCart, updateQuantity } from "../utils/cartUtils";
+import Breadcrumb from "../components/Breadcrumb";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -29,6 +30,13 @@ const Cart = () => {
 
   return (
     <div className={styles.cartContainer}>
+      <Breadcrumb
+  items={[
+    { label: "Trang chủ", path: "/" },
+    { label: "Giỏ hàng", path: null },
+  ]}
+/>
+
       <h3 className={styles.cartHeader}>GIỎ HÀNG CỦA BẠN</h3>
 
       {cartItems.length === 0 && <p>Chưa có sản phẩm nào trong giỏ.</p>}

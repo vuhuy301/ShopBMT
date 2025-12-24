@@ -26,6 +26,8 @@ import BrandManagement from "../pages/admin/BrandManagement";
 import CategoryManagement from "../pages/admin/CategoryManagement";
 import OrderManagement from "../pages/admin/OrderManagement";
 import BannerManager from "../pages/admin/BannerManagement";
+import PaymentPage from "../pages/PaymentPage";
+import OrderDetailPage from "../pages/OrderDetailPage";
 
 // Role-based Route
 const RoleRoute = ({ children, allowedRoles = [] }) => {
@@ -48,6 +50,8 @@ const CustomerLayout = () => (
       <Route path="/product/:id" element={<ProductDetails />} />
       <Route path="/cart" element={<Cart />} />
       <Route path="/checkout" element={<Checkout />} />
+      <Route path="/payment/:orderId" element={<PaymentPage />} />
+      <Route path="/my-order/:id" element={<OrderDetailPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
     <Footer />
@@ -74,11 +78,11 @@ const AppRouter = () => {
             </RoleRoute>
           }
         >
-          <Route index element={<Navigate to="/admin/products" replace />} />
-          <Route path="/admin/products" element={<ProductAdmin />} />
-          <Route path="/admin/add-product" element={<AddProductPage />} />
+          <Route index element={<Navigate to="/admin/product" replace />} />
+          <Route path="/admin/product" element={<ProductAdmin />} />
+          <Route path="/admin/product/add-product" element={<AddProductPage />} />
           <Route path="/admin/product/:id" element={<ProductDetailPage />} />
-             <Route path="/admin/product/:id/edit" element={<ProductUpdatePage />} />
+          <Route path="/admin/product/:id/edit" element={<ProductUpdatePage />} />
           <Route path="/admin/brands" element={<BrandManagement />} />
           <Route path="/admin/categories" element={<CategoryManagement />} />
           <Route path="/admin/orders" element={<OrderManagement />} />

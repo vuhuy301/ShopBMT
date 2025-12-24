@@ -1,0 +1,144 @@
+/* ====== ẢNH SẢN PHẨM ====== */
+.mainImage {
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s ease;
+}
+
+.mainImage:hover {
+  transform: scale(1.02);
+}
+
+/* ====== THUMBNAIL ====== */
+.thumbnail {
+  border-radius: 10px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.25s ease;
+}
+
+.thumbnail:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+}
+
+.thumbnailActive {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+}
+
+/* ====== TIÊU ĐỀ ====== */
+.productTitle {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.price {
+  font-size: 30px;
+  font-weight: 800;
+  color: #dc3545;
+}
+
+.oldPrice {
+  font-size: 18px;
+  color: #999;
+  text-decoration: line-through;
+}
+
+
+/* ====== BUTTON CHỌN MÀU / SIZE ====== */
+.optionBtn {
+  min-width: 70px;
+  border-radius: 999px;
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+.optionBtn:hover {
+  transform: translateY(-2px);
+}
+
+/* ====== TỒN KHO ====== */
+.stockBadge {
+  padding: 8px 14px;
+  font-size: 15px;
+  border-radius: 999px;
+}
+
+/* ====== NÚT ADD TO CART ====== */
+.addToCartBtn {
+  border-radius: 14px;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.addToCartBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(25, 135, 84, 0.35);
+}
+
+/* ====== ƯU ĐÃI ====== */
+.promoBox {
+  background: linear-gradient(135deg, #daecff, #fff1f1);
+  border-radius: 16px;
+  box-shadow: inset 0 0 0 1px #ffffff;
+}
+
+.promoBox li {
+  position: relative;
+  padding-left: 22px;
+}
+
+.promoBox li::before {
+  content: "✔";
+  position: absolute;
+  left: 0;
+  color: #198754;
+  font-weight: bold;
+}
+
+/* ====== HẾT HÀNG ====== */
+.outOfStock {
+  backdrop-filter: blur(4px);
+  font-size: 20px;
+  letter-spacing: 1px;
+  border-radius: 12px;
+}
+
+/* ====== CHI TIẾT SẢN PHẨM ====== */
+.detailBox {
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.detailImage {
+  display: block;
+  margin: 0 auto;      /* CĂN GIỮA */
+  max-width: 70vh;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 768px) {
+  .productTitle {
+    font-size: 22px;
+  }
+
+  .price {
+    font-size: 24px;
+  }
+
+  .addToCartBtn {
+    width: 100%;
+  }
+}

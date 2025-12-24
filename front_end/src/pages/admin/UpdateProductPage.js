@@ -277,30 +277,30 @@ const ProductUpdatePage = () => {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Update Product</h2>
+      <h2 className={styles.title}>Cập nhật sản phẩm</h2>
 
       {/* BASIC */}
       <div className={styles.section}>
-        <label>Name</label>
+        <label>Tên sản phẩm</label>
         <input
           value={product.name || ""}
           onChange={(e) => updateField("name", e.target.value)}
         />
 
-        <label>Description</label>
+        <label>Mô tả ngắn gọn</label>
         <textarea
           value={product.description || ""}
           onChange={(e) => updateField("description", e.target.value)}
         />
 
-        <label>Price</label>
+        <label>Giá gốc</label>
         <input
           type="number"
           value={product.price || ""}
           onChange={(e) => updateField("price", Number(e.target.value))}
         />
 
-        <label>Discount Price</label>
+        <label>Giá khuyến mãi</label>
         <input
           type="number"
           value={product.discountPrice || ""}
@@ -308,7 +308,7 @@ const ProductUpdatePage = () => {
         />
 
         {/* ---- CATEGORY ---- */}
-        <label>Category</label>
+        <label>Danh mục sản phẩm</label>
         <select
           value={product.categoryId || ""}
           onChange={(e) => updateField("categoryId", Number(e.target.value))}
@@ -322,7 +322,7 @@ const ProductUpdatePage = () => {
         </select>
 
         {/* ---- BRAND ---- */}
-        <label>Brand</label>
+        <label>Thương hiệu</label>
         <select
           value={product.brandId || ""}
           onChange={(e) => updateField("brandId", Number(e.target.value))}
@@ -339,7 +339,7 @@ const ProductUpdatePage = () => {
 
       {/* MAIN IMAGES */}
       <div className={styles.section}>
-        <h3>Images</h3>
+        <h3>Ảnh</h3>
         {product.images.map((img, i) => (
           <div key={i} className={styles.row}>
             <img
@@ -362,7 +362,7 @@ const ProductUpdatePage = () => {
 
       {/* DETAILS */}
       <div className={styles.section}>
-        <h3>Details</h3>
+        <h3>Mô tả chi tiết</h3>
         {product.details.map((d, i) => (
           <div key={d.id} className={styles.detailBox}>
             <textarea
@@ -389,12 +389,12 @@ const ProductUpdatePage = () => {
             <button onClick={() => removeDetail(i)}>Xóa</button>
           </div>
         ))}
-        <button onClick={addDetail}>+ Thêm detail</button>
+        <button onClick={addDetail}>+ Thêm mô tả</button>
       </div>
 
       {/* COLOR VARIANTS */}
       <div className={styles.section}>
-        <h3>Color Variants</h3>
+        <h3>Biến thể màu</h3>
         {product.colorVariants.map((cv, i) => (
           <div key={cv.id} className={styles.colorBox}>
             <input
@@ -420,7 +420,7 @@ const ProductUpdatePage = () => {
             </div>
             <input type="file" multiple onChange={e => handleColorImages(e, i)} />
 
-            <h4>Sizes</h4>
+            <h4>Biến thể size</h4>
             {cv.sizes.map((s, j) => (
               <div key={s.id} className={styles.row}>
                 <input value={s.size || ""} onChange={e => updateSize(i, j, "size", e.target.value)} placeholder="Size" />

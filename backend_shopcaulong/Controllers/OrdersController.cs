@@ -105,7 +105,21 @@ namespace backend_shopcaulong.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-       
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetOrderById(int id)
+        {
+            try
+            {
+                var order = await _orderService.GetOrderByIdAsync(id);
+                return Ok(order);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
         /// <summary>
         /// Lấy UserId từ JWT token nếu người dùng đã đăng nhập.
         /// Nếu không có token hoặc token không hợp lệ → trả về null (dùng cho khách vãng lai).

@@ -31,8 +31,7 @@ const ProductCard = ({ product }) => {
       </p>
 
       <div className={styles.actions}>
-        <button className={styles.btnEdit} >Sửa</button>
-        <button className={styles.btnDetail} onClick={handleDetail} >Chi tiết</button>
+        <button className={styles.btnDetail} onClick={handleDetail}>Chi tiết</button>
       </div>
     </div>
   );

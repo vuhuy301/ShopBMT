@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./ProductAdmin.module.css";
 import ProductCard from "./ProductCard";
 import { getProducts } from "../../services/productService";
+import { getCategories } from "../../services/categoryService";
 
 const ProductAdmin = () => {
     const [products, setProducts] = useState([]);
@@ -12,6 +13,7 @@ const ProductAdmin = () => {
     const navigate = useNavigate();
     // Filter
     const [search, setSearch] = useState("");
+    const [categories, setCategories] = useState([]);
     const [categoryId, setCategoryId] = useState("");
 
     const [totalPages, setTotalPages] = useState(1);
@@ -32,6 +34,14 @@ const ProductAdmin = () => {
         loadData();
     }, [page, search, categoryId]);
 
+    useEffect(() => {
+        const fetchCategories = async () => {
+            const data = await getCategories();
+            setCategories(data);
+        };
+        fetchCategories();
+    }, []);
+
     return (
         <div className={styles.container}>
             <h2 className={styles.title}>Quản lý sản phẩm</h2>
@@ -40,7 +50,7 @@ const ProductAdmin = () => {
                 {/* Nút thêm sản phẩm */}
                 <button
                     className="btn btn-success"
-                    onClick={() => navigate("/admin/add-product")}
+                    onClick={() => navigate("/admin/product/add-product")}
                 >
                     + Thêm sản phẩm
                 </button>
@@ -69,9 +79,14 @@ const ProductAdmin = () => {
                         style={{ width: "180px" }}
                     >
                         <option value="">Danh mục</option>
-                        <option value="2">Giày cầu lông</option>
-                        <option value="1">Vợt cầu lông</option>
+
+                        {categories.map((cat) => (
+                            <option key={cat.id} value={cat.id}>
+                                {cat.name}
+                            </option>
+                        ))}
                     </select>
+
                 </div>
 
             </div>

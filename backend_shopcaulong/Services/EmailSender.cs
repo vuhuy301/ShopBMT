@@ -49,6 +49,7 @@ namespace backend_shopcaulong.Services
                 "Delivered" => "Đã giao thành công",
                 "Cancelled" => "Đã hủy",
                 "Returned" => "Đã hoàn trả",
+                "Paid" => "Thanh toán thành công",
                 _ => newStatus
             };
 
@@ -80,7 +81,7 @@ namespace backend_shopcaulong.Services
                     </div>
 
                     <p style='text-align: center;'>
-                        <a href='https://shopcaulong.com/don-hang/{orderId}' 
+                        <a href='http://localhost:3000/my-order/{orderId}' 
                            style='background: #d4380d; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold;'>
                             XEM CHI TIẾT ĐƠN HÀNG
                         </a>

@@ -12,6 +12,7 @@ namespace backend_shopcaulong.DTOs.Order
         public string ShippingAddress { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
         public string? Note { get; set; }
+        public string? Email { get; set; }
         public List<OrderDetailDto> Items { get; set; } = new();
     }
 }

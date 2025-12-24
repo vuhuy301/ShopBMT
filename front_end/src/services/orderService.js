@@ -19,3 +19,13 @@ export const placeOrder = async (orderData) => {
 
     return await response.json();
 };
+
+export const getOrderById = async (id) => {
+  const res = await fetch(`${BASE_URL}/Orders/${id}`);
+
+  if (!res.ok) {
+    throw new Error("Không lấy được đơn hàng");
+  }
+
+  return await res.json();
+};

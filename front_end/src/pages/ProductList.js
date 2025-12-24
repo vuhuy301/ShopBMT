@@ -4,6 +4,7 @@ import styles from "./ProductList.module.css";
 import { getProducts } from "../services/productService";
 import { getCategories } from "../services/categoryService";
 import CategoryMenu from "../components/CategoryMenu";
+import Breadcrumb from "../components/Breadcrumb";
 
 const IMAGE_BASE = process.env.REACT_APP_IMAGE_BASE_URL;
 
@@ -91,6 +92,17 @@ const ProductList = () => {
 
         {/* RIGHT CONTENT */}
         <div className="col-md-9">
+          <Breadcrumb
+  items={[
+    { label: "Trang chủ", path: "/" },
+    { label: "Sản phẩm", path: null },
+    {
+      label: cateName || "Danh mục",
+      path: null, // trang hiện tại
+    },
+  ]}
+/>
+
           <h2 className="fw-bold mb-3">{cateName}</h2>
 
           {/* Filters */}
@@ -205,11 +217,11 @@ const ProductList = () => {
               disabled={currentPage <= 1}
               onClick={() => setCurrentPage((prev) => prev - 1)}
             >
-              Prev
+              Trước
             </button>
 
             <span className="align-self-center">
-              Page {currentPage} / {totalPages}
+              Trang {currentPage} / {totalPages}
             </span>
 
             <button
@@ -217,7 +229,7 @@ const ProductList = () => {
               disabled={currentPage >= totalPages}
               onClick={() => setCurrentPage((prev) => prev + 1)}
             >
-              Next
+              Sau
             </button>
           </div>
         </div>

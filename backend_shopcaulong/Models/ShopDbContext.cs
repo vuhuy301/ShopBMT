@@ -30,6 +30,7 @@ namespace backend_shopcaulong.Models
         public DbSet<Promotion> Promotions { get; set; }
         public DbSet<ProductColorVariant> ProductColorVariants { get; set; }
         public DbSet<ProductSizeVariant> ProductSizeVariants { get; set; }
+        public DbSet<Payment> Payments { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -21,7 +21,7 @@ const Sidebar = () => {
   const menuConfig = {
     admin: [
       { path: "/admin/dashboard", icon: <BiSolidDashboard />, label: "Dashboard" },
-      { path: "/admin/products", icon: <BiPackage />, label: "Sản phẩm" },
+      { path: "/admin/product", icon: <BiPackage />, label: "Sản phẩm" },
       { path: "/admin/orders", icon: <BiAlignRight />, label: "Đơn hàng" },
       { path: "/admin/categories", icon: <BiSolidUserDetail />, label: "Danh mục sản phẩm" },
       { path: "/admin/brands", icon: <BiSolidHourglass />, label: "Thương hiệu" },

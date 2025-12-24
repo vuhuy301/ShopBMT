@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProductById } from "../services/productService";
 import { addToCart } from "../utils/cartUtils";
+import Breadcrumb from "../components/Breadcrumb";
+import styles from "./ProductDetails.module.css";
 
 const IMAGE_BASE = process.env.REACT_APP_IMAGE_BASE_URL;
 
@@ -10,10 +12,10 @@ const ProductDetails = () => {
   const { id } = useParams();
 
   const [product, setProduct] = useState(null);
-  const [selectedColor, setSelectedColor] = useState(null);   // màu đang chọn
-  const [selectedSize, setSelectedSize] = useState(null);     // size đang chọn
-  const [mainDisplayImage, setMainDisplayImage] = useState(""); // ảnh chính đang hiển thị to
-  const [thumbnailIndex, setThumbnailIndex] = useState(0);    // để highlight thumbnail
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [mainDisplayImage, setMainDisplayImage] = useState("");
+  const [thumbnailIndex, setThumbnailIndex] = useState(0);
 
   // Load sản phẩm
   useEffect(() => {
@@ -21,44 +23,44 @@ const ProductDetails = () => {
       const data = await getProductById(id);
       setProduct(data);
 
-      // Chọn màu đầu tiên làm mặc định (nếu có)
       if (data.colorVariants?.length > 0) {
         setSelectedColor(data.colorVariants[0]);
       }
 
-      // Ảnh chính mặc định = ảnh primary hoặc ảnh đầu tiên
-      const primaryImg = data.images?.find(img => img.isPrimary)?.imageUrl
-        || data.images?.[0]?.imageUrl
-        || "";
+      const primaryImg =
+        data.images?.find((img) => img.isPrimary)?.imageUrl ||
+        data.images?.[0]?.imageUrl ||
+        "";
       setMainDisplayImage(primaryImg);
     };
     fetchProduct();
   }, [id]);
 
-  // Khi đổi màu → đổi ảnh chính thành ảnh đầu tiên của màu đó
+  // Khi đổi màu
   useEffect(() => {
     if (selectedColor?.imageUrls?.length > 0) {
       setMainDisplayImage(selectedColor.imageUrls[0]);
     } else if (product?.images?.length > 0) {
-      const primary = product.images.find(img => img.isPrimary)?.imageUrl || product.images[0].imageUrl;
+      const primary =
+        product.images.find((img) => img.isPrimary)?.imageUrl ||
+        product.images[0].imageUrl;
       setMainDisplayImage(primary);
     }
   }, [selectedColor, product]);
 
-  // Auto slide thumbnail + ảnh chính (chỉ khi chưa chọn màu)
+  // Auto slide thumbnail
   useEffect(() => {
-    if (selectedColor) return; // tắt slide khi đang xem màu
-
+    if (selectedColor) return;
     if (!product?.images || product.images.length <= 1) return;
 
     const interval = setInterval(() => {
-      setThumbnailIndex(prev => (prev + 1) % product.images.length);
+      setThumbnailIndex((prev) => (prev + 1) % product.images.length);
     }, 4000);
 
     return () => clearInterval(interval);
   }, [selectedColor, product]);
 
-  // Khi slide → cập nhật ảnh chính
+  // Update ảnh chính khi slide
   useEffect(() => {
     if (!selectedColor && product?.images?.[thumbnailIndex]) {
       setMainDisplayImage(product.images[thumbnailIndex].imageUrl);
@@ -67,142 +69,152 @@ const ProductDetails = () => {
 
   if (!product) return <h3 className="container mt-5">Đang tải sản phẩm...</h3>;
 
-  // Danh sách ảnh thumbnail – luôn là ảnh chính của sản phẩm
   const thumbnailImages = product.images || [];
+  const finalPrice =
+    selectedSize?.finalPrice ?? product.discountPrice ?? product.price;
 
-  // Tính giá cuối cùng
-  const finalPrice = selectedSize?.finalPrice ?? product.discountPrice ?? product.price;
-
-  // Tính tồn kho hiện tại
   const getCurrentStock = () => {
     if (product.colorVariants?.length > 0) {
       if (selectedSize) return selectedSize.stock;
       if (selectedColor) {
-        return selectedColor.sizes?.reduce((sum, s) => sum + s.stock, 0) ?? 0;
+        return (
+          selectedColor.sizes?.reduce((sum, s) => sum + s.stock, 0) ?? 0
+        );
       }
-      return product.colorVariants.reduce((total, cv) => 
-        total + (cv.sizes?.reduce((sum, s) => sum + s.stock, 0) ?? 0), 0);
+      return product.colorVariants.reduce(
+        (total, cv) =>
+          total + (cv.sizes?.reduce((sum, s) => sum + s.stock, 0) ?? 0),
+        0
+      );
     }
     return product.stock ?? 0;
   };
 
   const currentStock = getCurrentStock();
 
-  // Thêm vào giỏ hàng
   const handleAddToCart = () => {
-  if (product.colorVariants?.length > 0 && !selectedSize) {
-    alert("Vui lòng chọn size trước khi thêm vào giỏ hàng!");
-    return;
-  }
+    if (product.colorVariants?.length > 0 && !selectedSize) {
+      alert("Vui lòng chọn size trước khi thêm vào giỏ hàng!");
+      return;
+    }
 
-  addToCart({
-    productId: product.id,               // ✅ ID sản phẩm
-    name: product.name,
-    price: finalPrice,
-    image: IMAGE_BASE + mainDisplayImage,
+    addToCart({
+      productId: product.id,
+      name: product.name,
+      price: finalPrice,
+      image: IMAGE_BASE + mainDisplayImage,
+      colorVariantId: selectedColor?.id,
+      color: selectedColor?.color,
+      sizeVariantId: selectedSize?.id,
+      size: selectedSize?.size,
+      quantity: 1,
+    });
 
-    colorVariantId: selectedColor?.id,   // ✅ ID màu
-    color: selectedColor?.color,
+    alert("Đã thêm vào giỏ hàng!");
+  };
 
-    sizeVariantId: selectedSize?.id,     // ✅ ID size
-    size: selectedSize?.size,
-
-    quantity: 1,
-  });
-
-  alert("Đã thêm vào giỏ hàng!");
-};
-
-  const formatPrice = (price) => price?.toLocaleString("vi-VN") + " đ";
+  const formatPrice = (price) =>
+    price?.toLocaleString("vi-VN") + " đ";
 
   return (
     <div className="container mt-4 mb-5">
-      <button onClick={() => navigate(-1)} className="btn btn-outline-secondary mb-4">
-        ← Quay lại
-      </button>
+      <Breadcrumb
+        items={[
+          { label: "Trang chủ", path: "/" },
+          {
+            label: product.categoryName,
+            path: `/products/${product.categoryId}`,
+          },
+          { label: product.name, path: null },
+        ]}
+      />
 
       <div className="row g-5">
-        {/* === PHẦN ẢNH === */}
+        {/* === ẢNH === */}
         <div className="col-lg-6">
-          {/* Ảnh chính lớn */}
           <div className="position-relative">
             <img
               src={IMAGE_BASE + mainDisplayImage}
               alt={product.name}
-              className="img-fluid rounded shadow-sm"
+              className={`img-fluid ${styles.mainImage}`}
               style={{ width: "100%", height: "560px", objectFit: "cover" }}
             />
+
             {currentStock === 0 && (
-              <div className="position-absolute top-50 start-50 translate-middle bg-dark bg-opacity-75 text-white px-4 py-2 rounded">
+              <div
+                className={`position-absolute top-50 start-50 translate-middle bg-dark bg-opacity-75 text-white px-4 py-2 ${styles.outOfStock}`}
+              >
                 <strong>HẾT HÀNG</strong>
               </div>
             )}
           </div>
 
-          {/* Thumbnail – luôn là ảnh chính sản phẩm */}
-          {thumbnailImages.length > 0 && (
-            <div className="d-flex gap-2 mt-3 flex-wrap justify-content-center">
-              {thumbnailImages.map((img, idx) => (
-                <img
-                  key={idx}
-                  src={IMAGE_BASE + img.imageUrl}
-                  alt={`Thumbnail ${idx + 1}`}
-                  className={`border rounded cursor-pointer ${
-                    img.imageUrl === mainDisplayImage ? "border-primary border-3" : "border"
+          {/* Thumbnail */}
+          <div className="d-flex gap-2 mt-3 flex-wrap justify-content-center">
+            {thumbnailImages.map((img, idx) => (
+              <img
+                key={idx}
+                src={IMAGE_BASE + img.imageUrl}
+                alt={`Thumbnail ${idx + 1}`}
+                className={`${styles.thumbnail} ${img.imageUrl === mainDisplayImage
+                    ? styles.thumbnailActive
+                    : ""
                   }`}
-                  style={{
-                    width: "80px",
-                    height: "80px",
-                    objectFit: "cover",
-                    cursor: "pointer",
-                    transition: "all 0.2s"
-                  }}
-                  onClick={() => {
-                    setMainDisplayImage(img.imageUrl);
-                    setThumbnailIndex(idx);
-                  }}
-                />
-              ))}
-            </div>
-          )}
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  objectFit: "cover",
+                }}
+                onClick={() => {
+                  setMainDisplayImage(img.imageUrl);
+                  setThumbnailIndex(idx);
+                }}
+              />
+            ))}
+          </div>
         </div>
 
-        {/* === THÔNG TIN SẢN PHẨM === */}
+        {/* === THÔNG TIN === */}
         <div className="col-lg-6">
-          <h2 className="fw-bold">{product.name}</h2>
+          <h2 className={styles.productTitle}>{product.name}</h2>
+
           <p className="text-muted">
-            Thương hiệu: <strong>{product.brandName || "Không xác định"}</strong> | 
-            Danh mục: <strong>{product.categoryName || "Chưa phân loại"}</strong>
+            Thương hiệu: <strong>{product.brandName || "Không xác định"}</strong>{" "}
+            | Danh mục:{" "}
+            <strong>{product.categoryName || "Chưa phân loại"}</strong>
           </p>
 
-          {/* Giá */}
-          <div className="my-4">
-            <h3 className="text-danger fw-bold">{formatPrice(finalPrice)}</h3>
-            {product.discountPrice && product.discountPrice < product.price && (
-              <p className="text-decoration-line-through text-muted">
-                {formatPrice(product.price)}
-              </p>
-            )}
+          <div>
+            <div className={styles.priceRow}>
+              <span className={styles.price}>{formatPrice(finalPrice)}</span>
+
+              {product.discountPrice && product.discountPrice < product.price && (
+                <span className={styles.oldPrice}>
+                  {formatPrice(product.price)}
+                </span>
+              )}
+            </div>
+
           </div>
+        
 
           <hr />
 
-          {/* Chọn màu */}
+          {/* Màu */}
           {product.colorVariants?.length > 0 && (
-            <div className="mb-4">
-              <h5 className="mb-3">Màu sắc</h5>
+            <div className="mb-3">
+              <h5 className="mb-2">Màu sắc</h5>
               <div className="d-flex flex-wrap gap-2">
                 {product.colorVariants.map((variant) => (
                   <button
                     key={variant.id}
-                    className={`btn px-4 py-2 ${
-                      selectedColor?.id === variant.id
+                    className={`btn px-4 py-2 ${styles.optionBtn} ${selectedColor?.id === variant.id
                         ? "btn-primary"
                         : "btn-outline-secondary"
-                    }`}
+                      }`}
                     onClick={() => {
                       setSelectedColor(variant);
-                      setSelectedSize(null); // reset size khi đổi màu
+                      setSelectedSize(null);
                     }}
                   >
                     {variant.color}
@@ -212,22 +224,21 @@ const ProductDetails = () => {
             </div>
           )}
 
-          {/* Chọn size */}
+          {/* Size */}
           {selectedColor?.sizes?.length > 0 && (
-            <div className="mb-4">
-              <h5 className="mb-3">Kích thước</h5>
+            <div className="mb-3">
+              <h5 className="mb-2">Kích thước</h5>
               <div className="d-flex flex-wrap gap-2">
                 {selectedColor.sizes.map((sz) => (
                   <button
                     key={sz.id}
                     disabled={!sz.inStock || sz.stock === 0}
-                    className={`btn px-4 ${
-                      selectedSize?.id === sz.id
-                        ? "btn-success"
+                    className={`btn px-4 ${styles.optionBtn} ${selectedSize?.id === sz.id
+                        ? "btn-warning"
                         : sz.inStock && sz.stock > 0
-                        ? "btn-outline-success"
-                        : "btn-secondary opacity-50"
-                    }`}
+                          ? "btn-outline-warning"
+                          : "btn-secondary opacity-50"
+                      }`}
                     onClick={() => setSelectedSize(sz)}
                   >
                     {sz.size}
@@ -238,20 +249,29 @@ const ProductDetails = () => {
           )}
 
           {/* Tồn kho */}
-          <p className="mb-4">
+          <p className="mb-3">
             <strong>Tình trạng:</strong>{" "}
             {currentStock > 0 ? (
-              <span className="badge bg-success fs-6">
-                {selectedSize ? "Còn hàng" : `Còn ${currentStock} sản phẩm`}
+              <span
+                className={`badge bg-success fs-6 ${styles.stockBadge}`}
+              >
+                Còn hàng
               </span>
             ) : (
-              <span className="badge bg-danger fs-6">Hết hàng</span>
+              <span
+                className={`badge bg-danger fs-6 ${styles.stockBadge}`}
+              >
+                Hết hàng
+              </span>
             )}
           </p>
+              <div className="mb-3">
+              <p>{product.description}</p>
+          </div >
 
-          {/* Nút thêm giỏ hàng */}
+          {/* Add to cart */}
           <button
-            className="btn btn-success btn-lg px-5 py-3 fw-bold"
+            className={`btn btn-success btn-lg px-5 py-3 fw-bold ${styles.addToCartBtn}`}
             disabled={currentStock === 0}
             onClick={handleAddToCart}
           >
@@ -259,37 +279,38 @@ const ProductDetails = () => {
           </button>
 
           {/* Ưu đãi */}
-          <div className="mt-4 p-4 border rounded bg-light">
-            <h5 className="mb-3">Ưu đãi đặc biệt</h5>
+          <div className={`mt-3 p-4 border ${styles.promoBox}`}>
+            <h5 className="mb-3">🎁Ưu đãi đặc biệt🎁</h5>
             <ul className="list-unstyled mb-0">
-              <li className="mb-2">Miễn phí vận chuyển toàn quốc cho đơn từ 500.000đ</li>
-              <li className="mb-2">Giảm thêm 10% cho đơn hàng tiếp theo</li>
-              <li className="mb-2">Đổi trả miễn phí trong 7 ngày nếu lỗi nhà sản xuất</li>
-              <li>Hỗ trợ tư vấn size qua Zalo/Fanpage</li>
+              <li>Miễn phí ship đơn từ 500.000đ</li>
+              <li>Giảm 10% cho đơn tiếp theo</li>
+              <li>Đổi trả 7 ngày nếu lỗi</li>
+              <li>Hỗ trợ tư vấn size</li>
             </ul>
           </div>
         </div>
       </div>
 
-      {/* Mô tả chi tiết */}
+      {/* Chi tiết */}
       {product.details?.length > 0 && (
-        <div className="mt-5 p-4 border rounded bg-light">
+        <div className={`mt-5 p-4 border ${styles.detailBox}`}>
           <h4 className="mb-4">Thông tin chi tiết sản phẩm</h4>
           {product.details.map((item) => (
             <div key={item.id} className="mb-5">
               {item.text && (
                 <div
                   className="mb-3"
-                  style={{lineHeight: "1.8" }}
-                  dangerouslySetInnerHTML={{ __html: item.text.replace(/\n/g, "<br/>") }}
+                  style={{ lineHeight: "1.8" }}
+                  dangerouslySetInnerHTML={{
+                    __html: item.text.replace(/\n/g, "<br/>"),
+                  }}
                 />
               )}
               {item.imageUrl && (
                 <img
                   src={IMAGE_BASE + item.imageUrl}
-                  alt="Chi tiết sản phẩm"
-                  className="img-fluid rounded shadow-sm"
-                  style={{ maxHeight: "600px", objectFit: "contain" }}
+                  alt="Chi tiết"
+                  className={`img-fluid ${styles.detailImage}`}
                 />
               )}
             </div>

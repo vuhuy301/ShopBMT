@@ -36,9 +36,25 @@
 }
 
 .radioLabel {
-  display: block;
-  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  width: 100%;
   cursor: pointer;
+  padding: 8px 0;
+}
+
+.radioText {
+  flex: 1;
+  padding: 12px 0;        /* tăng diện tích click của chữ */
+  font-size: 14px;        /* đảm bảo không bị scale */
+  line-height: 1.5;
+}
+
+/* radio */
+.radioLabel input[type="radio"] {
+  margin: 0 4px;
+  width: 18px;
+  height: 18px;
 }
 
 .orderItem {

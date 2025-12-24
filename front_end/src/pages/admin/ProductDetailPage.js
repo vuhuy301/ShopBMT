@@ -110,7 +110,7 @@ const ProductDetailPage = () => {
 
             {/* NÚT EDIT */}
             <button
-                className={styles.btnEdit}
+                className='btn btn-primary'
                 onClick={() => navigate(`/admin/product/${id}/edit`)}
             >
                 Cập nhật sản phẩm

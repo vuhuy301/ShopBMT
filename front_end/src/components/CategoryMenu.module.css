@@ -43,3 +43,9 @@
   font-size: 18px;
   font-weight: bold;
 }
+
+.active {
+  background: #c2caff;
+  color: #0008ff !important;
+  font-weight: 600;
+}

@@ -22,8 +22,10 @@
         public string Phone { get; set; }
 
         public string? Note { get; set; }
+        public string? CustomerEmail { get; set; }
 
         // Danh sách sản phẩm trong đơn
         public ICollection<OrderDetail> Items { get; set; }
+        public ICollection<Payment> Payments { get; set; }
     }
 }

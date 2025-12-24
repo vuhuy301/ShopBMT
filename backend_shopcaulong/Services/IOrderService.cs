@@ -13,6 +13,7 @@ namespace backend_shopcaulong.Services
         Task<List<OrderDto>> GetMyOrdersAsync(int userId, GetOrdersRequest request);
 
         Task<OrderDto> UpdateOrderStatusAsync(int orderId, string newStatus, int adminUserId);
+        Task<OrderDto> GetOrderByIdAsync(int orderId);
 
     }
 }

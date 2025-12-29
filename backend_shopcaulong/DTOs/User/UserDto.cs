@@ -14,5 +14,7 @@ namespace backend_shopcaulong.DTOs.User
 
         public string? Phone { get; set; }
         public string? Address { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime? ProfileUpdatedAt { get; set; }
     }
 }

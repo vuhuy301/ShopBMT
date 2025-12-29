@@ -24,5 +24,8 @@
         public string? GoogleId { get; set; }
         // public string? Avatar { get; set; }
         public bool EmailVerified { get; set; } = false;
+
+        public bool IsActive { get; set; }
+        public DateTime? ProfileUpdatedAt { get; set; }
     }
 }

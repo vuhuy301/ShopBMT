@@ -1,5 +1,7 @@
 using System.Threading.Tasks;
+using backend_shopcaulong.DTOs.Common;
 using backend_shopcaulong.DTOs.User;
+
 
 namespace backend_shopcaulong.Services
 {
@@ -18,6 +20,7 @@ namespace backend_shopcaulong.Services
         Task<UserDto> CreateEmployeeAsync(CreateEmployeeDto dto);
         Task<bool> UpdateUserRoleAsync(int userId, string newRole);
 
-
+        Task<bool> ToggleUserActiveStatusAsync(int userId, bool isActive);
+       Task<PagedResultDto<UserDto>> GetUsersPagedAsync(GetUsersRequestDto request);
     }
 }

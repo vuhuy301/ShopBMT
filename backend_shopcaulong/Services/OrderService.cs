@@ -9,16 +9,9 @@ namespace backend_shopcaulong.Services
     {
         private readonly ShopDbContext _context;
         private readonly IEmailSender _emailSender;
-
-
-        public OrderService(ShopDbContext context, IEmailSender emailSender)
-        {
-            _context = context;
-            _emailSender = emailSender;
-
-        private readonly IEmailSender _emailSender;
-
         private readonly INotificationService _notificationService;
+
+           
 
         public OrderService(ShopDbContext context, IEmailSender emailSender, INotificationService notificationService)
         {
@@ -55,7 +48,7 @@ namespace backend_shopcaulong.Services
                 CustomerName = customerName,
                 TotalAmount = totalAmount,
                 CreatedAt = DateTime.Now,
-                Status = "Pending",
+                Status = "Chờ xác nhận",
                 PaymentMethod = request.PaymentMethod.ToLower() == "cod" ? "COD" : "Bank",
                 ShippingAddress = request.Address.Trim(),
                 Phone = request.Phone.Trim(),
@@ -265,7 +258,7 @@ namespace backend_shopcaulong.Services
         {
             var validStatuses = new HashSet<string>
             {
-                "Pending", "Paid", "Shipping", "Completed", "Cancelled"
+                "Chờ xác nhận", "Đã thanh toán", "Đang giao", "Hoàn thành", "Đã hủy"
             };
 
             if (!validStatuses.Contains(newStatus))
@@ -285,16 +278,15 @@ namespace backend_shopcaulong.Services
                 throw new Exception("Không tìm thấy đơn hàng.");
 
             // ❌ Không cho hủy sai trạng thái
-            if (newStatus == "Cancelled" &&
-                order.Status != "Pending" &&
-                order.Status != "Paid")
+            if (newStatus == "Đã hủy" &&
+                order.Status != "Chờ xác nhận")
             {
-                throw new Exception("Chỉ có thể hủy đơn khi Pending hoặc Paid.");
+                throw new Exception("Chỉ có thể hủy đơn khi chờ xác nhận");
             }
 
             // 🔁 Hoàn kho khi hủy
-            if (newStatus == "Cancelled" &&
-                (order.Status == "Pending" || order.Status == "Paid"))
+            if (newStatus == "Đã hủy" &&
+                (order.Status == "Chờ xác nhận"))
             {
                 foreach (var item in order.Items)
                 {

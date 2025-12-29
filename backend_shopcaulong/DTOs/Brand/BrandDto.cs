@@ -7,6 +7,8 @@
 
         // Số sản phẩm thuộc brand
         public int ProductCount { get; set; }
+
+        public bool IsActive { get; set; }
     }
 
  

@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using backend_shopcaulong.DTOs.Banner;
 using backend_shopcaulong.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend_shopcaulong.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+
     public class BannersController : ControllerBase
     {
         private readonly IBannerService _service;
@@ -30,6 +32,7 @@ namespace backend_shopcaulong.Controllers
 
         //  CREATE
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromForm] CreateBannerDto dto)
         {
             var result = await _service.CreateAsync(dto);
@@ -47,6 +50,7 @@ namespace backend_shopcaulong.Controllers
 
         //  UPDATE
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromForm] UpdateBannerDto dto)
         {
             var success = await _service.UpdateAsync(id, dto);
@@ -59,6 +63,7 @@ namespace backend_shopcaulong.Controllers
 
         // DELETE
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var success = await _service.DeleteAsync(id);

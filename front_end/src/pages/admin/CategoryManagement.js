@@ -1,38 +1,53 @@
 import React, { useState, useEffect } from "react";
 import styles from "./CategoryManagement.module.css";
-import { getCategories, addCategory, updateCategory } from "../../services/categoryService";
+import { getAllCategories, addCategory, updateCategory, toggleCategoryActive } from "../../services/categoryService";
 
 const CategoryManagement = () => {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchCategories();
   }, []);
 
   const fetchCategories = async () => {
-    const data = await getCategories();
-    setCategories(data);
+    try {
+      setLoading(true);
+      const data = await getAllCategories();
+      setCategories(data);
+    } catch (err) {
+      console.error("Fetch categories thất bại", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAddOrUpdate = async () => {
     if (!name.trim()) return;
 
-    if (editingId) {
-      const updated = await updateCategory(editingId, name, description);
-      if (updated) {
-        setCategories(categories.map(c => (c.id === editingId ? updated : c)));
-        setEditingId(null);
+    try {
+      if (editingId) {
+        const updated = await updateCategory(editingId, name, description);
+        if (updated) {
+          setCategories((prev) =>
+            prev.map((c) => (c.id === editingId ? updated : c))
+          );
+          setEditingId(null);
+        }
+      } else {
+        const newCategory = await addCategory(name, description);
+        if (newCategory) {
+          setCategories((prev) => [...prev, newCategory]);
+        }
       }
-    } else {
-      const newCategory = await addCategory(name, description);
-      if (newCategory) setCategories([...categories, newCategory]);
+      setName("");
+      setDescription("");
+    } catch (err) {
+      console.error("Add/Update category thất bại", err);
     }
-
-    setName("");
-    setDescription("");
   };
 
   const handleEdit = (category) => {
@@ -41,6 +56,22 @@ const CategoryManagement = () => {
     setDescription(category.description || "");
   };
 
+  const handleToggleActive = async (category) => {
+    if (!category || category.id == null) return;
+
+    const confirmMsg = category.isActive
+      ? `Bạn có chắc muốn Ẩn danh mục "${category.name}" không?`
+      : `Bạn có chắc muốn Hiển thị danh mục "${category.name}" không?`;
+
+    if (!window.confirm(confirmMsg)) return;
+
+    const updated = await toggleCategoryActive(category.id, !category.isActive);
+
+    if (updated) {
+      // fetch lại toàn bộ để UI đồng bộ
+      await fetchCategories();
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -50,43 +81,59 @@ const CategoryManagement = () => {
         <input
           placeholder="Tên danh mục"
           value={name}
-          onChange={e => setName(e.target.value)}
+          onChange={(e) => setName(e.target.value)}
         />
         <input
           placeholder="Mô tả"
           value={description}
-          onChange={e => setDescription(e.target.value)}
+          onChange={(e) => setDescription(e.target.value)}
         />
         <button onClick={handleAddOrUpdate}>
           {editingId ? "Cập nhật" : "Thêm"}
         </button>
       </div>
 
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Tên danh mục</th>
-            <th>Mô tả</th>
-            <th>Số lượng sản phẩm</th>
-            <th>Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          {categories.map((c, index) => (
-            <tr key={c.id}>
-              <td>{index + 1}</td>
-              <td>{c.name}</td>
-              <td>{c.description}</td>
-              <td>{c.productCount || 0}</td>
-              <td>
-                <button className={styles.editBtn} onClick={() => handleEdit(c)}>Sửa</button>
-                <button className={styles.deleteBtn}>Xóa</button>
-              </td>
+      {loading ? (
+        <p>Đang tải danh mục...</p>
+      ) : (
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tên danh mục</th>
+              <th>Mô tả</th>
+              <th>Số lượng sản phẩm</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {categories.map((c, index) => (
+              <tr key={c.id}>
+                <td>{index + 1}</td>
+                <td>{c.name}</td>
+                <td>{c.description}</td>
+                <td>{c.productCount || 0}</td>
+                <td>{c.isActive ? "Hiển thị" : "Ẩn"}</td>
+                <td>
+                  <button
+                    className={styles.editBtn}
+                    onClick={() => handleEdit(c)}
+                  >
+                    Sửa
+                  </button>
+                  <button
+                    className={styles.deleteBtn}
+                    onClick={() => handleToggleActive(c)}
+                  >
+                    {c.isActive ? "Ẩn" : "Hiện"}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };

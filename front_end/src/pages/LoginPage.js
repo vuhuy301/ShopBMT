@@ -11,9 +11,8 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // ==================== GOOGLE LOGIN - CÁCH MỚI NHẤT 2025 ====================
+  // ==================== GOOGLE LOGIN ====================
   useEffect(() => {
-    // Tự động load script Google (không cần index.html)
     const script = document.createElement("script");
     script.src = "https://accounts.google.com/gsi/client";
     script.async = true;
@@ -21,7 +20,6 @@ const LoginPage = () => {
     document.body.appendChild(script);
 
     script.onload = () => {
-      // Khởi tạo Google Identity
       window.google.accounts.id.initialize({
         client_id: "1013063153881-rd02h43rtk2rtsnjtvla6jlm94mt66f5.apps.googleusercontent.com",
         callback: async (response) => {
@@ -35,15 +33,20 @@ const LoginPage = () => {
             const res = await fetch(`${BASE_URL}/Users/google-login`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ token: response.credential }), // Đây là ID Token (rất an toàn)
+              body: JSON.stringify({ token: response.credential }),
             });
 
             const data = await res.json();
-
             if (data.accessToken) {
+              // Decode exp
+              const payload = JSON.parse(atob(data.accessToken.split(".")[1]));
+              const exp = payload.exp * 1000;
+
               localStorage.setItem("accessToken", data.accessToken);
+              localStorage.setItem("accessTokenExp", exp);
               localStorage.setItem("role", data.user?.role || "Customer");
               localStorage.setItem("user", JSON.stringify(data.user || {}));
+
               window.location.href = data.user?.role === "Admin" ? "/admin" : "/";
             } else {
               setError("Không nhận được token từ server");
@@ -56,16 +59,9 @@ const LoginPage = () => {
         },
       });
 
-      // Render nút Google chính thức (đẹp, chuẩn Google)
       window.google.accounts.id.renderButton(
         document.getElementById("googleSignInButton"),
-        {
-          theme: "outline",
-          size: "large",
-          text: "continue_with",
-          width: "340",
-          logo_alignment: "left",
-        }
+        { theme: "outline", size: "large", text: "continue_with", width: "340", logo_alignment: "left" }
       );
     };
   }, []);
@@ -79,10 +75,7 @@ const LoginPage = () => {
     try {
       const res = await fetch(`${BASE_URL}/Users/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "*/*",
-        },
+        headers: { "Content-Type": "application/json", accept: "*/*" },
         body: JSON.stringify({
           email: email.trim().toLowerCase(),
           password,
@@ -94,13 +87,21 @@ const LoginPage = () => {
         throw new Error(err || "Email hoặc mật khẩu không đúng");
       }
 
-      const { accessToken } = await res.json();
+      const data = await res.json();
+      const accessToken = data.accessToken;
 
-      // Giải mã nhanh role (giữ nguyên logic cũ của bạn)
+      // Decode exp
       const payload = JSON.parse(atob(accessToken.split(".")[1]));
-      const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || payload.role || "Customer";
+      const exp = payload.exp * 1000;
+
+      // Giải mã role
+      const role =
+        payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ||
+        payload.role ||
+        "Customer";
 
       localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("accessTokenExp", exp);
       localStorage.setItem("role", role);
       localStorage.setItem("user", JSON.stringify({ email, role }));
 
@@ -119,7 +120,6 @@ const LoginPage = () => {
       <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
         crossOrigin="anonymous"
         referrerPolicy="no-referrer"
       />
@@ -128,7 +128,6 @@ const LoginPage = () => {
         <div className={styles.overlay}></div>
 
         <div className={styles.card}>
-          {/* Header */}
           <div className={styles.header}>
             <div className={styles.logoCircle}>
               <img
@@ -141,7 +140,6 @@ const LoginPage = () => {
             <p>Hệ thống quản trị • Nhân viên • Kho hàng</p>
           </div>
 
-          {/* Form login thường */}
           <form onSubmit={handleLogin} className={styles.form}>
             <div className={styles.inputGroup}>
               <label><i className="fas fa-envelope me-2"></i>Email</label>
@@ -181,24 +179,16 @@ const LoginPage = () => {
             {error && <div className={styles.error}>{error}</div>}
 
             <button type="submit" disabled={loading} className={styles.primaryBtn}>
-              {loading ? (
-                <>
-                  <i className="fas fa-spinner fa-spin"></i> Đang đăng nhập...
-                </>
-              ) : (
-                "ĐĂNG NHẬP NGAY"
-              )}
+              {loading ? <><i className="fas fa-spinner fa-spin"></i> Đang đăng nhập...</> : "ĐĂNG NHẬP NGAY"}
             </button>
           </form>
 
-          {/* Divider */}
           <div className={styles.divider}>
             <span>HOẶC</span>
           </div>
 
-          {/* NÚT GOOGLE CHÍNH THỨC – ĐẸP, CHUẨN, KHÔNG CẦN CALLBACK FILE */}
           <div id="googleSignInButton" style={{ margin: "20px auto", display: "flex", justifyContent: "center" }}></div>
-        
+
           <div className={styles.footer}>
             © 2025 Shop Cầu Lông BMT • Được xây dựng với Team BMT
           </div>

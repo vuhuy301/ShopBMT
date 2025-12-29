@@ -82,7 +82,7 @@ namespace backend_shopcaulong.Controllers
         }
         // PUT: api/orders/{id}/status - Chỉ Admin
         [HttpPut("{id}/status")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateOrderStatusRequest request)
         {
             if (!ModelState.IsValid)

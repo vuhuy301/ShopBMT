@@ -8,6 +8,12 @@ import { getBrands } from "../../services/brandService";
 
 const IMAGE_BASE = process.env.REACT_APP_IMAGE_BASE_URL;
 
+// ✅ Helper để tạo unique ID tránh trùng lặp
+let uniqueCounter = 0;
+const generateUniqueId = () => {
+  return `temp_${Date.now()}_${++uniqueCounter}`;
+};
+
 const ProductUpdatePage = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -68,7 +74,7 @@ const ProductUpdatePage = () => {
     const url = createBlob(file);
     setProduct(prev => {
       const imgs = [...prev.images];
-      imgs[index] = { ...imgs[index], imageUrl: url, _file: file }; // lưu tạm file
+      imgs[index] = { ...imgs[index], imageUrl: url, _file: file };
       return { ...prev, images: imgs };
     });
   };
@@ -91,7 +97,12 @@ const ProductUpdatePage = () => {
   const addDetail = () => {
     setProduct(prev => ({
       ...prev,
-      details: [...prev.details, { id: Date.now(), text: "", imageUrl: "", sortOrder: prev.details.length }]
+      details: [...prev.details, { 
+        id: generateUniqueId(), 
+        text: "", 
+        imageUrl: "", 
+        sortOrder: prev.details.length 
+      }]
     }));
   };
 
@@ -126,7 +137,7 @@ const ProductUpdatePage = () => {
     setProduct(prev => ({
       ...prev,
       colorVariants: [...prev.colorVariants, {
-        id: Date.now(),
+        id: generateUniqueId(),
         color: "",
         imageUrls: [],
         sizes: []
@@ -160,17 +171,37 @@ const ProductUpdatePage = () => {
   const removeColorImage = (variantIndex, imgIndex) => {
     setProduct(prev => {
       const cv = [...prev.colorVariants];
-      cv[variantIndex].imageUrls.splice(imgIndex, 1);
-      if (cv[variantIndex]._files) cv[variantIndex]._files.splice(imgIndex, 1);
+      const variant = { ...cv[variantIndex] };
+      
+      // ✅ Tạo bản sao mới thay vì mutate trực tiếp
+      variant.imageUrls = variant.imageUrls.filter((_, i) => i !== imgIndex);
+      if (variant._files) {
+        variant._files = variant._files.filter((_, i) => i !== imgIndex);
+      }
+      
+      cv[variantIndex] = variant;
       return { ...prev, colorVariants: cv };
     });
   };
 
-  // Sizes
+  // ✅ FIX: Sizes - tạo bản sao đúng cách, dùng unique ID
   const addSize = (vIdx) => {
     setProduct(prev => {
       const cv = [...prev.colorVariants];
-      cv[vIdx].sizes.push({ id: Date.now(), size: "", stock: 0, inStock: true });
+      const variant = { ...cv[vIdx] };
+      
+      // Tạo size mới với ID unique
+      const newSize = { 
+        id: generateUniqueId(), 
+        size: "", 
+        stock: 0, 
+        inStock: true 
+      };
+      
+      // Tạo mảng sizes mới
+      variant.sizes = [...variant.sizes, newSize];
+      cv[vIdx] = variant;
+      
       return { ...prev, colorVariants: cv };
     });
   };
@@ -178,7 +209,13 @@ const ProductUpdatePage = () => {
   const updateSize = (vIdx, sIdx, field, value) => {
     setProduct(prev => {
       const cv = [...prev.colorVariants];
-      cv[vIdx].sizes[sIdx] = { ...cv[vIdx].sizes[sIdx], [field]: value };
+      const variant = { ...cv[vIdx] };
+      const sizes = [...variant.sizes];
+      
+      sizes[sIdx] = { ...sizes[sIdx], [field]: value };
+      variant.sizes = sizes;
+      cv[vIdx] = variant;
+      
       return { ...prev, colorVariants: cv };
     });
   };
@@ -186,7 +223,11 @@ const ProductUpdatePage = () => {
   const removeSize = (vIdx, sIdx) => {
     setProduct(prev => {
       const cv = [...prev.colorVariants];
-      cv[vIdx].sizes.splice(sIdx, 1);
+      const variant = { ...cv[vIdx] };
+      
+      variant.sizes = variant.sizes.filter((_, i) => i !== sIdx);
+      cv[vIdx] = variant;
+      
       return { ...prev, colorVariants: cv };
     });
   };
@@ -198,7 +239,7 @@ const ProductUpdatePage = () => {
     }));
   };
 
-  // ==================== SUBMIT – ĐÚNG 100% VỚI DTO CỦA BẠN ====================
+  // ==================== SUBMIT ====================
   const handleSubmit = async () => {
     const formData = new FormData();
 
@@ -227,7 +268,9 @@ const ProductUpdatePage = () => {
 
     // Details
     product.details.forEach((d, i) => {
-      formData.append(`Details[${i}].Id`, d.id || 0);
+      // ✅ Chỉ gửi id nếu nó là số, không gửi string id tạm
+      const detailId = typeof d.id === 'number' ? d.id : 0;
+      formData.append(`Details[${i}].Id`, detailId);
       formData.append(`Details[${i}].Text`, d.text || "");
       formData.append(`Details[${i}].SortOrder`, d.sortOrder || 0);
       if (d.imageUrl && !d.imageUrl.startsWith("blob:")) {
@@ -240,7 +283,9 @@ const ProductUpdatePage = () => {
 
     // Color Variants
     product.colorVariants.forEach((cv, i) => {
-      formData.append(`ColorVariants[${i}].Id`, cv.id || 0);
+      // ✅ Chỉ gửi id nếu nó là số
+      const variantId = typeof cv.id === 'number' ? cv.id : 0;
+      formData.append(`ColorVariants[${i}].Id`, variantId);
       formData.append(`ColorVariants[${i}].Color`, cv.color || "");
 
       // Ảnh cũ của color
@@ -259,7 +304,9 @@ const ProductUpdatePage = () => {
 
       // Sizes
       cv.sizes.forEach((s, j) => {
-        formData.append(`ColorVariants[${i}].Sizes[${j}].Id`, s.id || 0);
+        // ✅ Chỉ gửi id nếu nó là số
+        const sizeId = typeof s.id === 'number' ? s.id : 0;
+        formData.append(`ColorVariants[${i}].Sizes[${j}].Id`, sizeId);
         formData.append(`ColorVariants[${i}].Sizes[${j}].Size`, s.size || "");
         formData.append(`ColorVariants[${i}].Sizes[${j}].Stock`, s.stock || 0);
         formData.append(`ColorVariants[${i}].Sizes[${j}].InStock`, true);
@@ -307,7 +354,6 @@ const ProductUpdatePage = () => {
           onChange={(e) => updateField("discountPrice", Number(e.target.value))}
         />
 
-        {/* ---- CATEGORY ---- */}
         <label>Danh mục sản phẩm</label>
         <select
           value={product.categoryId || ""}
@@ -321,7 +367,6 @@ const ProductUpdatePage = () => {
           ))}
         </select>
 
-        {/* ---- BRAND ---- */}
         <label>Thương hiệu</label>
         <select
           value={product.brandId || ""}
@@ -335,7 +380,6 @@ const ProductUpdatePage = () => {
           ))}
         </select>
       </div>
-
 
       {/* MAIN IMAGES */}
       <div className={styles.section}>
@@ -423,8 +467,18 @@ const ProductUpdatePage = () => {
             <h4>Biến thể size</h4>
             {cv.sizes.map((s, j) => (
               <div key={s.id} className={styles.row}>
-                <input value={s.size || ""} onChange={e => updateSize(i, j, "size", e.target.value)} placeholder="Size" />
-                <input type="number" value={s.stock || ""} onChange={e => updateSize(i, j, "stock", Number(e.target.value))} placeholder="Stock" />
+                <input 
+                  value={s.size || ""} 
+                  onChange={e => updateSize(i, j, "size", e.target.value)} 
+                  placeholder="Size" 
+                />
+                <input 
+                  type="number" 
+                  value={s.stock || ""} 
+                  onChange={e => updateSize(i, j, "stock", Number(e.target.value))} 
+                  placeholder="Stock" 
+                  style={{ width: '120px', minWidth: '120px' }}
+                />
                 <button onClick={() => removeSize(i, j)}>Xóa</button>
               </div>
             ))}

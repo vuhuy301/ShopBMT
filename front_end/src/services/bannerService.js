@@ -1,4 +1,4 @@
-const BASE_URL = process.env.REACT_APP_API_URL;
+import { fetchWithToken } from "../utils/fetchWithToken";
 
 export const createBanner = async ({ imageFile, imageUrl, isActive }) => {
   if (!imageFile) throw new Error("Vui lòng chọn file ảnh");
@@ -8,7 +8,7 @@ export const createBanner = async ({ imageFile, imageUrl, isActive }) => {
   if (imageUrl) formData.append("imageUrl", imageUrl);
   formData.append("isActive", isActive ? "true" : "false"); // backend convert sang bool
 
-  const res = await fetch(`${BASE_URL}/Banners`, {
+  const res = await fetchWithToken("/Banners", {
     method: "POST",
     body: formData,
   });
@@ -21,28 +21,24 @@ export const createBanner = async ({ imageFile, imageUrl, isActive }) => {
   return await res.json();
 };
 
-
 export const getAllBanners = async () => {
-  const response = await fetch(`${BASE_URL}/Banners`);
+  const res = await fetchWithToken("/Banners");
 
-  if (!response.ok) {
+  if (!res.ok) {
     throw new Error("Không lấy được danh sách banner");
   }
 
-  return await response.json();
+  return await res.json();
 };
 
-// Update banner (cả ảnh, link, isActive)
 export const updateBanner = async ({ id, imageFile, link, isActive }) => {
   const formData = new FormData();
 
-  // Nếu người dùng chọn file mới
   if (imageFile) formData.append("Image", imageFile);
-
   if (link) formData.append("Link", link);
-  formData.append("IsActive", isActive ? "true" : "false"); // backend convert sang bool
+  formData.append("IsActive", isActive ? "true" : "false");
 
-  const res = await fetch(`${BASE_URL}/Banners/${id}`, {
+  const res = await fetchWithToken(`/Banners/${id}`, {
     method: "PUT", // hoặc PATCH tùy backend
     body: formData,
   });

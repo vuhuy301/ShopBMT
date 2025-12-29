@@ -15,7 +15,8 @@ namespace backend_shopcaolong.Controllers
     /// </summary>
     [ApiController]
     [Route("api/admin/dashboard")]
-    public class AdminDashboardController : ControllerBase
+        [Authorize(Roles = "Admin")]
+        public class AdminDashboardController : ControllerBase
     {
         private readonly IDashboardService _dashboardService;
 

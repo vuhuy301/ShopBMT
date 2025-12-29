@@ -40,6 +40,8 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IBannerService, BannerService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
+
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

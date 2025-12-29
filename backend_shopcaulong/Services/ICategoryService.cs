@@ -8,6 +8,6 @@ namespace backend_shopcaulong.Services
         Task<CategoryDto?> GetByIdAsync(int id);
         Task<CategoryDto> CreateAsync(CategoryCreateUpdateDto dto);
         Task<CategoryDto?> UpdateAsync(int id, CategoryCreateUpdateDto dto);
-        Task<bool> DeleteAsync(int id);
+        Task<bool> ToggleCategoryActiveAsync(int id, bool isActive);
     }
 }

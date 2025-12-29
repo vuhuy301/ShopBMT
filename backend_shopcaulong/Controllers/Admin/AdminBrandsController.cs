@@ -10,7 +10,8 @@ namespace backend_shopcaulong.Controllers.Admin
 /// </summary>
 [ApiController]
 [Route("api/admin/[controller]")]
-public class AdminBrandsController : ControllerBase
+    [Authorize(Roles = "Admin")]
+    public class AdminBrandsController : ControllerBase
 {
     private readonly IBrandService _brandService;
 
@@ -48,16 +49,16 @@ public class AdminBrandsController : ControllerBase
         return Ok(brand);
     }
 
-    /// <summary>
-    /// Xóa thương hiệu.
-    /// </summary>
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var success = await _brandService.DeleteAsync(id);
-        if (!success) return BadRequest("Brand còn sản phẩm hoặc không tồn tại.");
-        return Ok(new { message = "Deleted successfully" });
+        /// <summary>
+        /// Xóa thương hiệu.
+        /// </summary>
+        [HttpPatch("{id}/toggle")]
+        public async Task<IActionResult> ToggleActive(int id, [FromQuery] bool isActive)
+        {
+            var success = await _brandService.ToggleBrandActiveAsync(id, isActive);
+            if (!success) return NotFound("Brand không tồn tại.");
+            return Ok(new { message = isActive ? "Đã hiển thị" : "Đã ẩn" });
+        }
     }
-}
 
 }

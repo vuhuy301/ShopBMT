@@ -7,7 +7,7 @@ namespace backend_shopcaulong.Controllers.Admin
 {
     [ApiController]
     [Route("api/admin/[controller]")]
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public class AdminCategoriesController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -60,11 +60,13 @@ namespace backend_shopcaulong.Controllers.Admin
         /// <summary>
         /// Xóa mục sản phẩm
         /// </summary>
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpPatch("{id}/toggle")]
+        public async Task<IActionResult> ToggleActive(int id, [FromQuery] bool isActive)
         {
-            var result = await _categoryService.DeleteAsync(id);
-            return result ? NoContent() : NotFound();
+            var success = await _categoryService.ToggleCategoryActiveAsync(id, isActive);
+            if (!success) return NotFound("Category không tồn tại.");
+            return Ok(new { message = isActive ? "Đã hiển thị" : "Đã ẩn" });
         }
+
     }
 }

@@ -8,7 +8,7 @@ namespace backend_shopcaulong.Services
         Task<BrandDto?> GetByIdAsync(int id);
         Task<BrandDto> CreateAsync(BrandCreateDto dto);
         Task<BrandDto?> UpdateAsync(int id, BrandUpdateDto dto);
-        Task<bool> DeleteAsync(int id);
+        Task<bool> ToggleBrandActiveAsync(int id, bool isActive);
     }
 
 }

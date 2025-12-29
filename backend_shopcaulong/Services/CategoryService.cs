@@ -56,25 +56,13 @@ namespace backend_shopcaulong.Services
             return _mapper.Map<CategoryDto>(category);
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> ToggleCategoryActiveAsync(int id, bool isActive)
         {
             var category = await _context.Categories
-                .Include(c => c.Products)
                 .FirstOrDefaultAsync(c => c.Id == id);
-
             if (category == null) return false;
 
-            // Kiểm tra có sản phẩm nào đang dùng không (tùy bạn muốn cho xóa hay không)
-            if (category.Products != null && category.Products.Any())
-            {
-                // Cách 1: Không cho xóa (trả về false)
-                // return false;
-
-                // Cách 2: Cho xóa và xóa luôn sản phẩm liên quan (cẩn thận!)
-                _context.Products.RemoveRange(category.Products);
-            }
-
-            _context.Categories.Remove(category);
+            category.IsActive = isActive;
             await _context.SaveChangesAsync();
             return true;
         }

@@ -5,12 +5,14 @@ using backend_shopcaulong.DTOs.Role;
 using backend_shopcaulong.Models;
 using backend_shopcaulong.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
 
 namespace backend_shopcaulong.Controllers.Admin {
-
-[ApiController]
+    [ApiController]
 [Route("api/[controller]")]
-public class RolesController : ControllerBase
+    [Authorize(Roles = "Admin")]
+    public class RolesController : ControllerBase
 {
     private readonly IRoleService _roleService;
 

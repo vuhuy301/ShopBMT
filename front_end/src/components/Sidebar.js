@@ -53,7 +53,13 @@ const Sidebar = () => {
   return (
     <div className="sidebar d-none d-md-block">
       <div className="mb-4">
-        <h5 className="d-flex align-items-center">MetaSale</h5>
+        <h5
+      className="d-flex align-items-center"
+      style={{ cursor: "pointer" }}
+      onClick={() => navigate("/")}
+    >
+      Shop cầu lông
+    </h5>
       </div>
 
       <nav className="nav flex-column">

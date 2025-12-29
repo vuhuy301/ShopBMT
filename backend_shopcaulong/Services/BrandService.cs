@@ -57,18 +57,13 @@ namespace backend_shopcaulong.Services
             return _mapper.Map<BrandDto>(brand);
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> ToggleBrandActiveAsync(int id, bool isActive)
         {
             var brand = await _context.Brands
-                .Include(b => b.Products)
                 .FirstOrDefaultAsync(b => b.Id == id);
-
             if (brand == null) return false;
 
-            // Không cho xóa nếu Brand còn sản phẩm
-            if (brand.Products.Any()) return false;
-
-            _context.Brands.Remove(brand);
+            brand.IsActive = isActive;
             await _context.SaveChangesAsync();
             return true;
         }

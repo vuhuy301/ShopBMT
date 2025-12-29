@@ -32,10 +32,15 @@ export const getOrders = async ({
 
 
 export const updateOrderStatus = async (orderId, newStatus) => {
+    const token = localStorage.getItem("accessToken"); // lấy token ra
+
     const response = await fetch(`${BASE_URL}/Orders/${orderId}/status`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ newStatus })
+        headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}` // gửi token kèm theo
+        },
+        body: JSON.stringify({ status: newStatus })
     });
 
     if (!response.ok) {

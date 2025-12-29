@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using backend_shopcaulong.DTOs.Payment;
 using backend_shopcaulong.Services;
+using backend_shopcaulong.DTOs.Common;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend_shopcaulong.Controllers
 {
@@ -13,11 +15,13 @@ namespace backend_shopcaulong.Controllers
     {
         private readonly ShopDbContext _shopDbContext;
         private readonly IEmailSender _emailSender;
+        private readonly IPaymentService _paymentService;
 
-        public PaymentController(ShopDbContext shopDbContext, IEmailSender emailSender)
+        public PaymentController(ShopDbContext shopDbContext, IEmailSender emailSender, IPaymentService paymentService)
         {
             _shopDbContext = shopDbContext;
             _emailSender = emailSender;
+            _paymentService = paymentService;
         }
 
         [HttpPost("sepay/webhook")]
@@ -132,7 +136,26 @@ namespace backend_shopcaulong.Controllers
                 payment.Amount
             });
         }
+        [HttpGet]
+        // [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<PagedResultDto<PaymentDto>>> GetPayments(
+            [FromQuery] GetPaymentsRequestDto request)
+        {
+            var result = await _paymentService.GetPaymentsPagedAsync(request);
+            return Ok(result);
+        }
 
+        // GET: api/admin/payments/5
+        [HttpGet("/admin/{id}")]
+        // [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<PaymentDto>> GetPayment(int id)
+        {
+            var payment = await _paymentService.GetPaymentByIdAsync(id);
+            if (payment == null)
+                return NotFound(new { message = "Không tìm thấy thanh toán." });
+
+            return Ok(payment);
+        }
     }
 }
 

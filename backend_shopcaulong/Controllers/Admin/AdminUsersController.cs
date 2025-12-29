@@ -1,3 +1,4 @@
+using backend_shopcaulong.DTOs.Common;
 using backend_shopcaulong.DTOs.User;
 using backend_shopcaulong.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -7,7 +8,7 @@ namespace backend_shopcaulong.Controllers.Admin
 {
     [ApiController]
     [Route("api/admin/[controller]")]
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     public class AdminUsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -25,6 +26,18 @@ namespace backend_shopcaulong.Controllers.Admin
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _userService.GetAllUsersAsync();
+            return Ok(users);
+        }
+
+         // Lấy danh sách người dùng theo filters
+        /// <summary>
+        /// Lấy tất cả người dùng theo filters
+        /// </summary>
+        [HttpGet("users")]
+        // [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<PagedResultDto<UserDto>>> GetUsersPaged([FromQuery] GetUsersRequestDto request)
+        {
+            var users = await _userService.GetUsersPagedAsync(request);
             return Ok(users);
         }
 
@@ -63,7 +76,21 @@ namespace backend_shopcaulong.Controllers.Admin
             return Ok(new { message = "Cập nhật quyền thành công" });
         }
 
+        [HttpPut("users/{userId}/toggle-active")]
+        public async Task<IActionResult> ToggleUserActiveStatus(int userId, [FromQuery] bool active)
+        {
+            var success = await _userService.ToggleUserActiveStatusAsync(userId, active);
 
+            if (!success)
+                return NotFound(new { message = "Không tìm thấy người dùng với ID này." });
+
+            return Ok(new
+            {
+                message = active 
+                    ? "Tài khoản đã được mở khóa thành công." 
+                    : "Tài khoản đã bị khóa thành công."
+            });
+        }
         // DELETE: api/admin/users/5
         // [HttpDelete("{userId}")]
         // public async Task<IActionResult> DeleteUser(int userId)

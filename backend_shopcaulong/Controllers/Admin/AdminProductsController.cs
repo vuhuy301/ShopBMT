@@ -2,12 +2,13 @@ using backend_shopcaulong.DTOs.Product;
 using backend_shopcaulong.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace backend_shopcaulong.Controllers.Admin
 {
     [ApiController]
     [Route("api/admin/[controller]")]
-    [Authorize(Roles = "Admin")]
+   
     public class AdminProductsController : ControllerBase
     {
         private readonly IProductService _productService;
@@ -42,6 +43,12 @@ namespace backend_shopcaulong.Controllers.Admin
         [HttpPut("{id}")]
         public async Task<ActionResult<ProductDto>> Update(int id,[FromForm]  ProductUpdateDto dto)
         {
+            var dtoJson = JsonSerializer.Serialize(dto, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+            Console.WriteLine("Received DTO from FE:");
+            Console.WriteLine(dtoJson);
             var product = await _productService.UpdateAsync(id, dto);
             if (product == null) return NotFound();
             return Ok(product);

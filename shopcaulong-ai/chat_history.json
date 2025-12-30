@@ -1,0 +1,44 @@
+{
+  "user_1": [
+    {
+      "type": "human",
+      "content": "tôi muốn mua vợt cầu lông ngon bổ rẻ"
+    },
+    {
+      "type": "ai",
+      "content": "Chào anh/chị, Linh xin tư vấn một số mẫu vợt có mức giá phải chăng trong kho của shop ạ:\n\n1.  **Vợt Yonex Arcsaber 0 Clear** - Giá: **40,000đ**\n    *   Thiết kế đẹp mắt, thanh lịch nhưng có sức mạnh tấn công uy lực và tốc độ tốt.\n    *   Có màu Đen, size 4U5 và còn hàng.\n    *   [Xem chi tiết](http://localhost:3000/product/24)\n\n2.  **Vợt Yonex Astrox 99 Tour 2025** - Giá: **190,000đ**\n    *   Mẫu vợt Yonex mới với mức giá rất hợp lý.\n    *   [Xem chi tiết](http://localhost:3000/product/10)\n\nĐể Linh có thể tư vấn chính xác hơn, anh/chị có thể cho Linh biết thêm:\n*   Anh/chị đang tìm vợt cho trình độ chơi nào (mới bắt đầu, trung cấp hay nâng cao) ạ?\n*   Hay anh/chị có ưu tiên về thương hiệu (như Yonex, Victor) không?"
+    },
+    {
+      "type": "human",
+      "content": "tôi muốn mua vợt cao cấp nhất "
+    },
+    {
+      "type": "ai",
+      "content": "Chào anh/chị, Linh xin tư vấn ạ.\n\nDựa trên thông tin hiện có, những mẫu vợt có mức giá cao nhất tại shop là:\n\n1.  **Vợt cầu lông Yonex Astrox 99 Play 2025** - Giá: **16,000,000đ**\n    *   Đây là mẫu vợt có giá cao nhất trong danh sách.\n    *   [Xem chi tiết](http://localhost:3000/product/9)\n\n2.  **Vợt Cầu Lông Victor DriveX 12 O Zheng Siwei chính hãng** - Giá: **3,800,000đ**\n    *   [Xem chi tiết](http://localhost:3000/product/18)\n\n3.  **Vợt càu lông Adidas** - Giá: **1,234,567đ**\n    *   [Xem chi tiết](http://localhost:3000/product/32)\n\nĐể Linh có thể tư vấn chính xác hơn, anh/chị có thể cho Linh biết thêm một số tiêu chí được không ạ? Ví dụ:\n*   Anh/chị có quan tâm đến thương hiệu cụ thể nào không (như Yonex, Victor)?\n*   Mức ngân sách cụ thể anh/chị đang dự kiến là bao nhiêu ạ?"
+    },
+    {
+      "type": "human",
+      "content": "tôi muốn mua vợt đắt nhất "
+    },
+    {
+      "type": "ai",
+      "content": "Chào anh/chị, Linh xin chào ạ!\n\nDựa trên thông tin hiện có, sản phẩm vợt cầu lông có giá cao nhất trong kho của shop là:\n\n1.  **Vợt cầu lông Yonex Astrox 99 Play 2025** - Giá: **16,000,000đ**\n    *   Thương hiệu: Yonex.\n    *   [Xem chi tiết sản phẩm](http://localhost:3000/product/9)\n\nNgoài ra, shop còn có một số mẫu vợt khác với mức giá khác nhau để anh/chị tham khảo thêm:\n*   **Vợt Cầu Lông Victor DriveX 12 O Zheng Siwei chính hãng** - Giá: 3,800,000đ. [Xem chi tiết](http://localhost:3000/product/18)\n*   **Vợt cầu lông Yonex Arcsaber 0 Clear** - Giá: 40,000đ. [Xem chi tiết](http://localhost:3000/product/24)\n\n---\n\n**Để Linh có thể tư vấn kỹ hơn, anh/chị có thể cho Linh biết thêm:**\n*   Anh/chị đang tìm vợt cho trình độ chơi nào (mới bắt đầu, trung cấp, nâng cao) ạ?\n*   Ngoài giá cả, anh/chị có quan tâm đến đặc tính của vợt như thiên về tấn công, phòng thủ hay cân bằng không?"
+    },
+    {
+      "type": "human",
+      "content": "tôi muốn mua vợt giá tiền nhiều nhất "
+    },
+    {
+      "type": "ai",
+      "content": "Chào anh/chị, Linh xin được tư vấn ạ.\n\nDựa trên thông tin hiện có, sản phẩm vợt cầu lông có giá cao nhất trong kho của shop là:\n\n1.  **Vợt cầu lông Yonex Astrox 99 Play 2025** - Giá: **16,000,000đ**.\n    [Xem chi tiết](http://localhost:3000/product/9)\n\n2.  **Vợt Cầu Lông Victor DriveX 12 O Zheng Siwei chính hãng** - Giá: **3,800,000đ**.\n    [Xem chi tiết](http://localhost:3000/product/18)\n\n3.  **Vợt cầu lông Adidas (mã sản phẩm 34)** - Giá: **12,121,212đ**.\n    [Xem chi tiết](http://localhost:3000/product/34)\n\n---\n\nĐể Linh có thể tư vấn chính xác hơn, anh/chị có thể cho Linh biết thêm một số tiêu chí được không ạ? Ví dụ:\n*   Anh/chị có quan tâm đến thương hiệu cụ thể nào (như Yonex, Victor, Adidas) không?\n*   Vợt dành cho trình độ chơi nào (tấn công, phòng thủ, toàn diện) ạ?"
+    },
+    {
+      "type": "human",
+      "content": "tôi muốn mua cước cầu lông"
+    },
+    {
+      "type": "ai",
+      "content": "Chào anh/chị! Hiện tại Shop Cầu Lông Pro có một loại cước cầu lông phù hợp với nhu cầu của anh/chị ạ:\n\n1.  **Cước Yonex BG65** - Giá: **900,000đ**\n    *   Đây là cước cầu lông chính hãng Yonex.\n    *   Anh/chị có thể xem thông tin chi tiết tại đây: [Xem chi tiết](http://localhost:3000/product/25)\n\nNgoài ra, nếu anh/chị đang tìm mua vợt để đóng cước, shop cũng có một số mẫu vợt Yonex và Victor với nhiều phân khúc giá khác nhau. Anh/chị có muốn Linh gợi ý thêm không ạ?\n\n**Gợi ý cho anh/chị:**\n*   Anh/chị có quan tâm đến các loại vợt cầu lông để kết hợp với cước không ạ?\n*   Hay anh/chị muốn tìm hiểu thêm về phụ kiện khác như giày hoặc áo?"
+    }
+  ]
+}

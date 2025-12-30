@@ -1,3 +1,5 @@
+
+import { fetchWithToken } from "../../utils/fetchWithToken";
 const BASE_URL = process.env.REACT_APP_API_URL;
 
 export const getProducts = async ({ categoryId, page = 1, pageSize = 12, search = "" }) => {
@@ -23,7 +25,7 @@ export const getProducts = async ({ categoryId, page = 1, pageSize = 12, search 
 
 export const createProduct = async (formData) => {
   try {
-    const res = await fetch(`${BASE_URL}/Admin/AdminProducts`, {
+    const res = await fetchWithToken(`/Admin/AdminProducts`, {
       method: "POST",
       body: formData
     });
@@ -39,7 +41,7 @@ export const createProduct = async (formData) => {
 
 export const getProductById = async (id) => {
   try {
-    const response = await fetch(`${BASE_URL}/api/Products/${id}`, {
+    const response = await fetch(`${BASE_URL}/Products/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

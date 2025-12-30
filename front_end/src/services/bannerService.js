@@ -11,7 +11,7 @@ export const createBanner = async ({ imageFile, imageUrl, isActive }) => {
   const res = await fetchWithToken("/Banners", {
     method: "POST",
     body: formData,
-  });
+  }, false);
 
   if (!res.ok) {
     const text = await res.text();
@@ -22,7 +22,7 @@ export const createBanner = async ({ imageFile, imageUrl, isActive }) => {
 };
 
 export const getAllBanners = async () => {
-  const res = await fetchWithToken("/Banners");
+  const res = await fetchWithToken("/Banners",{},false);
 
   if (!res.ok) {
     throw new Error("Không lấy được danh sách banner");

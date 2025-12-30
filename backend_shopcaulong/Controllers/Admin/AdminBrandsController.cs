@@ -10,7 +10,7 @@ namespace backend_shopcaulong.Controllers.Admin
 /// </summary>
 [ApiController]
 [Route("api/admin/[controller]")]
-    [Authorize(Roles = "Admin")]
+   
     public class AdminBrandsController : ControllerBase
 {
     private readonly IBrandService _brandService;
@@ -32,7 +32,8 @@ namespace backend_shopcaulong.Controllers.Admin
     /// Tạo thương hiệu mới.
     /// </summary>
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] BrandCreateDto dto)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create([FromBody] BrandCreateDto dto)
     {
         var brand = await _brandService.CreateAsync(dto);
         return Ok(brand);
@@ -42,7 +43,8 @@ namespace backend_shopcaulong.Controllers.Admin
     /// Cập nhật thương hiệu.
     /// </summary>
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] BrandUpdateDto dto)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Update(int id, [FromBody] BrandUpdateDto dto)
     {
         var brand = await _brandService.UpdateAsync(id, dto);
         if (brand == null) return NotFound();

@@ -10,11 +10,11 @@ using System.Data;
 
 namespace backend_shopcaulong.Controllers.Admin {
     [ApiController]
-[Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]
+    [Route("api/[controller]")]
+    // [Authorize(Roles = "Admin")]
     public class RolesController : ControllerBase
 {
-    private readonly IRoleService _roleService;
+    private readonly IRoleService _roleService; 
 
     public RolesController(IRoleService roleService)
     {

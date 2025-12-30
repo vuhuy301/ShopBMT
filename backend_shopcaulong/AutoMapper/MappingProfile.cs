@@ -66,9 +66,13 @@ namespace backend_shopcaulong.AutoMapper
 
 
             // ===== USER & ORDER =====
+            // CreateMap<User, UserDto>()
+            //     .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Name));
+            
             CreateMap<User, UserDto>()
-                .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Name));
-
+            .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Name))
+            .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+            .ForMember(dest => dest.ProfileUpdatedAt, opt => opt.MapFrom(src => src.ProfileUpdatedAt));
             
         }
     }

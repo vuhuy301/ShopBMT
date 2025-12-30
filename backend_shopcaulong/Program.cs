@@ -40,6 +40,8 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IBannerService, BannerService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+
 
 
 

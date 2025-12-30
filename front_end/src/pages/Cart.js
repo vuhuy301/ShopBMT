@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Cart.module.css";
 import { getCart, addToCart, removeFromCart, updateQuantity } from "../utils/cartUtils";
+import { checkStock } from "../services/cartService";
 import Breadcrumb from "../components/Breadcrumb";
 
 const Cart = () => {
@@ -20,6 +21,20 @@ const Cart = () => {
     removeFromCart(item);
     setCartItems(getCart());
   };
+
+  const handleCheckout = async () => {
+  try {
+    await checkStock(cartItems); // gọi API check tồn kho
+    navigate("/checkout");       // đủ hàng → sang trang checkout
+  } catch (err) {
+    // err.items là danh sách sản phẩm thiếu
+    let message = "Một số sản phẩm không đủ tồn kho:\n";
+    err.items?.forEach(item => {
+      message += `- ${item.productName}: yêu cầu ${item.requested}, còn ${item.available}\n`;
+    });
+    alert(message);
+  }
+};
 
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -79,12 +94,9 @@ const Cart = () => {
             Tổng tiền: {formatPrice(totalPrice)}
           </div>
 
-          <button
-            className={styles.orderBtn}
-            onClick={() => navigate("/checkout")}
-          >
-            ĐẶT HÀNG
-          </button>
+          <button className={styles.orderBtn} onClick={handleCheckout}>
+  ĐẶT HÀNG
+</button>
         </>
       )}
     </div>

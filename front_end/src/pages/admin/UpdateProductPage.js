@@ -241,6 +241,7 @@ const ProductUpdatePage = () => {
 
   // ==================== SUBMIT ====================
   const handleSubmit = async () => {
+    console.log("Product before submit:", product);
     const formData = new FormData();
 
     // Thông tin cơ bản

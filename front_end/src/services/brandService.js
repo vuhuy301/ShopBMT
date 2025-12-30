@@ -3,7 +3,7 @@ import { fetchWithToken } from "../utils/fetchWithToken";
 // Lấy tất cả brand đang active
 export const getBrands = async () => {
   try {
-    const res = await fetchWithToken("/admin/AdminBrands");
+    const res = await fetchWithToken("/admin/AdminBrands",{},false);
     if (!res.ok) throw new Error("Failed to fetch brands");
 
     const data = await res.json();
@@ -17,7 +17,7 @@ export const getBrands = async () => {
 // Lấy tất cả brand (không lọc)
 export const getAllBrands = async () => {
   try {
-    const res = await fetchWithToken("/admin/AdminBrands");
+    const res = await fetchWithToken("/admin/AdminBrands",{},false);
     if (!res.ok) throw new Error("Failed to fetch brands");
     return await res.json();
   } catch (err) {

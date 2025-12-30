@@ -89,6 +89,22 @@ const AppRouter = () => {
           <Route path="/admin/banners" element={<BannerManager />} />
         </Route>
 
+         <Route
+          path="/seller"
+          element={
+            <RoleRoute allowedRoles={["Seller"]}>
+              <AdminLayout />
+            </RoleRoute>
+          }
+        >
+          <Route index element={<Navigate to="/seller/orders" replace />} />
+          <Route path="/seller/product" element={<ProductAdmin />} />
+          <Route path="/seller/product/add-product" element={<AddProductPage />} />
+          <Route path="/seller/product/:id" element={<ProductDetailPage />} />
+          <Route path="/seller/product/:id/edit" element={<ProductUpdatePage />} />
+          <Route path="/seller/orders" element={<OrderManagement />} />
+        </Route>
+
 
       </Routes>
     </BrowserRouter>

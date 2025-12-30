@@ -3,7 +3,7 @@ import { fetchWithToken } from "../utils/fetchWithToken";
 // Lấy tất cả category đang active
 export const getCategories = async () => {
   try {
-    const res = await fetchWithToken("/admin/AdminCategories");
+    const res = await fetchWithToken("/Categories", {} ,false);
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
     const data = await res.json();

@@ -1,9 +1,7 @@
 fastapi
-uvicorn[standard]
-python-dotenv
-langchain
-langchain-community
-langchain-openai
+uvicorn
+langchain_huggingface
+langchain_communitypyt
+langchain_openai
+sentence-transformers
 faiss-cpu
-pydantic
-httpx

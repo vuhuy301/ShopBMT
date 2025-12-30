@@ -27,17 +27,12 @@ const Sidebar = () => {
       { path: "/admin/brands", icon: <BiSolidHourglass />, label: "Thương hiệu" },
       { path: "/admin/banners", icon: <BiInfoSquare />, label: "Banner" },
       { path: "/admin/payment", icon: <BiCreditCard />, label: "Giao dịch" },
-      { path: "/admin/report", icon: <BiSolidReport />, label: "Báo cáo" },
-      { path: "/admin/profile", icon: <BiInfoSquare />, label: "Thông tin cá nhân" },
     ],
 
-    staff: [
-      { path: "/staff/dashboard", icon: <BiSolidDashboard />, label: "Dashboard" },
-      { path: "/staff/orders", icon: <BiAlignRight />, label: "Đơn hàng" },
-      { path: "/staff/shipping", icon: <BiSolidHourglass />, label: "Vận đơn" },
-      { path: "/staff/inventory", icon: <BiPackage />, label: "Kho hàng" },
-      { path: "/staff/report", icon: <BiSolidReport />, label: "Báo cáo" },
-      { path: "/staff/profile", icon: <BiInfoSquare />, label: "Thông tin cá nhân" },
+    seller: [
+      { path: "/seller/dashboard", icon: <BiSolidDashboard />, label: "Dashboard" },
+      { path: "/seller/orders", icon: <BiAlignRight />, label: "Đơn hàng" },
+      { path: "/seller/product", icon: <BiPackage />, label: "Sản phẩm" },
     ],
 
     guest: []

@@ -40,9 +40,16 @@ namespace backend_shopcaulong.Services
 
         public async Task<CategoryDto> CreateAsync(CategoryCreateUpdateDto dto)
         {
+            var isDuplicate = await _context.Categories
+                .AnyAsync(c => c.Name.ToLower() == dto.Name.ToLower());
+
+            if (isDuplicate)
+                throw new Exception("Danh mục đã tồn tại");
+
             var category = _mapper.Map<Category>(dto);
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
+
             return _mapper.Map<CategoryDto>(category);
         }
 
@@ -51,8 +58,15 @@ namespace backend_shopcaulong.Services
             var category = await _context.Categories.FindAsync(id);
             if (category == null) return null;
 
+            var isDuplicate = await _context.Categories
+                .AnyAsync(c => c.Id != id && c.Name.ToLower() == dto.Name.ToLower());
+
+            if (isDuplicate)
+                throw new Exception("Danh mục đã tồn tại");
+
             _mapper.Map(dto, category);
             await _context.SaveChangesAsync();
+
             return _mapper.Map<CategoryDto>(category);
         }
 

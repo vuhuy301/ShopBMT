@@ -35,23 +35,23 @@
 .section h3 {
     font-size: 20px;
     font-weight: 600;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     color: #333;
 }
 
-/* ====== INPUT ====== */
+/* ====== INPUT, TEXTAREA, SELECT ====== */
 .formBox input,
 .formBox textarea,
 .formBox select {
     width: 100%;
-    padding: 14px 16px;
+    padding: 12px 14px;
     border: 1px solid #d5d8dc;
     border-radius: 8px;
-    font-size: 15px;
+    font-size: 14px;
     outline: none;
     background: #fafafa;
     transition: 0.15s;
-    margin-bottom: 14px;
+    margin-bottom: 4px; /* giảm margin để thêm lỗi */
 }
 
 .formBox input:focus,
@@ -62,15 +62,16 @@
 }
 
 textarea {
-    min-height: 110px;
+    min-height: 100px;
     resize: vertical;
 }
 
-/* ====== ROW 2 CỘT ====== */
+/* ====== HÀNG 2 CỘT ====== */
 .row {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 22px;
+    gap: 16px;
+    padding-bottom: 20px;
     margin-bottom: 10px;
 }
 
@@ -78,37 +79,38 @@ textarea {
 .variantBox {
     background: #f9fafb;
     border: 1px solid #e5e7eb;
-    padding: 20px;
+    padding: 16px;
     border-radius: 12px;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
 }
 
 .sizeRow {
     display: grid;
     grid-template-columns: 1fr 1fr auto;
-    gap: 14px;
-    margin-top: 12px;
+    gap: 10px;
+    margin-top: 8px;
 }
 
 /* ====== CHECKBOX ====== */
 .checkbox {
     display: flex;
-    align-items: center;   /* Căn giữa theo chiều dọc */
+    align-items: center;
     gap: 8px;
-    font-size: 15px;
+    font-size: 14px;
 }
 
 .checkbox input[type="checkbox"] {
     width: 18px;
     height: 18px;
-    margin: 0;             /* Xóa margin mặc định gây lệch */
-    transform: translateY(1px);  /* Đẩy checkbox xuống tí cho thẳng tuyệt đối */
+    margin: 0;
+    transform: translateY(1px);
 }
+
 /* ====== BUTTONS ====== */
 .btnAdd,
 .btnSubmit,
 .btnRemove {
-    padding: 12px 18px;
+    padding: 10px 16px;
     font-size: 14px;
     border-radius: 8px;
     border: none;
@@ -117,48 +119,42 @@ textarea {
     transition: 0.15s;
 }
 
-/* Nút thêm */
 .btnAdd {
     background: #28a745;
     color: #fff;
-    height: 50px;
+    height: 42px;
 }
-.btnAdd:hover {
-    background: #1f8a39;
-}
+.btnAdd:hover { background: #1f8a39; }
 
-/* Nút xóa */
 .btnRemove {
     background: #dc3545;
     color: #fff;
-    height: 50px;
-    margin-left: 10px;
+    height: 42px;
 }
-.btnRemove:hover {
-    background: #bb2d3b;
-}
+.btnRemove:hover { background: #bb2d3b; }
 
-/* Nút lưu */
 .btnSubmit {
-    margin-top: 20px;
+    margin-top: 16px;
     background: #007bff;
     color: #fff;
-    font-size: 16px;
+    font-size: 15px;
     align-self: flex-end;
-    padding: 14px 26px;
+    padding: 12px 24px;
 }
-.btnSubmit:hover {
-    background: #0066d2;
-}
+.btnSubmit:hover { background: #0066d2; }
+
 .variantActions {
     display: flex;
-    justify-content: flex-start;
-    margin-top: 16px;
+    gap: 12px;
+    margin-top: 12px;
+    flex-wrap: wrap;
 }
+
+/* ====== IMAGE PREVIEW ====== */
 .previewList {
     display: flex;
-    gap: 12px;
-    margin-top: 10px;
+    gap: 10px;
+    margin-top: 8px;
     flex-wrap: wrap;
 }
 
@@ -179,8 +175,8 @@ textarea {
 
 .btnRemoveImage {
     position: absolute;
-    top: 3px;
-    right: 3px;
+    top: 2px;
+    right: 2px;
     background: rgba(0,0,0,0.6);
     border: none;
     width: 20px;
@@ -191,4 +187,21 @@ textarea {
     font-size: 12px;
     line-height: 20px;
     text-align: center;
+}
+
+/* ====== LỖI ====== */
+.error {
+    color: #dc3545;
+    font-size: 13px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.errorBox {
+    background: #ffe6e6;
+    color: #b80000;
+    border: 1px solid #ffb3b3;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
 }

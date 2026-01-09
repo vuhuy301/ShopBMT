@@ -5,6 +5,7 @@ import { updateProduct } from "../../services/admin/productAdminService";
 import { getProductById } from "../../services/productService";
 import { getCategories } from "../../services/categoryService";
 import { getBrands } from "../../services/brandService";
+import { validateProduct } from "../../utils/addProductValidation";
 
 const IMAGE_BASE = process.env.REACT_APP_IMAGE_BASE_URL;
 
@@ -21,6 +22,7 @@ const ProductUpdatePage = () => {
 
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
+   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const load = async () => {
@@ -242,6 +244,15 @@ const ProductUpdatePage = () => {
   // ==================== SUBMIT ====================
   const handleSubmit = async () => {
     console.log("Product before submit:", product);
+    const validationErrors = validateProduct(product, { isAdd: false });
+    
+            // 3️⃣ Nếu có lỗi → setErrors + ngăn submit
+            if (Object.keys(validationErrors).length > 0) {
+                setErrors(validationErrors);
+                return;
+            }
+    
+            setErrors({});
     const formData = new FormData();
 
     // Thông tin cơ bản
@@ -334,12 +345,14 @@ const ProductUpdatePage = () => {
           value={product.name || ""}
           onChange={(e) => updateField("name", e.target.value)}
         />
+        {errors.name && <span className={styles.error}>{errors.name}</span>}
 
         <label>Mô tả ngắn gọn</label>
         <textarea
           value={product.description || ""}
           onChange={(e) => updateField("description", e.target.value)}
         />
+        {errors.description && <span className={styles.error}>{errors.description}</span>}
 
         <label>Giá gốc</label>
         <input
@@ -347,6 +360,7 @@ const ProductUpdatePage = () => {
           value={product.price || ""}
           onChange={(e) => updateField("price", Number(e.target.value))}
         />
+        {errors.price && <span className={styles.error}>{errors.price}</span>}
 
         <label>Giá khuyến mãi</label>
         <input
@@ -354,12 +368,13 @@ const ProductUpdatePage = () => {
           value={product.discountPrice || ""}
           onChange={(e) => updateField("discountPrice", Number(e.target.value))}
         />
-
+        {errors.discountPrice && <span className={styles.error}>{errors.discountPrice}</span>}
         <label>Danh mục sản phẩm</label>
         <select
           value={product.categoryId || ""}
           onChange={(e) => updateField("categoryId", Number(e.target.value))}
         >
+          
           <option value="">-- Chọn danh mục --</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
@@ -367,7 +382,7 @@ const ProductUpdatePage = () => {
             </option>
           ))}
         </select>
-
+          {errors.categoryId && <span className={styles.error}>{errors.categoryId}</span>}
         <label>Thương hiệu</label>
         <select
           value={product.brandId || ""}
@@ -380,6 +395,7 @@ const ProductUpdatePage = () => {
             </option>
           ))}
         </select>
+        {errors.brandId && <span className={styles.error}>{errors.brandId}</span>}
       </div>
 
       {/* MAIN IMAGES */}
@@ -395,6 +411,7 @@ const ProductUpdatePage = () => {
               style={{ borderRadius: 8, objectFit: "cover" }}
             />
             <input type="file" onChange={e => handleMainImageChange(e, i)} />
+            {errors.mainImages && <span className={styles.error}>{errors.mainImages}</span>}
             <label>
               <input type="checkbox" checked={!!img.isPrimary} onChange={() => setPrimary(i)} />
               Ảnh chính
@@ -415,6 +432,8 @@ const ProductUpdatePage = () => {
               value={d.text || ""}
               onChange={e => updateDetailField(i, "text", e.target.value)}
             />
+            {errors[`details[${i}]`] && <span className={styles.error}>{errors[`details[${i}]`]}</span>}
+
             {d.imageUrl && (
               <img
                 src={d.imageUrl.startsWith("blob:") ? d.imageUrl : IMAGE_BASE + d.imageUrl}
@@ -447,6 +466,7 @@ const ProductUpdatePage = () => {
               onChange={e => updateColorField(i, "color", e.target.value)}
               placeholder="Tên màu"
             />
+            {errors[`colorVariants[${i}]`] && <span className={styles.error}>{errors[`colorVariants[${i}]`]}</span>}
 
             <h4>Ảnh của màu</h4>
             <div className={styles.imageList}>
@@ -468,18 +488,22 @@ const ProductUpdatePage = () => {
             <h4>Biến thể size</h4>
             {cv.sizes.map((s, j) => (
               <div key={s.id} className={styles.row}>
-                <input 
+                <div><input 
                   value={s.size || ""} 
                   onChange={e => updateSize(i, j, "size", e.target.value)} 
                   placeholder="Size" 
                 />
-                <input 
+                 {errors[`colorVariants[${i}].sizes[${j}].size`] && <span className={styles.error}>{errors[`colorVariants[${i}].sizes[${j}].size`]}</span>}</div>
+                <div>
+                  <input 
                   type="number" 
                   value={s.stock || ""} 
                   onChange={e => updateSize(i, j, "stock", Number(e.target.value))} 
                   placeholder="Stock" 
-                  style={{ width: '120px', minWidth: '120px' }}
                 />
+                {errors[`colorVariants[${i}].sizes[${j}].stock`] && <span className={styles.error}>{errors[`colorVariants[${i}].sizes[${j}].stock`]}</span>}
+                </div>
+                
                 <button onClick={() => removeSize(i, j)}>Xóa</button>
               </div>
             ))}

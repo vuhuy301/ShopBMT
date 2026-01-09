@@ -201,7 +201,7 @@ const ProductList = () => {
                     )}
 
                     <p className="text-muted small">{product.brandName}</p>
-                    <button className="btn btn-success mt-auto">Thêm vào giỏ</button>
+                    <button onClick={() => navigate(`/product/${product.id}`)} className="btn btn-success mt-auto">Chi tiết</button>
                   </div>
                 );
               })

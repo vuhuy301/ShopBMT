@@ -84,7 +84,7 @@ const LoginPage = () => {
 
       if (!res.ok) {
         const err = await res.text();
-        throw new Error(err || "Email hoặc mật khẩu không đúng");
+        throw new Error(err.message || "Email hoặc mật khẩu không đúng");
       }
 
       const data = await res.json();
@@ -106,7 +106,7 @@ const LoginPage = () => {
       localStorage.setItem("user", JSON.stringify({ email, role }));
 
       if (role === "Admin") window.location.href = "/admin";
-      else if (role === "Staff") window.location.href = "/staff";
+      else if (role === "Seller") window.location.href = "/seller";
       else window.location.href = "/";
     } catch (err) {
       setError(err.message);

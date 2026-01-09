@@ -8,6 +8,7 @@ namespace backend_shopcaulong.DTOs.Payment
         public decimal Amount { get; set; }
         public string? TransactionCode { get; set; }
         public string Status { get; set; } = "Pending";
+        public string? RawResponse { get; set; }
         public DateTime? PaidAt { get; set; }
         public DateTime CreatedAt { get; set; }
     }

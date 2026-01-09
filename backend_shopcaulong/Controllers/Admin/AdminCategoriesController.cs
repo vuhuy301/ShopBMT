@@ -41,8 +41,18 @@ namespace backend_shopcaulong.Controllers.Admin
         [HttpPost]
         public async Task<ActionResult<CategoryDto>> Create(CategoryCreateUpdateDto dto)
         {
-            var cat = await _categoryService.CreateAsync(dto);
-            return CreatedAtAction(nameof(Create), new { id = cat.Id }, cat);
+            try
+            {
+                var cat = await _categoryService.CreateAsync(dto);
+                return CreatedAtAction(nameof(Create), new { id = cat.Id }, cat);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
         }
 
         // Cập nhật category
@@ -52,8 +62,20 @@ namespace backend_shopcaulong.Controllers.Admin
         [HttpPut("{id}")]
         public async Task<ActionResult<CategoryDto>> Update(int id, CategoryCreateUpdateDto dto)
         {
-            var cat = await _categoryService.UpdateAsync(id, dto);
-            return cat == null ? NotFound() : Ok(cat);
+            try
+            {
+                var cat = await _categoryService.UpdateAsync(id, dto);
+                if (cat == null) return NotFound();
+
+                return Ok(cat);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
         }
 
         // Xóa category

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "./BannerManager.module.css";
-import { createBanner, getAllBanners,updateBanner   } from "../../services/bannerService";
+import { createBanner, getAllBanners, updateBanner } from "../../services/bannerService";
 
 const IMAGE_BASE = process.env.REACT_APP_IMAGE_BASE_URL;
 const BannerManager = () => {
@@ -8,6 +8,7 @@ const BannerManager = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editBanner, setEditBanner] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const [form, setForm] = useState({
     imageFile: null,
@@ -37,19 +38,27 @@ const BannerManager = () => {
     setForm({ ...form, imageFile: file });
   };
 
- const handleAddSubmit = async (e) => {
+  const handleAddSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateAddBanner()) return; // 👈 THÊM DÒNG NÀY
+
     setLoading(true);
     try {
       await createBanner(form);
       setShowAddModal(false);
       setForm({ imageFile: null, link: "", isActive: true });
+      setErrors({});
       loadBanners();
-    } catch (err) { alert(err.message); }
-    finally { setLoading(false); }
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-    const handleEditSubmit = async (e) => {
+
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
     if (!editBanner) return;
 
@@ -62,6 +71,36 @@ const BannerManager = () => {
     } catch (err) { alert(err.message); }
     finally { setLoading(false); }
   };
+
+  const validateAddBanner = () => {
+    const newErrors = {};
+
+    // 1. Bắt buộc có ảnh
+    if (!form.imageFile) {
+      newErrors.imageFile = "Vui lòng chọn ảnh banner";
+    } else {
+      // 2. Validate loại file
+      const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+      if (!allowedTypes.includes(form.imageFile.type)) {
+        newErrors.imageFile = "Chỉ chấp nhận ảnh JPG, PNG, WEBP";
+      }
+
+      // 3. Validate dung lượng (2MB)
+      const maxSize = 50 * 1024 * 1024;
+      if (form.imageFile.size > maxSize) {
+        newErrors.imageFile = "Dung lượng ảnh tối đa 50MB";
+      }
+    }
+
+    // 4. Validate link (nếu có)
+    if (form.link && !/^https?:\/\/.+/i.test(form.link)) {
+      newErrors.link = "Link không hợp lệ (phải bắt đầu bằng http:// hoặc https://)";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
 
   return (
     <div className={styles.container}>
@@ -105,12 +144,23 @@ const BannerManager = () => {
             <h3>Thêm banner</h3>
             <form onSubmit={handleAddSubmit}>
               <input type="file" accept="image/*" onChange={handleFileChange} />
+              {errors.imageFile && (
+                <div className="text-danger" style={{ fontSize: "13px" }}>
+                  {errors.imageFile}
+                </div>
+              )}
               <input
                 type="text"
                 placeholder="Link ảnh (tùy chọn)"
                 value={form.link}
                 onChange={e => setForm({ ...form, link: e.target.value })}
               />
+              {errors.link && (
+                <div className="text-danger" style={{ fontSize: "13px" }}>
+                  {errors.link}
+                </div>
+              )}
+
               <label className={styles.checkbox}>
                 <input type="checkbox" checked={form.isActive} onChange={e => setForm({ ...form, isActive: e.target.checked })} />
                 Hiển thị

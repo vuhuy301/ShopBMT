@@ -24,29 +24,35 @@ const BrandManagement = () => {
     }
   };
 
-  const handleAddOrUpdate = async () => {
-    if (!name.trim()) return;
+ const handleAddOrUpdate = async () => {
+  if (!name.trim()) {
+    alert("Tên thương hiệu không được để trống");
+    return;
+  }
 
-    try {
-      if (editingId) {
-        const updated = await updateBrand(editingId, name);
-        if (updated) {
-          setBrands((prev) =>
-            prev.map((b) => (b.id === editingId ? updated : b))
-          );
-          setEditingId(null);
-        }
-      } else {
-        const newBrand = await addBrand(name);
-        if (newBrand) {
-          setBrands((prev) => [...prev, newBrand]);
-        }
+  try {
+    if (editingId) {
+      const updated = await updateBrand(editingId, name);
+      if (updated) {
+        setBrands((prev) =>
+          prev.map((b) => (b.id === editingId ? updated : b))
+        );
+        alert("Cập nhật thương hiệu thành công");
+        setEditingId(null);
       }
-      setName("");
-    } catch (err) {
-      console.error("Add/Update brand thất bại", err);
+    } else {
+      const newBrand = await addBrand(name);
+      if (newBrand) {
+        setBrands((prev) => [...prev, newBrand]);
+        alert("Thêm thương hiệu thành công");
+      }
     }
-  };
+    setName("");
+  } catch (err) {
+    alert(err.message); // 👈 "Thương hiệu đã tồn tại"
+  }
+};
+
 
   const handleEdit = (brand) => {
     setEditingId(brand.id);

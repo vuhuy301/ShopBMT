@@ -3,7 +3,7 @@ import { fetchWithToken } from "../utils/fetchWithToken";
 // Lấy tất cả brand đang active
 export const getBrands = async () => {
   try {
-    const res = await fetchWithToken("/admin/AdminBrands",{},false);
+    const res = await fetchWithToken("/admin/AdminBrands",{} ,false);
     if (!res.ok) throw new Error("Failed to fetch brands");
 
     const data = await res.json();
@@ -35,13 +35,19 @@ export const addBrand = async (brandName) => {
       body: JSON.stringify({ name: brandName }),
     });
 
-    if (!res.ok) throw new Error("Failed to add brand");
-    return await res.json();
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Thêm thương hiệu thất bại");
+    }
+
+    return data;
   } catch (err) {
-    console.error("Error adding brand:", err);
-    return null;
+    console.error("Error adding brand:", err.message);
+    throw err; // ⚠️ NÉM LÊN COMPONENT
   }
 };
+
 
 // Cập nhật brand
 export const updateBrand = async (id, name) => {
@@ -52,13 +58,19 @@ export const updateBrand = async (id, name) => {
       body: JSON.stringify({ name }),
     });
 
-    if (!res.ok) throw new Error("Failed to update brand");
-    return await res.json();
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Cập nhật thương hiệu thất bại");
+    }
+
+    return data;
   } catch (err) {
-    console.error(err);
-    return null;
+    console.error("Update brand error:", err.message);
+    throw err;
   }
 };
+
 
 // Toggle trạng thái active của brand
 export const toggleBrandActive = async (id, isActive) => {

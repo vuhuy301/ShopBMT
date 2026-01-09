@@ -28,28 +28,44 @@ namespace backend_shopcaulong.Controllers.Admin
             var brands = await _brandService.GetAllAsync();
             return Ok(brands);
         }
-    /// <summary>
-    /// Tạo thương hiệu mới.
-    /// </summary>
-    [HttpPost]
+        /// <summary>
+        /// Tạo thương hiệu mới.
+        /// </summary>
+        [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] BrandCreateDto dto)
-    {
-        var brand = await _brandService.CreateAsync(dto);
-        return Ok(brand);
-    }
+        {
+            try
+            {
+                var brand = await _brandService.CreateAsync(dto);
+                return Ok(brand);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
-    /// <summary>
-    /// Cập nhật thương hiệu.
-    /// </summary>
-    [HttpPut("{id}")]
+        /// <summary>
+        /// Cập nhật thương hiệu.
+        /// </summary>
+        [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] BrandUpdateDto dto)
-    {
-        var brand = await _brandService.UpdateAsync(id, dto);
-        if (brand == null) return NotFound();
-        return Ok(brand);
-    }
+        {
+            try
+            {
+                var brand = await _brandService.UpdateAsync(id, dto);
+                if (brand == null) return NotFound();
+
+                return Ok(brand);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
 
         /// <summary>
         /// Xóa thương hiệu.

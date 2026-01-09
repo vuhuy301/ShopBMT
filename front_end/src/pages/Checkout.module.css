@@ -1,7 +1,8 @@
 .checkoutContainer {
-  max-width: 700px;
+  max-width: 800px;
   margin: 30px auto;
   padding: 20px;
+  width: calc(100% - 17px);
 }
 
 .title {
@@ -69,6 +70,14 @@
   border-radius: 6px;
   object-fit: cover;
   margin-right: 12px;
+}
+
+.error {
+  color: #e53935;
+  font-size: 13px;
+  min-height: 16px;   /* CHÌA KHÓA */
+  margin-bottom: 8px;
+
 }
 
 .itemInfo {

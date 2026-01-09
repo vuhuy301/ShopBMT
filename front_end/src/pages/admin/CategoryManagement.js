@@ -26,29 +26,32 @@ const CategoryManagement = () => {
   };
 
   const handleAddOrUpdate = async () => {
-    if (!name.trim()) return;
+  if (!name.trim()) {
+    alert("Tên danh mục không được để trống");
+    return;
+  }
 
-    try {
-      if (editingId) {
-        const updated = await updateCategory(editingId, name, description);
-        if (updated) {
-          setCategories((prev) =>
-            prev.map((c) => (c.id === editingId ? updated : c))
-          );
-          setEditingId(null);
-        }
-      } else {
-        const newCategory = await addCategory(name, description);
-        if (newCategory) {
-          setCategories((prev) => [...prev, newCategory]);
-        }
-      }
-      setName("");
-      setDescription("");
-    } catch (err) {
-      console.error("Add/Update category thất bại", err);
+  try {
+    if (editingId) {
+      const updated = await updateCategory(editingId, name, description);
+      setCategories((prev) =>
+        prev.map((c) => (c.id === editingId ? updated : c))
+      );
+      alert("Cập nhật danh mục thành công");
+      setEditingId(null);
+    } else {
+      const newCategory = await addCategory(name, description);
+      setCategories((prev) => [...prev, newCategory]);
+      alert("Thêm danh mục thành công");
     }
-  };
+
+    setName("");
+    setDescription("");
+  } catch (err) {
+    alert(err.message); // 👈 HIỂN THỊ "Danh mục đã tồn tại"
+  }
+};
+
 
   const handleEdit = (category) => {
     setEditingId(category.id);

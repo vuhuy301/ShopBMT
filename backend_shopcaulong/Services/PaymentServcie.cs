@@ -78,7 +78,8 @@ namespace backend_shopcaulong.Services
                     TransactionCode = p.TransactionCode,
                     Status = p.Status,
                     PaidAt = p.PaidAt,
-                    CreatedAt = p.CreatedAt
+                    CreatedAt = p.CreatedAt,
+                    RawResponse = p.RawResponse
                 })
                 .ToListAsync();
 
@@ -109,7 +110,8 @@ namespace backend_shopcaulong.Services
                 TransactionCode = payment.TransactionCode,
                 Status = payment.Status,
                 PaidAt = payment.PaidAt,
-                CreatedAt = payment.CreatedAt
+                CreatedAt = payment.CreatedAt,
+                RawResponse = payment.RawResponse,
             };
         }
     }

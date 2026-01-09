@@ -35,13 +35,19 @@ export const addCategory = async (name, description) => {
       body: JSON.stringify({ name, description }),
     });
 
-    if (!res.ok) throw new Error("Failed to add category");
-    return await res.json();
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Thêm danh mục thất bại");
+    }
+
+    return data;
   } catch (err) {
-    console.error(err);
-    return null;
+    console.error("Add category error:", err.message);
+    throw err; // ⚠️ QUAN TRỌNG: ném lên component xử lý
   }
 };
+
 
 // Cập nhật category
 export const updateCategory = async (id, name, description) => {
@@ -52,11 +58,16 @@ export const updateCategory = async (id, name, description) => {
       body: JSON.stringify({ name, description }),
     });
 
-    if (!res.ok) throw new Error("Failed to update category");
-    return await res.json();
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Cập nhật danh mục thất bại");
+    }
+
+    return data;
   } catch (err) {
-    console.error(err);
-    return null;
+    console.error("Update category error:", err.message);
+    throw err;
   }
 };
 

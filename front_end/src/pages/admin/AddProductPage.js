@@ -4,6 +4,8 @@ import styles from "./AddProductPage.module.css";
 import { createProduct } from "../../services/admin/productAdminService";
 import { getCategories } from "../../services/categoryService";
 import { getBrands } from "../../services/brandService";
+import { validateProduct } from "../../utils/addProductValidation";
+
 
 const AddProductPage = () => {
     const [name, setName] = useState("");
@@ -33,6 +35,9 @@ const AddProductPage = () => {
             sizes: [{ size: "", stock: 0 }]
         }
     ]);
+
+    const [errors, setErrors] = useState({});
+
 
     // ============================
     // LOAD CATEGORY + BRAND
@@ -78,6 +83,28 @@ const AddProductPage = () => {
     // ============================
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const productData = {
+            name,
+            description,
+            price,
+            discountPrice,
+            brandId,
+            categoryId,
+            mainImages,
+            details,
+            colorVariants
+        };
+
+        const validationErrors = validateProduct(productData, { isAdd: true });
+
+        // 3️⃣ Nếu có lỗi → setErrors + ngăn submit
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+
+        setErrors({});
 
         const form = new FormData();
 
@@ -137,31 +164,38 @@ const AddProductPage = () => {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                     />
+                    {errors.name && <span className={styles.error}>{errors.name}</span>}
 
                     <textarea
                         placeholder="Mô tả"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                     />
+                    {errors.description && <span className={styles.error}>{errors.description}</span>}
 
                     <div className={styles.row}>
-                        <input
-                            type="number"
-                            placeholder="Giá"
-                            value={price}
-                            onChange={(e) => setPrice(e.target.value)}
-                        />
+                        <div>
+                            <input
+                                type="number"
+                                placeholder="Giá"
+                                value={price}
+                                onChange={(e) => setPrice(e.target.value)}
+                            />
+                            {errors.price && <span className={styles.error}>{errors.price}</span>}
+                        </div>
 
-                        <input
+                        <div><input
                             type="number"
                             placeholder="Giá giảm"
                             value={discountPrice}
                             onChange={(e) => setDiscountPrice(e.target.value)}
                         />
+                            {errors.discountPrice && <span className={styles.error}>{errors.discountPrice}</span>}</div>
+
                     </div>
 
                     <div className={styles.row}>
-                        <select
+                        <div><select
                             value={brandId}
                             onChange={(e) => setBrandId(e.target.value)}
                         >
@@ -172,8 +206,9 @@ const AddProductPage = () => {
                                 </option>
                             ))}
                         </select>
+                            {errors.brandId && <span className={styles.error}>{errors.brandId}</span>}</div>
 
-                        <select
+                        <div><select
                             value={categoryId}
                             onChange={(e) => setCategoryId(e.target.value)}
                         >
@@ -184,6 +219,8 @@ const AddProductPage = () => {
                                 </option>
                             ))}
                         </select>
+                            {errors.categoryId && <span className={styles.error}>{errors.categoryId}</span>}</div>
+
                     </div>
 
                     <label className={styles.checkbox}>
@@ -201,7 +238,7 @@ const AddProductPage = () => {
                     <h3>Ảnh chính</h3>
 
                     <input type="file" multiple onChange={handleMainImageChange} />
-
+                    {errors.mainImages && <span className={styles.error}>{errors.mainImages}</span>}
                     <div className={styles.previewList}>
                         {mainImages.map((m, i) => (
                             <div key={i} className={styles.previewItem}>
@@ -234,6 +271,7 @@ const AddProductPage = () => {
                                     setDetails(copy);
                                 }}
                             />
+                            {errors[`details[${idx}]`] && <span className={styles.error}>{errors[`details[${idx}]`]}</span>}
 
                             <input
                                 type="number"
@@ -317,6 +355,7 @@ const AddProductPage = () => {
                                     setColorVariants(copy);
                                 }}
                             />
+                            {errors[`colorVariants[${i}]`] && <span className={styles.error}>{errors[`colorVariants[${i}]`]}</span>}
 
                             {/* UPLOAD ẢNH MÀU */}
                             <input
@@ -363,7 +402,8 @@ const AddProductPage = () => {
 
                             {cv.sizes.map((s, j) => (
                                 <div key={j} className={styles.sizeRow}>
-                                    <input
+                                    <div>
+                                        <input
                                         placeholder="Size"
                                         value={s.size}
                                         onChange={(e) => {
@@ -372,8 +412,10 @@ const AddProductPage = () => {
                                             setColorVariants(copy);
                                         }}
                                     />
+                                    {errors[`colorVariants[${i}].sizes[${j}].size`] && <span className={styles.error}>{errors[`colorVariants[${i}].sizes[${j}].size`]}</span>}
 
-                                    <input
+                                    </div>
+                                    <div><input
                                         type="number"
                                         placeholder="Tồn kho"
                                         value={s.stock}
@@ -383,6 +425,8 @@ const AddProductPage = () => {
                                             setColorVariants(copy);
                                         }}
                                     />
+                                    {errors[`colorVariants[${i}].sizes[${j}].stock`] && <span className={styles.error}>{errors[`colorVariants[${i}].sizes[${j}].stock`]}</span>}</div>
+                                    
 
                                     <button
                                         type="button"

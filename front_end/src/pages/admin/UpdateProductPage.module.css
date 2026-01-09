@@ -26,7 +26,11 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: box-shadow 0.3s ease;
 }
-
+.error {
+    min-height: 18px;       /* giữ chỗ */
+    font-size: 13px;
+    color: #dc3545;
+}
 .section:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }

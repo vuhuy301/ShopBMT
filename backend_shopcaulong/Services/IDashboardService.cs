@@ -5,12 +5,8 @@ namespace backend_shopcaulong.Services
 {
     public interface IDashboardService
     {
-        Task<decimal> GetRevenueTodayAsync();
-        Task<List<RevenueLast7DaysDto>> GetRevenueLast7DaysAsync();
-        Task<OrdersSummaryDto> GetOrdersSummaryAsync();
-        Task<List<TopProductDto>> GetTopProductsAsync(int top = 10);
-        Task<List<LowStockItemDto>> GetLowStockAsync(int threshold = 5);
-        Task<List<LatestOrderDto>> GetLatestOrdersAsync(int take = 5);
-        Task<CancelRateDto> GetCancelRateAsync();
+        Task<KpiDto> GetKpiAsync(int year, int? month = null);
+        Task<List<RevenueByDateDto>> GetRevenueByDaysAsync(int days = 30);
+        Task<List<TopProductDto>> GetTopProductsAsync(int top = 5);
     }
 }

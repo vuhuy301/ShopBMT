@@ -124,6 +124,7 @@ const OrderManagement = () => {
             <div><b>Khách:</b> {order.customerName}</div>
             <div><b>SĐT:</b> {order.phone}</div>
             <div><b>Địa chỉ:</b> {order.shippingAddress}</div>
+            <div><b>Thanh toán:</b> {order.paymentMethod}</div>
             {order.note && <div><b>Ghi chú:</b> {order.note}</div>}
           </div>
 

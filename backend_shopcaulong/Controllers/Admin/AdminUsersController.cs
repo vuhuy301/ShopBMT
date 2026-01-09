@@ -60,9 +60,20 @@ namespace backend_shopcaulong.Controllers.Admin
         [HttpPost("create-employee")]
         public async Task<IActionResult> CreateEmployee(CreateEmployeeDto dto)
         {
-            var emp = await _userService.CreateEmployeeAsync(dto);
-            return Ok(emp);
+            try
+            {
+                var emp = await _userService.CreateEmployeeAsync(dto);
+                return Ok(emp);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
         }
+
 
         // Cập nhật quyền người dùng
         /// <summary>

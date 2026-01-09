@@ -120,7 +120,7 @@ namespace backend_shopcaulong.Controllers
                 OrderId = order.Id,
                 Amount = order.TotalAmount,
                 Provider = "SePay",
-                Status = "Pending"
+                Status = "Chờ thanh toán"    
             };
 
             _shopDbContext.Payments.Add(payment);

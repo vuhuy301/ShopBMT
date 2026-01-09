@@ -45,16 +45,13 @@ namespace backend_shopcaulong.Services
 
                     // Images chính - chỉ lấy những gì cần
                     Images = p.Images
-                        .Where(i => i.ColorVariantId == null && !i.ImageUrl.Contains("/details/"))
-                        .OrderByDescending(i => i.IsPrimary)
-                        .Select(i => new ProductImageDto
-                        {
-                            Id = i.Id,
-                            ImageUrl = i.ImageUrl,
-                            IsPrimary = i.IsPrimary
-                        })
-                        .ToList(),
-
+    .Select(i => new ProductImageDto
+    {
+        Id = i.Id,
+        ImageUrl = i.ImageUrl,
+        IsPrimary = i.IsPrimary
+    })
+    .ToList(),
                     // Details - sắp xếp luôn trong query
                     Details = p.Details
                         .OrderBy(d => d.SortOrder)

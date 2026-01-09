@@ -39,6 +39,12 @@ namespace backend_shopcaulong.Services
 
         public async Task<BrandDto> CreateAsync(BrandCreateDto dto)
         {
+            var isDuplicate = await _context.Brands
+                .AnyAsync(b => b.Name.ToLower() == dto.Name.ToLower());
+
+            if (isDuplicate)
+                throw new Exception("Thương hiệu đã tồn tại");
+
             var brand = _mapper.Map<Brand>(dto);
             _context.Brands.Add(brand);
             await _context.SaveChangesAsync();
@@ -46,16 +52,24 @@ namespace backend_shopcaulong.Services
             return _mapper.Map<BrandDto>(brand);
         }
 
+
         public async Task<BrandDto?> UpdateAsync(int id, BrandUpdateDto dto)
         {
             var brand = await _context.Brands.FindAsync(id);
             if (brand == null) return null;
+
+            var isDuplicate = await _context.Brands
+                .AnyAsync(b => b.Id != id && b.Name.ToLower() == dto.Name.ToLower());
+
+            if (isDuplicate)
+                throw new Exception("Thương hiệu đã tồn tại");
 
             _mapper.Map(dto, brand);
             await _context.SaveChangesAsync();
 
             return _mapper.Map<BrandDto>(brand);
         }
+
 
         public async Task<bool> ToggleBrandActiveAsync(int id, bool isActive)
         {

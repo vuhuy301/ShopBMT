@@ -1,7 +1,9 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./Header.module.css";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { getCart } from "../utils/cartUtils";
+import { FaShoppingCart } from "react-icons/fa";
 
 const Header = () => {
 
@@ -9,6 +11,13 @@ const Header = () => {
   const token = localStorage.getItem("accessToken");
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const role = localStorage.getItem("role"); // "Admin", "Employee", "Customer"
+
+  const [cartCount, setCartCount] = React.useState(0);
+
+  useEffect(() => {
+    const cart = getCart();
+    setCartCount(cart.reduce((sum, item) => sum + item.quantity, 0));
+  }, []);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -59,7 +68,7 @@ const Header = () => {
               </Link>
 
               {/* Nếu bạn có trang đăng ký khách hàng thì để Link, không thì dùng button */}
-                <Link to="/register" className="ms-4 fw-bold">
+              <Link to="/register" className="ms-4 fw-bold">
                 Đăng ký
               </Link>
             </>
@@ -95,9 +104,13 @@ const Header = () => {
           )}
 
           {/* Giỏ hàng */}
-          <Link to="/cart" className="ms-4">
-            Giỏ hàng
-          </Link>
+          <div className="ms-4 position-relative">
+            <Link to="/cart" className={styles.cartIcon}>
+              <FaShoppingCart size={22} /> {/* icon giỏ hàng */}
+              {cartCount > 0 && <span className={styles.cartCount}>{cartCount}</span>}
+            </Link>
+          </div>
+
         </div>
       </div>
     </div>

@@ -1,82 +1,62 @@
-// Controllers/AdminDashboardController.cs
-using backend_shopcaulong.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using backend_shopcaulong.Services;using Microsoft.AspNetCore.Mvc;
 
-namespace backend_shopcaulong.Controllers
-{
-using backend_shopcaulong.Services;
-using Microsoft.AspNetCore.Mvc;
-
-namespace backend_shopcaolong.Controllers
-{
-    /// <summary>
-    /// API Dashboard dành cho Admin.
-    /// </summary>
-    [ApiController]
-    [Route("api/admin/dashboard")]
-        [Authorize(Roles = "Admin")]
-        public class AdminDashboardController : ControllerBase
+    namespace backend_shopcaolong.Controllers
     {
-        private readonly IDashboardService _dashboardService;
-
-        public AdminDashboardController(IDashboardService dashboardService)
+        /// <summary>
+        /// API Dashboard dành cho Admin.
+        /// </summary>
+        [ApiController]
+        [Route("api/admin/dashboard")]
+        public class AdminDashboardController : ControllerBase
         {
-            _dashboardService = dashboardService;
+            private readonly IDashboardService _dashboardService;
+
+            public AdminDashboardController(IDashboardService dashboardService)
+            {
+                _dashboardService = dashboardService;
+            }
+
+        [HttpGet("kpi")]
+        public async Task<IActionResult> GetKpi([FromQuery] int year, [FromQuery] int? month)
+        {
+            try
+            {
+                var kpi = await _dashboardService.GetKpiAsync(year, month);
+                return Ok(kpi);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
-        /// <summary>
-        /// Lấy doanh thu của hôm nay.
-        /// </summary>
-        [HttpGet("revenue-today")]
-        public async Task<IActionResult> GetRevenueToday()
-            => Ok(await _dashboardService.GetRevenueTodayAsync());
+        [HttpGet("revenue-by-days")]
+        public async Task<IActionResult> GetRevenueByDays([FromQuery] int days = 30)
+        {
+            try
+            {
+                var data = await _dashboardService.GetRevenueByDaysAsync(days);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
-        /// <summary>
-        /// Lấy doanh thu 7 ngày gần nhất.
-        /// </summary>
-        [HttpGet("revenue-last7days")]
-        public async Task<IActionResult> GetRevenueLast7Days()
-            => Ok(await _dashboardService.GetRevenueLast7DaysAsync());
-
-        /// <summary>
-        /// Lấy thống kê tổng quan đơn hàng.
-        /// </summary>
-        [HttpGet("orders-summary")]
-        public async Task<IActionResult> GetOrdersSummary()
-            => Ok(await _dashboardService.GetOrdersSummaryAsync());
-
-        /// <summary>
-        /// Lấy danh sách sản phẩm bán chạy.
-        /// </summary>
-        /// <param name="top">Số lượng sản phẩm muốn lấy.</param>
         [HttpGet("top-products")]
-        public async Task<IActionResult> GetTopProducts([FromQuery] int top = 10)
-            => Ok(await _dashboardService.GetTopProductsAsync(top));
-
-        /// <summary>
-        /// Lấy danh sách sản phẩm sắp hết hàng.
-        /// </summary>
-        /// <param name="threshold">Ngưỡng tồn kho thấp.</param>
-        [HttpGet("low-stock")]
-        public async Task<IActionResult> GetLowStock([FromQuery] int threshold = 5)
-            => Ok(await _dashboardService.GetLowStockAsync(threshold));
-
-        /// <summary>
-        /// Lấy danh sách đơn hàng mới nhất.
-        /// </summary>
-        /// <param name="take">Số lượng đơn muốn lấy.</param>
-        [HttpGet("latest-orders")]
-        public async Task<IActionResult> GetLatestOrders([FromQuery] int take = 5)
-            => Ok(await _dashboardService.GetLatestOrdersAsync(take));
-
-        /// <summary>
-        /// Lấy tỷ lệ hủy đơn hàng.
-        /// </summary>
-        [HttpGet("cancel-rate")]
-        public async Task<IActionResult> GetCancelRate()
-            => Ok(await _dashboardService.GetCancelRateAsync());
+        public async Task<IActionResult> GetTopProducts([FromQuery] int top = 5)
+        {
+            try
+            {
+                var data = await _dashboardService.GetTopProductsAsync(top);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
-}
 
-}
+    }

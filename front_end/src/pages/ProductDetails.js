@@ -157,8 +157,8 @@ const ProductDetails = () => {
                 src={IMAGE_BASE + img.imageUrl}
                 alt={`Thumbnail ${idx + 1}`}
                 className={`${styles.thumbnail} ${img.imageUrl === mainDisplayImage
-                    ? styles.thumbnailActive
-                    : ""
+                  ? styles.thumbnailActive
+                  : ""
                   }`}
                 style={{
                   width: "80px",
@@ -196,7 +196,7 @@ const ProductDetails = () => {
             </div>
 
           </div>
-        
+
 
           <hr />
 
@@ -209,8 +209,8 @@ const ProductDetails = () => {
                   <button
                     key={variant.id}
                     className={`btn px-4 py-2 ${styles.optionBtn} ${selectedColor?.id === variant.id
-                        ? "btn-primary"
-                        : "btn-outline-secondary"
+                      ? "btn-primary"
+                      : "btn-outline-secondary"
                       }`}
                     onClick={() => {
                       setSelectedColor(variant);
@@ -234,10 +234,10 @@ const ProductDetails = () => {
                     key={sz.id}
                     disabled={!sz.inStock || sz.stock === 0}
                     className={`btn px-4 ${styles.optionBtn} ${selectedSize?.id === sz.id
-                        ? "btn-warning"
-                        : sz.inStock && sz.stock > 0
-                          ? "btn-outline-warning"
-                          : "btn-secondary opacity-50"
+                      ? "btn-warning"
+                      : sz.inStock && sz.stock > 0
+                        ? "btn-outline-warning"
+                        : "btn-secondary opacity-50"
                       }`}
                     onClick={() => setSelectedSize(sz)}
                   >
@@ -265,8 +265,8 @@ const ProductDetails = () => {
               </span>
             )}
           </p>
-              <div className="mb-3">
-              <p>{product.description}</p>
+          <div className="mb-3">
+            <p>{product.description}</p>
           </div >
 
           {/* Add to cart */}
@@ -279,15 +279,16 @@ const ProductDetails = () => {
           </button>
 
           {/* Ưu đãi */}
-          <div className={`mt-3 p-4 border ${styles.promoBox}`}>
-            <h5 className="mb-3">🎁Ưu đãi đặc biệt🎁</h5>
-            <ul className="list-unstyled mb-0">
-              <li>Miễn phí ship đơn từ 500.000đ</li>
-              <li>Giảm 10% cho đơn tiếp theo</li>
-              <li>Đổi trả 7 ngày nếu lỗi</li>
-              <li>Hỗ trợ tư vấn size</li>
-            </ul>
-          </div>
+          {product.promotions?.length > 0 && (
+            <div className={`mt-3 p-4 border ${styles.promoBox}`}>
+              <h5 className="mb-3">🎁 Ưu đãi đặc biệt 🎁</h5>
+              <ul className="list-unstyled mb-0">
+                {product.promotions.map((promo) => (
+                  <li key={promo.id}>{promo.name}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
 

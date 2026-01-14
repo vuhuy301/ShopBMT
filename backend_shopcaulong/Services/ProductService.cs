@@ -2,6 +2,7 @@
 using AutoMapper;
 using backend_shopcaulong.DTOs.Common;
 using backend_shopcaulong.DTOs.Product;
+using backend_shopcaulong.DTOs.Promotion;
 using backend_shopcaulong.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -80,6 +81,14 @@ namespace backend_shopcaulong.Services
                                 })
                                 .ToList()
                         })
+                        .ToList(),
+
+                    Promotions = p.ProductPromotions
+                        .Select(pp => new ProductPromotionDto
+                        {
+                            Id = pp.PromotionId,
+                            Name = pp.Promotion != null ? pp.Promotion.Name : ""
+                        })
                         .ToList()
                 });
         }
@@ -128,8 +137,11 @@ namespace backend_shopcaulong.Services
                             Sizes = new List<SizeVariantDto>()
                         })
                         .ToList()
+
+                    
                 });
         }
+
 
         public async Task<IEnumerable<ProductDto>> GetAllAsync()
         {
@@ -372,13 +384,15 @@ namespace backend_shopcaulong.Services
         public async Task<ProductDto?> UpdateAsync(int id, ProductUpdateDto dto)
         {
             var product = await _context.Products
-                .Include(p => p.Images)
-                .Include(p => p.Details)
-                .Include(p => p.ColorVariants!)
-                    .ThenInclude(cv => cv.Images)
-                .Include(p => p.ColorVariants!)
-                    .ThenInclude(cv => cv.Sizes)
-                .FirstOrDefaultAsync(p => p.Id == id);
+    .Include(p => p.ProductPromotions)
+    .ThenInclude(pp => pp.Promotion)
+    .Include(p => p.Images)
+    .Include(p => p.Details)
+    .Include(p => p.ColorVariants!)
+    .ThenInclude(cv => cv.Images)
+    .Include(p => p.ColorVariants!)
+    .ThenInclude(cv => cv.Sizes)
+    .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null) return null;
 
@@ -533,6 +547,22 @@ namespace backend_shopcaulong.Services
                             size.Stock = s.Stock; // chỉ update stock
                         }
                     }
+                }
+            }
+
+            if (dto.Promotions != null)
+            {
+                // Xóa tất cả ưu đãi cũ
+                product.ProductPromotions.Clear();
+
+                // Thêm ưu đãi mới
+                foreach (var promoId in dto.Promotions)
+                {
+                    product.ProductPromotions.Add(new ProductPromotion
+                    {
+                        ProductId = product.Id,
+                        PromotionId = promoId
+                    });
                 }
             }
 

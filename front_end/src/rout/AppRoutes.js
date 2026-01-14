@@ -31,6 +31,7 @@ import OrderDetailPage from "../pages/OrderDetailPage";
 import UserManagement from "../pages/admin/UserManagement";
 import PaymentManagement from "../pages/admin/PaymentManagement";
 import DashboardPage from "../pages/admin/DashboardPage";
+import PromotionPage from "../pages/admin/PromotionPage";
 
 // Role-based Route
 const RoleRoute = ({ children, allowedRoles = [] }) => {
@@ -93,6 +94,7 @@ const AppRouter = () => {
           <Route path="/admin/banners" element={<BannerManager />} />
           <Route path="/admin/users" element={<UserManagement />} />
           <Route path="/admin/payments" element={<PaymentManagement />} />
+          <Route path="/admin/promotions" element={<PromotionPage />} />
         </Route>
 
          <Route

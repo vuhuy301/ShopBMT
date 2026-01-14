@@ -25,12 +25,13 @@ const Sidebar = () => {
       { path: "/admin/orders", icon: <BiAlignRight />, label: "Đơn hàng" },
       { path: "/admin/categories", icon: <BiSolidUserDetail />, label: "Danh mục sản phẩm" },
       { path: "/admin/brands", icon: <BiSolidHourglass />, label: "Thương hiệu" },
+      { path: "/admin/promotions", icon: <BiSolidHourglass />, label: "Ưu đãi" },
       { path: "/admin/banners", icon: <BiInfoSquare />, label: "Banner" },
       { path: "/admin/payments", icon: <BiCreditCard />, label: "Giao dịch" },
       { path: "/admin/users", icon: <BiCreditCard />, label: "Người dùng" },
     ],
 
-    staff: [
+    seller: [
       { path: "/seller/orders", icon: <BiAlignRight />, label: "Đơn hàng" },
       { path: "/seller/product", icon: <BiPackage />, label: "Sản phẩm" },
     ],

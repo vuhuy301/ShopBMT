@@ -106,6 +106,21 @@ const ProductDetailPage = () => {
                     </div>
                 ))}
             </div>
+            <div className={styles.section}>
+                <h3>Ưu đãi áp dụng cho sản phẩm</h3>
+                {product.promotions?.length > 0 ? (
+                    <ul className={styles.promotionList}>
+                        {product.promotions.map((promo, i) => (
+                            <li key={i} className={styles.promoItem}>
+                                {promo.name}
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>Chưa có ưu đãi nào</p>
+                )}
+            </div>
+
 
 
             {/* NÚT EDIT */}

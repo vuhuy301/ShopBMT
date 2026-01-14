@@ -11,7 +11,7 @@ using System.Data;
 namespace backend_shopcaulong.Controllers.Admin {
     [ApiController]
     [Route("api/[controller]")]
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public class RolesController : ControllerBase
 {
     private readonly IRoleService _roleService; 
@@ -21,10 +21,6 @@ namespace backend_shopcaulong.Controllers.Admin {
         _roleService = roleService;
     }
 
-    // Lấy danh sách quyền
-    /// <summary>
-    /// Lấy tất cả quyền.
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -32,10 +28,6 @@ namespace backend_shopcaulong.Controllers.Admin {
         return Ok(roles);
     }
 
-        // Lấy quyền theo ID
-        /// <summary>
-        /// Lấy quyền theo ID.
-        /// </summary>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -44,10 +36,6 @@ namespace backend_shopcaulong.Controllers.Admin {
             return Ok(role);
         }
 
-        // Tạo quyền mới
-        /// <summary>
-        /// Tạo quyền mới.
-        /// </summary>
         [HttpPost]
         public async Task<IActionResult> Create(RoleCreateDto dto)
         {
@@ -55,10 +43,6 @@ namespace backend_shopcaulong.Controllers.Admin {
             return CreatedAtAction(nameof(GetById), new { id = role.Id }, role);
         }
 
-        // Cập nhật quyền
-        /// <summary>
-        /// Cập nhật quyền.
-        /// </summary>
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, RoleUpdateDto dto)
         {
@@ -67,10 +51,6 @@ namespace backend_shopcaulong.Controllers.Admin {
             return Ok(updatedRole);
         }
 
-        // Xóa quyền
-        /// <summary>
-        /// Xóa quyền.
-        /// </summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

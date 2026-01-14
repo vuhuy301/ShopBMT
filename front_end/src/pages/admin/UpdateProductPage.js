@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import Select from "react-select";
 import styles from "./UpdateProductPage.module.css";
 import { updateProduct } from "../../services/admin/productAdminService";
 import { getProductById } from "../../services/productService";
 import { getCategories } from "../../services/categoryService";
 import { getBrands } from "../../services/brandService";
 import { validateProduct } from "../../utils/addProductValidation";
+import { getAllPromotions } from "../../services/admin/promotionService";
 
 const IMAGE_BASE = process.env.REACT_APP_IMAGE_BASE_URL;
 
@@ -17,24 +19,37 @@ const generateUniqueId = () => {
 
 const ProductUpdatePage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [blobUrls, setBlobUrls] = useState([]);
 
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
-   const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({});
+
+  const [allPromotions, setAllPromotions] = useState([]); 
+const [selectedPromotions, setSelectedPromotions] = useState([]); 
 
   useEffect(() => {
-    const load = async () => {
-      const data = await getProductById(id);
-      // Đảm bảo có mảng rỗng nếu null
-      data.images = data.images || [];
-      data.details = data.details || [];
-      data.colorVariants = data.colorVariants || [];
-      setProduct(data);
-    };
-    load();
-  }, [id]);
+  const loadProductAndPromotions = async () => {
+    const productData = await getProductById(id);
+    productData.images = productData.images || [];
+    productData.details = productData.details || [];
+    productData.colorVariants = productData.colorVariants || [];
+    setProduct(productData);
+
+    const promos = await getAllPromotions(); // API lấy tất cả ưu đãi
+    setAllPromotions(promos);
+
+    // map productData.promotions sang selectedPromotions
+    const selected = promos
+      .filter(p => productData.promotions?.some(pp => pp.id === p.id))
+      .map(p => ({ value: p.id, label: p.name }));
+    setSelectedPromotions(selected);
+  };
+
+  loadProductAndPromotions();
+}, [id]);
 
   useEffect(() => {
     return () => blobUrls.forEach(url => URL.revokeObjectURL(url));
@@ -99,11 +114,11 @@ const ProductUpdatePage = () => {
   const addDetail = () => {
     setProduct(prev => ({
       ...prev,
-      details: [...prev.details, { 
-        id: generateUniqueId(), 
-        text: "", 
-        imageUrl: "", 
-        sortOrder: prev.details.length 
+      details: [...prev.details, {
+        id: generateUniqueId(),
+        text: "",
+        imageUrl: "",
+        sortOrder: prev.details.length
       }]
     }));
   };
@@ -174,13 +189,13 @@ const ProductUpdatePage = () => {
     setProduct(prev => {
       const cv = [...prev.colorVariants];
       const variant = { ...cv[variantIndex] };
-      
+
       // ✅ Tạo bản sao mới thay vì mutate trực tiếp
       variant.imageUrls = variant.imageUrls.filter((_, i) => i !== imgIndex);
       if (variant._files) {
         variant._files = variant._files.filter((_, i) => i !== imgIndex);
       }
-      
+
       cv[variantIndex] = variant;
       return { ...prev, colorVariants: cv };
     });
@@ -191,19 +206,19 @@ const ProductUpdatePage = () => {
     setProduct(prev => {
       const cv = [...prev.colorVariants];
       const variant = { ...cv[vIdx] };
-      
+
       // Tạo size mới với ID unique
-      const newSize = { 
-        id: generateUniqueId(), 
-        size: "", 
-        stock: 0, 
-        inStock: true 
+      const newSize = {
+        id: generateUniqueId(),
+        size: "",
+        stock: 0,
+        inStock: true
       };
-      
+
       // Tạo mảng sizes mới
       variant.sizes = [...variant.sizes, newSize];
       cv[vIdx] = variant;
-      
+
       return { ...prev, colorVariants: cv };
     });
   };
@@ -213,11 +228,11 @@ const ProductUpdatePage = () => {
       const cv = [...prev.colorVariants];
       const variant = { ...cv[vIdx] };
       const sizes = [...variant.sizes];
-      
+
       sizes[sIdx] = { ...sizes[sIdx], [field]: value };
       variant.sizes = sizes;
       cv[vIdx] = variant;
-      
+
       return { ...prev, colorVariants: cv };
     });
   };
@@ -226,10 +241,10 @@ const ProductUpdatePage = () => {
     setProduct(prev => {
       const cv = [...prev.colorVariants];
       const variant = { ...cv[vIdx] };
-      
+
       variant.sizes = variant.sizes.filter((_, i) => i !== sIdx);
       cv[vIdx] = variant;
-      
+
       return { ...prev, colorVariants: cv };
     });
   };
@@ -245,14 +260,14 @@ const ProductUpdatePage = () => {
   const handleSubmit = async () => {
     console.log("Product before submit:", product);
     const validationErrors = validateProduct(product, { isAdd: false });
-    
-            // 3️⃣ Nếu có lỗi → setErrors + ngăn submit
-            if (Object.keys(validationErrors).length > 0) {
-                setErrors(validationErrors);
-                return;
-            }
-    
-            setErrors({});
+
+    // 3️⃣ Nếu có lỗi → setErrors + ngăn submit
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setErrors({});
     const formData = new FormData();
 
     // Thông tin cơ bản
@@ -325,9 +340,14 @@ const ProductUpdatePage = () => {
       });
     });
 
+    selectedPromotions.forEach((p, i) => {
+  formData.append(`Promotions[${i}]`, p.value);
+});
+
     try {
       await updateProduct(id, formData);
       alert("Cập nhật sản phẩm thành công!");
+      navigate(`/admin/product/${id}`);
     } catch (err) {
       console.error("Update error:", err);
       alert("Lỗi cập nhật: " + (err.response?.data?.title || err.message));
@@ -374,7 +394,7 @@ const ProductUpdatePage = () => {
           value={product.categoryId || ""}
           onChange={(e) => updateField("categoryId", Number(e.target.value))}
         >
-          
+
           <option value="">-- Chọn danh mục --</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
@@ -382,7 +402,7 @@ const ProductUpdatePage = () => {
             </option>
           ))}
         </select>
-          {errors.categoryId && <span className={styles.error}>{errors.categoryId}</span>}
+        {errors.categoryId && <span className={styles.error}>{errors.categoryId}</span>}
         <label>Thương hiệu</label>
         <select
           value={product.brandId || ""}
@@ -488,22 +508,22 @@ const ProductUpdatePage = () => {
             <h4>Biến thể size</h4>
             {cv.sizes.map((s, j) => (
               <div key={s.id} className={styles.row}>
-                <div><input 
-                  value={s.size || ""} 
-                  onChange={e => updateSize(i, j, "size", e.target.value)} 
-                  placeholder="Size" 
+                <div><input
+                  value={s.size || ""}
+                  onChange={e => updateSize(i, j, "size", e.target.value)}
+                  placeholder="Size"
                 />
-                 {errors[`colorVariants[${i}].sizes[${j}].size`] && <span className={styles.error}>{errors[`colorVariants[${i}].sizes[${j}].size`]}</span>}</div>
+                  {errors[`colorVariants[${i}].sizes[${j}].size`] && <span className={styles.error}>{errors[`colorVariants[${i}].sizes[${j}].size`]}</span>}</div>
                 <div>
-                  <input 
-                  type="number" 
-                  value={s.stock || ""} 
-                  onChange={e => updateSize(i, j, "stock", Number(e.target.value))} 
-                  placeholder="Stock" 
-                />
-                {errors[`colorVariants[${i}].sizes[${j}].stock`] && <span className={styles.error}>{errors[`colorVariants[${i}].sizes[${j}].stock`]}</span>}
+                  <input
+                    type="number"
+                    value={s.stock || ""}
+                    onChange={e => updateSize(i, j, "stock", Number(e.target.value))}
+                    placeholder="Stock"
+                  />
+                  {errors[`colorVariants[${i}].sizes[${j}].stock`] && <span className={styles.error}>{errors[`colorVariants[${i}].sizes[${j}].stock`]}</span>}
                 </div>
-                
+
                 <button onClick={() => removeSize(i, j)}>Xóa</button>
               </div>
             ))}
@@ -513,6 +533,20 @@ const ProductUpdatePage = () => {
         ))}
         <button onClick={addColorVariant}>+ Thêm biến thể màu</button>
       </div>
+
+      {/* PROMOTIONS */}
+      <div className={styles.section}>
+  <h3>Ưu đãi</h3>
+  <Select
+    options={allPromotions.map(p => ({ value: p.id, label: p.name }))}
+    isMulti
+    value={selectedPromotions}
+    onChange={setSelectedPromotions}
+    placeholder="Chọn ưu đãi..."
+    classNamePrefix="select"
+    noOptionsMessage={() => "Không có ưu đãi"}
+  />
+</div>
 
       <button onClick={handleSubmit} className={styles.submitBtn}>
         Cập nhật sản phẩm

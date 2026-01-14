@@ -88,8 +88,8 @@ const Header = () => {
                   (Quản trị)
                 </Link>
               )}
-              {role === "Employee" && (
-                <Link to="/employee" className="me-3 text-info small">
+              {role === "Seller" && (
+                <Link to="/seller" className="me-3 text-info small">
                   (Nhân viên)
                 </Link>
               )}
@@ -110,7 +110,6 @@ const Header = () => {
               {cartCount > 0 && <span className={styles.cartCount}>{cartCount}</span>}
             </Link>
           </div>
-
         </div>
       </div>
     </div>

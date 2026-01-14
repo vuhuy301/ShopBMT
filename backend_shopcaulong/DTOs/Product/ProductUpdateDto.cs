@@ -23,6 +23,8 @@ namespace backend_shopcaulong.DTOs.Product
 
         // Biến thể
         public List<ColorVariantUpdateDto> ColorVariants { get; set; } = new();
+
+        public List<int> Promotions { get; set; } = new List<int>();
     }
 
 }

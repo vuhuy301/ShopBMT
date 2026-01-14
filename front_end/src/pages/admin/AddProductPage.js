@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import styles from "./AddProductPage.module.css";
+import Select from "react-select";
 
 import { createProduct } from "../../services/admin/productAdminService";
 import { getCategories } from "../../services/categoryService";
 import { getBrands } from "../../services/brandService";
 import { validateProduct } from "../../utils/addProductValidation";
+import { getAllPromotions } from "../../services/admin/promotionService";
 
 
 const AddProductPage = () => {
@@ -38,6 +40,9 @@ const AddProductPage = () => {
 
     const [errors, setErrors] = useState({});
 
+const [promotions, setPromotions] = useState([]);
+const [selectedPromotions, setSelectedPromotions] = useState([]);
+
 
     // ============================
     // LOAD CATEGORY + BRAND
@@ -49,6 +54,9 @@ const AddProductPage = () => {
                 const brs = await getBrands();
                 setCategories(cats);
                 setBrands(brs);
+
+                const promos = await getAllPromotions();
+                setPromotions(promos);
             } catch (err) {
                 console.error("Error loading data", err);
             }
@@ -144,6 +152,9 @@ const AddProductPage = () => {
                 form.append(`colorVariants[${i}].sizes[${j}].stock`, s.stock);
             });
         });
+
+        const promotionIds = selectedPromotions.map(p => p.value);
+        promotionIds.forEach(id => form.append("promotionIds", id));
 
         await createProduct(form);
         alert("Tạo sản phẩm thành công!");
@@ -404,15 +415,15 @@ const AddProductPage = () => {
                                 <div key={j} className={styles.sizeRow}>
                                     <div>
                                         <input
-                                        placeholder="Size"
-                                        value={s.size}
-                                        onChange={(e) => {
-                                            const copy = [...colorVariants];
-                                            copy[i].sizes[j].size = e.target.value;
-                                            setColorVariants(copy);
-                                        }}
-                                    />
-                                    {errors[`colorVariants[${i}].sizes[${j}].size`] && <span className={styles.error}>{errors[`colorVariants[${i}].sizes[${j}].size`]}</span>}
+                                            placeholder="Size"
+                                            value={s.size}
+                                            onChange={(e) => {
+                                                const copy = [...colorVariants];
+                                                copy[i].sizes[j].size = e.target.value;
+                                                setColorVariants(copy);
+                                            }}
+                                        />
+                                        {errors[`colorVariants[${i}].sizes[${j}].size`] && <span className={styles.error}>{errors[`colorVariants[${i}].sizes[${j}].size`]}</span>}
 
                                     </div>
                                     <div><input
@@ -425,8 +436,8 @@ const AddProductPage = () => {
                                             setColorVariants(copy);
                                         }}
                                     />
-                                    {errors[`colorVariants[${i}].sizes[${j}].stock`] && <span className={styles.error}>{errors[`colorVariants[${i}].sizes[${j}].stock`]}</span>}</div>
-                                    
+                                        {errors[`colorVariants[${i}].sizes[${j}].stock`] && <span className={styles.error}>{errors[`colorVariants[${i}].sizes[${j}].stock`]}</span>}</div>
+
 
                                     <button
                                         type="button"
@@ -489,6 +500,19 @@ const AddProductPage = () => {
                     >
                         + Thêm màu
                     </button>
+                </div>
+
+                <div className={styles.section}>
+                    <h3>Ưu đãi</h3>
+                    <Select
+                        options={promotions.map(p => ({ value: p.id, label: p.name }))}
+                        isMulti
+                        value={selectedPromotions}
+                        onChange={setSelectedPromotions}
+                        placeholder="Chọn ưu đãi..."
+                        classNamePrefix="select"
+                        noOptionsMessage={() => "Không có ưu đãi"}
+                    />
                 </div>
 
                 <button type="submit" className={styles.btnSubmit}>

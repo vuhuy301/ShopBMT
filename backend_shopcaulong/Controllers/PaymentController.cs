@@ -107,7 +107,7 @@ namespace backend_shopcaulong.Controllers
             });
         }
         [HttpGet]
-        // [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<PagedResultDto<PaymentDto>>> GetPayments(
             [FromQuery] GetPaymentsRequestDto request)
         {
@@ -117,7 +117,7 @@ namespace backend_shopcaulong.Controllers
 
         // GET: api/admin/payments/5
         [HttpGet("/admin/{id}")]
-        // [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<PaymentDto>> GetPayment(int id)
         {
             var payment = await _paymentService.GetPaymentByIdAsync(id);

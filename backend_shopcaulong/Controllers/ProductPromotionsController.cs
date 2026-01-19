@@ -1,11 +1,13 @@
 ﻿using backend_shopcaulong.DTOs.Promotion;
 using backend_shopcaulong.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend_shopcaulong.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    
     public class ProductPromotionsController : ControllerBase
     {
         private readonly IProductPromotionService _service;
@@ -15,6 +17,7 @@ namespace backend_shopcaulong.Controllers
             _service = service;
         }
         [HttpPost("assign")]
+        [Authorize(Roles = "Admin,Seller")]
         public async Task<IActionResult> AssignPromotions(
             [FromBody] AssignProductPromotionDto dto)
         {

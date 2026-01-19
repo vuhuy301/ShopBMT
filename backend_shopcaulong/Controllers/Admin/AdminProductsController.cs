@@ -8,7 +8,8 @@ namespace backend_shopcaulong.Controllers.Admin
 {
     [ApiController]
     [Route("api/admin/[controller]")]
-   
+    [Authorize(Roles = "Admin,Seller")]
+
     public class AdminProductsController : ControllerBase
     {
         private readonly IProductService _productService;

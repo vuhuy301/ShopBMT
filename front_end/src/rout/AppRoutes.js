@@ -16,6 +16,7 @@ import ProductDetails from "../pages/ProductDetails";
 import LoginPage from "../pages/LoginPage";
 import Cart from "../pages/Cart";
 import Checkout from "../pages/Checkout";
+import RegisterPage from "../pages/RegisterPage";
 
 import AdminLayout from "../layouts/AdminLayout";
 import ProductAdmin from "../pages/admin/ProductAdmin";
@@ -69,6 +70,7 @@ const AppRouter = () => {
 
         {/* Login */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         {/* ================= CUSTOMER ================= */}
         <Route path="/*" element={<CustomerLayout />} />
@@ -100,7 +102,7 @@ const AppRouter = () => {
          <Route
           path="/seller"
           element={
-            <RoleRoute allowedRoles={["Staff"]}>
+            <RoleRoute allowedRoles={["Seller"]}>
               <AdminLayout />
             </RoleRoute>
           }

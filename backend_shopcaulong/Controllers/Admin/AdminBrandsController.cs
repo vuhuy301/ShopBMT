@@ -71,6 +71,7 @@ namespace backend_shopcaulong.Controllers.Admin
         /// Xóa thương hiệu.
         /// </summary>
         [HttpPatch("{id}/toggle")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ToggleActive(int id, [FromQuery] bool isActive)
         {
             var success = await _brandService.ToggleBrandActiveAsync(id, isActive);

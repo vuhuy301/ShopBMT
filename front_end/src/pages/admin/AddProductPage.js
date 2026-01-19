@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./AddProductPage.module.css";
 import Select from "react-select";
+import { useNavigate } from "react-router-dom";
 
 import { createProduct } from "../../services/admin/productAdminService";
 import { getCategories } from "../../services/categoryService";
@@ -10,6 +11,7 @@ import { getAllPromotions } from "../../services/admin/promotionService";
 
 
 const AddProductPage = () => {
+    const navigate = useNavigate();
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [price, setPrice] = useState("");
@@ -158,6 +160,7 @@ const [selectedPromotions, setSelectedPromotions] = useState([]);
 
         await createProduct(form);
         alert("Tạo sản phẩm thành công!");
+        navigate('/admin/product');
     };
 
     return (

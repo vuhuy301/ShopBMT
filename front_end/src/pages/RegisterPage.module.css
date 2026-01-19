@@ -1,6 +1,6 @@
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #eb84ff, #4d99b3, #1bbaff);
+  background: linear-gradient(135deg, #e283ff, #439aff);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8,15 +8,15 @@
 
 .card {
   background: #fff;
-  width: 380px;
+  width: 420px;
   padding: 32px;
   border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 .title {
   text-align: center;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .subtitle {
@@ -33,34 +33,19 @@
   border: 1px solid #ddd;
 }
 
-.passwordBox {
-  display: flex;
-}
-
-.passwordBox input {
-  flex: 1;
-}
-
-.passwordBox button {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 18px;
-}
-
-.loginBtn {
+.form button {
   width: 100%;
   padding: 12px;
-  background: #1e90ff;
+  background: #28a745;
   color: white;
   border: none;
   border-radius: 8px;
-  cursor: pointer;
   font-weight: bold;
+  cursor: pointer;
 }
 
-.loginBtn:hover {
-  background: #187bcd;
+.form button:hover {
+  background: #218838;
 }
 
 .error {
@@ -69,26 +54,19 @@
   margin-bottom: 10px;
 }
 
-.divider {
-  text-align: center;
-  margin: 20px 0;
-  color: #888;
+.success {
+  color: green;
+  font-size: 14px;
+  margin-bottom: 10px;
 }
 
-.googleBtn {
-  display: flex;
-  justify-content: center;
-}
-
-.registerBox {
+.footer {
   margin-top: 20px;
   text-align: center;
+  color: #555;
 }
 
-.registerBtn {
-  margin-left: 6px;
-  background: none;
-  border: none;
+.footer span {
   color: #1e90ff;
   cursor: pointer;
   font-weight: bold;

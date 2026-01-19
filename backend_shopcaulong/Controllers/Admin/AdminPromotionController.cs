@@ -7,7 +7,7 @@ namespace backend_shopcaulong.Controllers.Admin
 {
     [ApiController]
     [Route("api/admin/[controller]")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Seller")]
     public class AdminPromotionController : Controller
     {
         private readonly IPromotionService _promotionService;

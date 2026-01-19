@@ -94,6 +94,12 @@ export default function UserManagement() {
         return Object.keys(errors).length === 0;
     };
 
+    const ROLE_LABELS = {
+    Admin: "Quản trị viên",
+    Seller: "Nhân viên bán hàng",
+    Customer: "Khách hàng",
+};
+
 
 
     // === HANDLE CREATE USER ===
@@ -152,7 +158,7 @@ export default function UserManagement() {
                     <option value="">Tất cả role</option>
                     {roles.map((r) => (
                         <option key={r.id} value={r.id}>
-                            {r.name}
+                             {ROLE_LABELS[r.name] || r.name}
                         </option>
                     ))}
                 </select>
@@ -186,7 +192,7 @@ export default function UserManagement() {
                                 <tr key={u.id}>
                                     <td>{u.fullName}</td>
                                     <td>{u.email}</td>
-                                    <td>{u.roleName}</td>
+                                 <td>{ROLE_LABELS[u.roleName] || u.roleName}</td>
                                     <td className={u.isActive ? styles.statusActive : styles.statusInactive}>
                                         {u.isActive ? "Hoạt động" : "Khoá"}
                                     </td>
@@ -299,11 +305,9 @@ export default function UserManagement() {
                                 required
                             >
                                 <option value="">Chọn role</option>
-                                {roles.map((r) => (
-                                    <option key={r.id} value={r.name}>
-                                        {r.name}
+                                <option value='Seller'>
+                                        Seller
                                     </option>
-                                ))}
                             </select>
 
 

@@ -299,11 +299,15 @@ namespace backend_shopcaulong.Services
             // Ảnh chính
             if (dto.ImageFiles != null && dto.ImageFiles.Count > 0)
             {
+                if (dto.MainImageIndex < 0 || dto.MainImageIndex >= dto.ImageFiles.Count)
+                    throw new ArgumentException("Ảnh chính không hợp lệ.");
+
                 var urls = await _uploadService.UploadProductImagesAsync(dto.ImageFiles);
+
                 product.Images = urls.Select((url, i) => new ProductImage
                 {
                     ImageUrl = url,
-                    IsPrimary = i == 0,
+                    IsPrimary = i == dto.MainImageIndex,
                     ProductId = product.Id
                 }).ToList();
             }

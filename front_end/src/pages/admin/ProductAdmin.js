@@ -4,6 +4,7 @@ import styles from "./ProductAdmin.module.css";
 import ProductCard from "./ProductCard";
 import { getProducts } from "../../services/productService";
 import { getCategories } from "../../services/categoryService";
+import { refreshVectorData } from "../../services/admin/productAdminService"; 
 
 const ProductAdmin = () => {
     const [products, setProducts] = useState([]);
@@ -17,6 +18,9 @@ const ProductAdmin = () => {
     const [categoryId, setCategoryId] = useState("");
 
     const [totalPages, setTotalPages] = useState(1);
+
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState("");
 
     const loadData = async () => {
         const data = await getProducts({
@@ -42,18 +46,42 @@ const ProductAdmin = () => {
         fetchCategories();
     }, []);
 
+    const handleRefresh = async () => {
+        setLoading(true);
+        setMessage("");
+        try {
+            const res = await refreshVectorData();
+            setMessage(res.message || "Làm mới vector DB thành công");
+        } catch (err) {
+            setMessage("Làm mới vector DB thất bại");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className={styles.container}>
             <h2 className={styles.title}>Quản lý sản phẩm</h2>
             <div className="d-flex justify-content-between align-items-center mb-3">
-
-                {/* Nút thêm sản phẩm */}
-                <button
+            <div>
+                 <button
                     className="btn btn-success"
                     onClick={() => navigate("/admin/product/add-product")}
                 >
                     + Thêm sản phẩm
                 </button>
+
+                <button
+                    className="btn btn-warning"
+                    onClick={handleRefresh}
+                    disabled={loading}
+                >
+                    {loading ? "Đang làm mới AI..." : "Làm mới dữ liệu AI"}
+                </button>
+
+            </div>
+                {/* Nút thêm sản phẩm */}
+               
 
                 {/* Nhóm filter */}
                 <div className="d-flex gap-2">

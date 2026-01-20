@@ -62,7 +62,7 @@ export const getProductById = async (id) => {
 
 export const updateProduct = async (id, formData) => {
   try {
-    const response = await fetch(`${BASE_URL}/admin/AdminProducts/${id}`, {
+    const response = await fetchWithToken(`/admin/AdminProducts/${id}`, {
       method: "PUT",
       body: formData, 
     });
@@ -74,6 +74,26 @@ export const updateProduct = async (id, formData) => {
     return await response.json();
   } catch (error) {
     console.error("Error updateProduct:", error);
+    throw error;
+  }
+};
+
+export const refreshVectorData = async () => {
+  try {
+    const response = await fetchWithToken(
+      "/admin/vector/refresh", 
+      {
+        method: "POST", 
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Refresh vector data failed");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error refreshVectorData:", error);
     throw error;
   }
 };

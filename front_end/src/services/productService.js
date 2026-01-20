@@ -1,19 +1,28 @@
 const BASE_URL = process.env.REACT_APP_API_URL;
 
 
-export const getProducts = async ({ categoryId, page = 1, pageSize = 12, search = "" }) => {
+export const getProducts = async ({
+  categoryId,
+  page = 1,
+  pageSize = 12,
+  search = "",
+  brandId,
+}) => {
   try {
-    const queryParams = new URLSearchParams({
-      categoryId,
-      page,
-      pageSize,
-    });
+    const queryParams = new URLSearchParams();
+
+    if (categoryId && categoryId !== "all") queryParams.append("categoryId", categoryId);
+    if (brandId && brandId !== "all") queryParams.append("brandId", brandId);
+
+    queryParams.append("page", page);
+    queryParams.append("pageSize", pageSize);
 
     if (search) queryParams.append("search", search);
 
     const res = await fetch(`${BASE_URL}/Products/filter?${queryParams.toString()}`);
 
     if (!res.ok) throw new Error("Failed to fetch products");
+
     const data = await res.json();
     return data;
   } catch (err) {
@@ -21,6 +30,7 @@ export const getProducts = async ({ categoryId, page = 1, pageSize = 12, search 
     return { items: [], totalItems: 0, totalPages: 0, page: 1, pageSize: 12 };
   }
 };
+
 
 
 export const getProductById = async (id) => {

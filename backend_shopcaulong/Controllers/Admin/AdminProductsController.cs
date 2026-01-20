@@ -12,10 +12,12 @@ namespace backend_shopcaulong.Controllers.Admin
     public class AdminProductsController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly IAiSyncService _aiSyncService;
 
-        public AdminProductsController(IProductService productService)
+        public AdminProductsController(IProductService productService, IAiSyncService aiSyncService)
         {
             _productService = productService;
+            _aiSyncService = aiSyncService;
         }
         // Thêm vào AdminProductsController
         [HttpGet]
@@ -65,13 +67,13 @@ namespace backend_shopcaulong.Controllers.Admin
             if (!result) return NotFound();
             return NoContent();
         }
-        // [HttpPost("reindex-ai")]
-        // public async Task<IActionResult> ReindexAi()
-        // {
-        //     var products = await _productService.GetAllProductsAsync(); // Lấy hết từ DB
-        //     await _aiSyncService.RebuildAllAsync(products);
-        //     return Ok("Đã gửi yêu cầu rebuild AI thành công! Vui lòng đợi 5-30s tùy số lượng sản phẩm.");
-        // }
+        [HttpPost("reindex-ai")]
+        public async Task<IActionResult> ReindexAi()
+        {
+            var products = await _productService.GetAllAsync(); // Lấy hết từ DB
+            await _aiSyncService.RebuildAllAsync(products);
+            return Ok("Đã gửi yêu cầu rebuild AI thành công! Vui lòng đợi 5-30s tùy số lượng sản phẩm.");
+        }
 
     }
 }

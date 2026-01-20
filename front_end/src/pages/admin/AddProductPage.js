@@ -42,8 +42,8 @@ const AddProductPage = () => {
 
     const [errors, setErrors] = useState({});
 
-const [promotions, setPromotions] = useState([]);
-const [selectedPromotions, setSelectedPromotions] = useState([]);
+    const [promotions, setPromotions] = useState([]);
+    const [selectedPromotions, setSelectedPromotions] = useState([]);
 
 
     // ============================
@@ -73,9 +73,10 @@ const [selectedPromotions, setSelectedPromotions] = useState([]);
     const handleMainImageChange = (e) => {
         const files = Array.from(e.target.files);
 
-        const newFiles = files.map(file => ({
+        const newFiles = files.map((file, index) => ({
             file,
-            preview: URL.createObjectURL(file)
+            preview: URL.createObjectURL(file),
+            isMain: mainImages.length === 0 && index === 0
         }));
 
         setMainImages(prev => [...prev, ...newFiles]);
@@ -83,7 +84,7 @@ const [selectedPromotions, setSelectedPromotions] = useState([]);
 
     const removeMainImage = (index) => {
         setMainImages(prev => {
-            URL.revokeObjectURL(prev[index].preview);
+            URL.revokeObjectURL(prev[index].preview); // giải phóng memory
             return prev.filter((_, i) => i !== index);
         });
     };
@@ -126,10 +127,12 @@ const [selectedPromotions, setSelectedPromotions] = useState([]);
         form.append("categoryId", categoryId);
         form.append("isFeatured", isFeatured);
 
-        // Ảnh chính
         mainImages.forEach(m => {
             form.append("imageFiles", m.file);
         });
+
+        const mainIndex = mainImages.findIndex(m => m.isMain);
+        form.append("mainImageIndex", mainIndex === -1 ? 0 : mainIndex);
 
         // Chi tiết mô tả
         details.forEach((d, i) => {
@@ -249,15 +252,35 @@ const [selectedPromotions, setSelectedPromotions] = useState([]);
 
                 {/* ==================== ẢNH CHÍNH ==================== */}
                 <div className={styles.section}>
-                    <h3>Ảnh chính</h3>
+                    <h3>Ảnh sản phẩm</h3>
 
                     <input type="file" multiple onChange={handleMainImageChange} />
                     {errors.mainImages && <span className={styles.error}>{errors.mainImages}</span>}
+
                     <div className={styles.previewList}>
                         {mainImages.map((m, i) => (
                             <div key={i} className={styles.previewItem}>
                                 <img src={m.preview} alt="preview" />
 
+                                {/* Chọn ảnh chính */}
+                                <label className={styles.mainImageOption}>
+                                    <input
+                                        type="radio"
+                                        name="mainImage"
+                                        checked={m.isMain}
+                                        onChange={() => {
+                                            setMainImages(prev =>
+                                                prev.map((img, idx) => ({
+                                                    ...img,
+                                                    isMain: idx === i
+                                                }))
+                                            );
+                                        }}
+                                    />
+                                    Ảnh chính
+                                </label>
+
+                                {/* Xóa ảnh */}
                                 <button
                                     type="button"
                                     className={styles.btnRemoveImage}
@@ -269,7 +292,6 @@ const [selectedPromotions, setSelectedPromotions] = useState([]);
                         ))}
                     </div>
                 </div>
-
                 {/* ==================== CHI TIẾT MÔ TẢ ==================== */}
                 <div className={styles.section}>
                     <h3>Chi tiết mô tả</h3>

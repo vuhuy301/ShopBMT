@@ -44,6 +44,13 @@
   font-size: 18px;
   font-weight: bold;
 }
+.productImage {
+  width: 100%;
+  aspect-ratio: 1 / 1;   /* ảnh vuông */
+  object-fit: cover;    /* không méo, cắt vừa khung */
+  border-radius: 8px;   /* optional */
+}
+
 
 
 /* MAIN BANNER */

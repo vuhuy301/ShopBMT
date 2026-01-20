@@ -4,6 +4,7 @@ import styles from "./ProductList.module.css";
 import { getProducts } from "../services/productService";
 import { getCategories } from "../services/categoryService";
 import CategoryMenu from "../components/CategoryMenu";
+import { getBrands } from "../services/brandService";
 import Breadcrumb from "../components/Breadcrumb";
 
 const IMAGE_BASE = process.env.REACT_APP_IMAGE_BASE_URL;
@@ -35,6 +36,8 @@ const ProductList = () => {
   const [selectedPrice, setSelectedPrice] = useState(priceOptions[0]);
   const [sortOrder, setSortOrder] = useState("");
 
+  const [brands, setBrands] = useState([]);
+
   // Load categories
   useEffect(() => {
     const loadCategories = async () => {
@@ -44,39 +47,45 @@ const ProductList = () => {
     loadCategories();
   }, []);
 
+  useEffect(() => {
+    const loadBrands = async () => {
+      const data = await getBrands(); // trả về [{id, name}]
+      setBrands([{ id: "all", name: "Tất cả" }, ...data]);
+    };
+    loadBrands();
+  }, []);
+
   // Load products
   useEffect(() => {
-  const fetchData = async () => {
-    const data = await getProducts({
-      categoryId,
-      page: currentPage,
-      pageSize: 12,
-      search,
-    });
+    const fetchData = async () => {
+      const data = await getProducts({
+        categoryId,
+        page: currentPage,
+        pageSize: 12,
+        search,
+        brandId: selectedBrand === "all" ? null : Number(selectedBrand)
+      });
 
-    setProducts(data.items);
-    setTotalPages(data.totalPages);
+      setProducts(data.items);
+      setTotalPages(data.totalPages);
 
-    // Nếu có sản phẩm -> set tên category
-    if (data.items?.length > 0) {
-      setCateName(data.items[0].categoryName);
-    } else {
-      setCateName(""); // hoặc null nếu bạn muốn
-    }
-  };
+      // Nếu có sản phẩm -> set tên category
+      if (data.items?.length > 0) {
+        setCateName(data.items[0].categoryName);
+      } else {
+        setCateName(""); // hoặc null nếu bạn muốn
+      }
+    };
 
-  fetchData();
-}, [categoryId, currentPage, search]);
+    fetchData();
+  }, [categoryId, currentPage, search,selectedBrand]);
 
 
-  const brands = ["all", ...new Set(products.map((p) => p.brandName))];
-
-  let filteredProducts = products.filter(
-    (p) =>
-      (selectedBrand === "all" || p.brandName === selectedBrand) &&
-      p.discountPrice >= selectedPrice.min &&
-      p.discountPrice <= selectedPrice.max
-  );
+ let filteredProducts = products.filter(
+  (p) =>
+    p.discountPrice >= selectedPrice.min &&
+    p.discountPrice <= selectedPrice.max
+);
 
   if (sortOrder === "asc") filteredProducts.sort((a, b) => a.discountPrice - b.discountPrice);
   if (sortOrder === "desc") filteredProducts.sort((a, b) => b.discountPrice - a.discountPrice);
@@ -93,15 +102,15 @@ const ProductList = () => {
         {/* RIGHT CONTENT */}
         <div className="col-md-9">
           <Breadcrumb
-  items={[
-    { label: "Trang chủ", path: "/" },
-    { label: "Sản phẩm", path: null },
-    {
-      label: cateName || "Danh mục",
-      path: null, // trang hiện tại
-    },
-  ]}
-/>
+            items={[
+              { label: "Trang chủ", path: "/" },
+              { label: "Sản phẩm", path: null },
+              {
+                label: cateName || "Danh mục",
+                path: null, // trang hiện tại
+              },
+            ]}
+          />
 
           <h2 className="fw-bold mb-3">{cateName}</h2>
 
@@ -125,12 +134,13 @@ const ProductList = () => {
                 value={selectedBrand}
                 onChange={(e) => setSelectedBrand(e.target.value)}
               >
-                {brands.map((b, i) => (
-                  <option key={i} value={b}>
-                    {b === "all" ? "Tất cả" : b}
+                {brands.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name}
                   </option>
                 ))}
               </select>
+
             </div>
 
             <div className="col-md-3">

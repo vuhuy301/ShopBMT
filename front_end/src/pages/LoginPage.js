@@ -40,7 +40,7 @@ const LoginPage = () => {
             const data = await res.json();
             if (data.accessToken) {
               const payload = JSON.parse(atob(data.accessToken.split(".")[1]));
-              const exp = payload.exp * 1000;
+              const exp = payload.exp * 2000;
 
               localStorage.setItem("accessToken", data.accessToken);
               localStorage.setItem("accessTokenExp", exp);
@@ -92,7 +92,7 @@ const LoginPage = () => {
 
       const data = await res.json();
       const payload = JSON.parse(atob(data.accessToken.split(".")[1]));
-      const exp = payload.exp * 1000;
+      const exp = payload.exp * 2000;
 
       const role =
         payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ||

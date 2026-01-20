@@ -27,83 +27,53 @@ namespace backend_shopcaulong.Controllers
         [HttpPost("sepay/webhook")]
         public async Task<IActionResult> SepayWebhook([FromBody] SepayWebhookDto dto)
         {
-            Console.WriteLine("🔥 Webhook received");
-            Console.WriteLine(JsonSerializer.Serialize(dto));
-            // ⚠️ Webhook: tuyệt đối KHÔNG throw / KHÔNG return 4xx
-            if (dto == null)
-            {
-                Console.WriteLine("❌ dto null");
+            // ❗ webhook luôn return 200
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Content))
                 return Ok();
-            }
 
-            if (string.IsNullOrWhiteSpace(dto.Content))
-            {
-                Console.WriteLine("❌ Content null");
-                return Ok();
-            }
-
-            Console.WriteLine($"👉 Content = {dto.Content}");
-
+            // SP123 → 123
             if (!int.TryParse(dto.Content.Replace("SP", ""), out int orderId))
-            {
-                Console.WriteLine("❌ Parse orderId fail");
-                return Ok();
-            }
-
-            Console.WriteLine($"✅ OrderId = {orderId}");
-
-            // 2️⃣ Chống webhook trùng (idempotent)
-            var existedPayment = await _shopDbContext.Payments
-                .AnyAsync(p => p.TransactionCode == dto.ReferenceCode);
-
-            if (existedPayment)
                 return Ok();
 
-            // 3️⃣ Lấy Order
-            var order = await _shopDbContext.Orders
-                .FirstOrDefaultAsync(o => o.Id == orderId);
-
+            var order = await _shopDbContext.Orders.FindAsync(orderId);
             if (order == null)
                 return Ok();
 
-            // 4️⃣ Tạo Payment record
-            var payment = new Payment
-            {
-                OrderId = order.Id,
-                TransactionCode = dto.ReferenceCode,
-                Amount = dto.TransferAmount,
-                Status = "Success", // SePay chỉ bắn khi tiền VÀO
-                PaidAt = DateTime.Now,
-                RawResponse = JsonSerializer.Serialize(dto)
-            };
+            // 🔒 Tìm payment đã tạo
+            var payment = await _shopDbContext.Payments
+                .FirstOrDefaultAsync(p =>
+                    p.OrderId == orderId &&
+                    p.Status == "Chờ thanh toán"
+                );
 
-            // 5️⃣ Update Order
-            order.Status = "Paid";
+            if (payment == null)
+                return Ok();
 
-            _shopDbContext.Payments.Add(payment);
+            // 🔒 Chống webhook trùng
+            if (payment.Status == "Thành công")
+                return Ok();
+
+            // ✅ Update payment
+            payment.Status = "Thành công";
+            payment.PaidAt = DateTime.Now;
+            payment.RawResponse = JsonSerializer.Serialize(dto);
+
+            // ✅ Update order
+            order.Status = "Đã thanh toán";
+
             await _shopDbContext.SaveChangesAsync();
 
-            // Gửi email thông báo thanh toán thành công
+            // 📧 Gửi email
             if (!string.IsNullOrWhiteSpace(order.CustomerEmail))
             {
-                try
-                {
-                    await _emailSender.SendOrderStatusEmailAsync(
-                        order.CustomerEmail,
-                        order.CustomerName,
-                        order.Id,
-                        order.Status,      // "Paid"
-                        order.TotalAmount
-                    );
-                    Console.WriteLine($"✅ Email sent to {order.CustomerEmail}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"❌ Failed to send email: {ex.Message}");
-                    // Không throw, chỉ log
-                }
+                await _emailSender.SendOrderStatusEmailAsync(
+                    order.CustomerEmail,
+                    order.CustomerName,
+                    order.Id,
+                    order.Status,
+                    order.TotalAmount
+                );
             }
-
 
             return Ok();
         }
@@ -137,7 +107,7 @@ namespace backend_shopcaulong.Controllers
             });
         }
         [HttpGet]
-        // [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<PagedResultDto<PaymentDto>>> GetPayments(
             [FromQuery] GetPaymentsRequestDto request)
         {
@@ -147,7 +117,7 @@ namespace backend_shopcaulong.Controllers
 
         // GET: api/admin/payments/5
         [HttpGet("/admin/{id}")]
-        // [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<PaymentDto>> GetPayment(int id)
         {
             var payment = await _paymentService.GetPaymentByIdAsync(id);

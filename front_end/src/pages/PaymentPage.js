@@ -1,51 +1,64 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { useParams, useNavigate  } from "react-router-dom";
 import { paymentService } from "../services/paymentService";
 
 const PaymentPage = () => {
   const { orderId } = useParams();
 
+  const navigate = useNavigate();
+
   const [paymentInfo, setPaymentInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState("");
 
-  const pollingRef = useRef(null); // tránh tạo nhiều interval
+  const pollingRef = useRef(null);
+  const createdRef = useRef(false); // chỉ chặn create payment
 
-  // Tạo payment + poll trạng thái
-  const createPaymentAndPolling = async () => {
-    try {
-      // 1️⃣ Tạo payment
-      const data = await paymentService.createPayment(orderId);
-      setPaymentInfo(data);
+  // 🔁 Poll trạng thái order (LUÔN chạy)
+  const startPolling = () => {
+    if (pollingRef.current) return;
 
-      // 2️⃣ Poll trạng thái order
-      pollingRef.current = setInterval(async () => {
+    pollingRef.current = setInterval(async () => {
+      try {
         const order = await paymentService.checkOrderStatus(orderId);
 
-        if (order.status === "Paid") {
+        if (order.status === "Đã thanh toán") {
           clearInterval(pollingRef.current);
+          pollingRef.current = null;
           setStatusMessage("✅ Thanh toán thành công!");
         }
-      }, 5000);
+      } catch (err) {
+        console.error("Polling error:", err);
+      }
+    }, 5000);
+  };
 
+  // 🆕 Chỉ tạo payment 1 lần
+  const createPaymentOnce = async () => {
+    if (createdRef.current) return;
+    createdRef.current = true;
+
+    try {
+      const data = await paymentService.createPayment(orderId);
+      setPaymentInfo(data);
     } catch (error) {
       console.error(error);
-      setStatusMessage("❌ Không thể tạo mã thanh toán, vui lòng thử lại.");
+      setStatusMessage("❌ Không thể tạo mã thanh toán.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Auto chạy khi vào trang
   useEffect(() => {
-    if (orderId) {
-      createPaymentAndPolling();
-    }
+    if (!orderId) return;
 
-    // Cleanup interval khi rời trang
+    createPaymentOnce(); // tạo (hoặc lấy) payment
+    startPolling();      // 🔁 luôn poll
+
     return () => {
       if (pollingRef.current) {
         clearInterval(pollingRef.current);
+        pollingRef.current = null;
       }
     };
   }, [orderId]);
@@ -63,10 +76,8 @@ const PaymentPage = () => {
     >
       <h2>Thanh toán Online</h2>
 
-      {/* Loading */}
       {loading && <p>⏳ Đang tạo mã thanh toán...</p>}
 
-      {/* QR Payment */}
       {!loading && paymentInfo && (
         <>
           <p style={{ fontWeight: "bold" }}>
@@ -92,12 +103,30 @@ const PaymentPage = () => {
         </>
       )}
 
-      {/* Status */}
       {statusMessage && (
-        <p style={{ marginTop: 20, fontWeight: "bold" }}>
-          {statusMessage}
-        </p>
-      )}
+  <div style={{ marginTop: 20 }}>
+    <p style={{ fontWeight: "bold", color: "green" }}>
+      {statusMessage}
+    </p>
+
+    <button
+      onClick={() => navigate(`/my-order/${orderId}`)}
+      style={{
+        marginTop: 12,
+        padding: "10px 16px",
+        backgroundColor: "#28a745",
+        color: "#fff",
+        border: "none",
+        borderRadius: 6,
+        cursor: "pointer",
+        fontWeight: "bold",
+      }}
+    >
+      Xem chi tiết đơn hàng
+    </button>
+  </div>
+)}
+
     </div>
   );
 };

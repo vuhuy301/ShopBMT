@@ -33,7 +33,6 @@ export default function DashboardPage() {
       setTopProducts(topRes);
     } catch (err) {
       console.error("Load dashboard failed:", err);
-      alert(err.message || "Không thể load dashboard");
     } finally {
       setLoading(false);
     }
@@ -80,7 +79,7 @@ export default function DashboardPage() {
 
   return (
     <div className={styles.container}>
-      <h2>Dashboard</h2>
+      <h2>Thống kê báo cáo</h2>
 
       {/* --- Filter năm & tháng --- */}
       <div className={styles.filterContainer}>

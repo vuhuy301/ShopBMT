@@ -205,3 +205,86 @@ textarea {
     border-radius: 8px;
     margin-bottom: 20px;
 }
+.promotionSection {
+  margin-bottom: 20px;
+}
+
+.promotionSection h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.promotionList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px; /* Khoảng cách giữa các checkbox */
+}
+
+.promotionItem {
+  display: flex;
+  align-items: center;
+  background-color: #f9f9f9;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.promotionItem:hover {
+  background-color: #eef6ff;
+  border-color: #80bfff;
+}
+
+.promotionItem input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.1); /* checkbox to hơn */
+}
+
+.promotionItem span {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.previewList {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.previewItem {
+    position: relative;
+    width: 100px;
+    height: 100px;
+}
+
+.previewItem img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 1px solid #ccc;
+}
+
+.previewItem button {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.previewItem label {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    font-size: 12px;
+    background: rgba(255,255,255,0.8);
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+

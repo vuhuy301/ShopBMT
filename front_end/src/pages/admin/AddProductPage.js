@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
 import styles from "./AddProductPage.module.css";
+import Select from "react-select";
+import { useNavigate } from "react-router-dom";
 
 import { createProduct } from "../../services/admin/productAdminService";
 import { getCategories } from "../../services/categoryService";
 import { getBrands } from "../../services/brandService";
 import { validateProduct } from "../../utils/addProductValidation";
+import { getAllPromotions } from "../../services/admin/promotionService";
 
 
 const AddProductPage = () => {
+    const navigate = useNavigate();
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [price, setPrice] = useState("");
@@ -38,6 +42,9 @@ const AddProductPage = () => {
 
     const [errors, setErrors] = useState({});
 
+    const [promotions, setPromotions] = useState([]);
+    const [selectedPromotions, setSelectedPromotions] = useState([]);
+
 
     // ============================
     // LOAD CATEGORY + BRAND
@@ -49,6 +56,9 @@ const AddProductPage = () => {
                 const brs = await getBrands();
                 setCategories(cats);
                 setBrands(brs);
+
+                const promos = await getAllPromotions();
+                setPromotions(promos);
             } catch (err) {
                 console.error("Error loading data", err);
             }
@@ -63,9 +73,10 @@ const AddProductPage = () => {
     const handleMainImageChange = (e) => {
         const files = Array.from(e.target.files);
 
-        const newFiles = files.map(file => ({
+        const newFiles = files.map((file, index) => ({
             file,
-            preview: URL.createObjectURL(file)
+            preview: URL.createObjectURL(file),
+            isMain: mainImages.length === 0 && index === 0
         }));
 
         setMainImages(prev => [...prev, ...newFiles]);
@@ -73,7 +84,7 @@ const AddProductPage = () => {
 
     const removeMainImage = (index) => {
         setMainImages(prev => {
-            URL.revokeObjectURL(prev[index].preview);
+            URL.revokeObjectURL(prev[index].preview); // giải phóng memory
             return prev.filter((_, i) => i !== index);
         });
     };
@@ -116,10 +127,12 @@ const AddProductPage = () => {
         form.append("categoryId", categoryId);
         form.append("isFeatured", isFeatured);
 
-        // Ảnh chính
         mainImages.forEach(m => {
             form.append("imageFiles", m.file);
         });
+
+        const mainIndex = mainImages.findIndex(m => m.isMain);
+        form.append("mainImageIndex", mainIndex === -1 ? 0 : mainIndex);
 
         // Chi tiết mô tả
         details.forEach((d, i) => {
@@ -145,8 +158,12 @@ const AddProductPage = () => {
             });
         });
 
+        const promotionIds = selectedPromotions.map(p => p.value);
+        promotionIds.forEach(id => form.append("promotionIds", id));
+
         await createProduct(form);
         alert("Tạo sản phẩm thành công!");
+        navigate('/admin/product');
     };
 
     return (
@@ -235,15 +252,35 @@ const AddProductPage = () => {
 
                 {/* ==================== ẢNH CHÍNH ==================== */}
                 <div className={styles.section}>
-                    <h3>Ảnh chính</h3>
+                    <h3>Ảnh sản phẩm</h3>
 
                     <input type="file" multiple onChange={handleMainImageChange} />
                     {errors.mainImages && <span className={styles.error}>{errors.mainImages}</span>}
+
                     <div className={styles.previewList}>
                         {mainImages.map((m, i) => (
                             <div key={i} className={styles.previewItem}>
                                 <img src={m.preview} alt="preview" />
 
+                                {/* Chọn ảnh chính */}
+                                <label className={styles.mainImageOption}>
+                                    <input
+                                        type="radio"
+                                        name="mainImage"
+                                        checked={m.isMain}
+                                        onChange={() => {
+                                            setMainImages(prev =>
+                                                prev.map((img, idx) => ({
+                                                    ...img,
+                                                    isMain: idx === i
+                                                }))
+                                            );
+                                        }}
+                                    />
+                                    Ảnh chính
+                                </label>
+
+                                {/* Xóa ảnh */}
                                 <button
                                     type="button"
                                     className={styles.btnRemoveImage}
@@ -255,7 +292,6 @@ const AddProductPage = () => {
                         ))}
                     </div>
                 </div>
-
                 {/* ==================== CHI TIẾT MÔ TẢ ==================== */}
                 <div className={styles.section}>
                     <h3>Chi tiết mô tả</h3>
@@ -404,15 +440,15 @@ const AddProductPage = () => {
                                 <div key={j} className={styles.sizeRow}>
                                     <div>
                                         <input
-                                        placeholder="Size"
-                                        value={s.size}
-                                        onChange={(e) => {
-                                            const copy = [...colorVariants];
-                                            copy[i].sizes[j].size = e.target.value;
-                                            setColorVariants(copy);
-                                        }}
-                                    />
-                                    {errors[`colorVariants[${i}].sizes[${j}].size`] && <span className={styles.error}>{errors[`colorVariants[${i}].sizes[${j}].size`]}</span>}
+                                            placeholder="Size"
+                                            value={s.size}
+                                            onChange={(e) => {
+                                                const copy = [...colorVariants];
+                                                copy[i].sizes[j].size = e.target.value;
+                                                setColorVariants(copy);
+                                            }}
+                                        />
+                                        {errors[`colorVariants[${i}].sizes[${j}].size`] && <span className={styles.error}>{errors[`colorVariants[${i}].sizes[${j}].size`]}</span>}
 
                                     </div>
                                     <div><input
@@ -425,8 +461,8 @@ const AddProductPage = () => {
                                             setColorVariants(copy);
                                         }}
                                     />
-                                    {errors[`colorVariants[${i}].sizes[${j}].stock`] && <span className={styles.error}>{errors[`colorVariants[${i}].sizes[${j}].stock`]}</span>}</div>
-                                    
+                                        {errors[`colorVariants[${i}].sizes[${j}].stock`] && <span className={styles.error}>{errors[`colorVariants[${i}].sizes[${j}].stock`]}</span>}</div>
+
 
                                     <button
                                         type="button"
@@ -489,6 +525,19 @@ const AddProductPage = () => {
                     >
                         + Thêm màu
                     </button>
+                </div>
+
+                <div className={styles.section}>
+                    <h3>Ưu đãi</h3>
+                    <Select
+                        options={promotions.map(p => ({ value: p.id, label: p.name }))}
+                        isMulti
+                        value={selectedPromotions}
+                        onChange={setSelectedPromotions}
+                        placeholder="Chọn ưu đãi..."
+                        classNamePrefix="select"
+                        noOptionsMessage={() => "Không có ưu đãi"}
+                    />
                 </div>
 
                 <button type="submit" className={styles.btnSubmit}>

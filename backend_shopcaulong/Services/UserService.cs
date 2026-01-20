@@ -50,7 +50,7 @@ namespace backend_shopcaulong.Services
                 Phone = dto.Phone,
                 Address = dto.Address,
                 CreatedAt = DateTime.UtcNow,
-                RoleId = 2,
+                RoleId = 3,
                 IsActive = true
             };
 

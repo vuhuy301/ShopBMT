@@ -87,14 +87,8 @@
 
 .status {
   font-weight: bold;
-  padding: 5px 10px;
   border-radius: 5px;
   display: inline-block;
-  color: white;
+  color: rgb(0, 0, 0);
 }
 
-.status.Pending { background: #1890ff; }
-.status.Paid { background: #52c41a; }
-.status.Shipping { background: #fa8c16; }
-.status.Completed { background: #52c41a; }
-.status.Cancelled { background: #ff4d4f; }

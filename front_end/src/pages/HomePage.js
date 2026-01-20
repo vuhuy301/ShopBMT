@@ -135,6 +135,7 @@ const HomePage = () => {
                         onClick={() => navigate(`/product/${product.id}`)}
                       >
                         <img
+                          className={styles.productImage}
                           src={
                             IMAGE_BASE +
                             (

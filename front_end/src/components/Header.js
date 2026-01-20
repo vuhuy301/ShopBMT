@@ -42,17 +42,7 @@ const Header = () => {
           />
         </div>
 
-        {/* Search */}
-        <div className={`d-flex align-items-center ${styles.searchBox}`}>
-          <input
-            className="form-control me-2"
-            placeholder="Bạn đang tìm gì?"
-            aria-label="Tìm kiếm sản phẩm"
-          />
-          <button className="btn btn-light" aria-label="Tìm kiếm">
-            Search
-          </button>
-        </div>
+      
 
         {/* Right section */}
         <div className={`d-flex align-items-center ${styles.rightMenu}`}>
@@ -80,7 +70,7 @@ const Header = () => {
               </span>
 
               <span className="badge bg-success me-3">
-                {role === "Admin" ? "QUẢN TRỊ" : role === "Employee" ? "NHÂN VIÊN" : "KHÁCH"}
+                {role === "Admin" ? "QUẢN TRỊ" : role === "Seller" ? "NHÂN VIÊN" : "KHÁCH"}
               </span>
 
               {role === "Admin" && (
@@ -88,8 +78,8 @@ const Header = () => {
                   (Quản trị)
                 </Link>
               )}
-              {role === "Employee" && (
-                <Link to="/employee" className="me-3 text-info small">
+              {role === "Seller" && (
+                <Link to="/seller" className="me-3 text-info small">
                   (Nhân viên)
                 </Link>
               )}
@@ -110,7 +100,6 @@ const Header = () => {
               {cartCount > 0 && <span className={styles.cartCount}>{cartCount}</span>}
             </Link>
           </div>
-
         </div>
       </div>
     </div>

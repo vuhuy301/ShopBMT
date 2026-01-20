@@ -3,13 +3,14 @@ import { NavLink, useNavigate } from "react-router-dom";
 import {
   BiSolidDashboard,
   BiAlignRight,
-  BiSolidHourglass,
-  BiSolidUserDetail,
+  BiSolidStoreAlt ,
+  BiCategory ,
   BiPackage,
-  BiInfoSquare,
+  BiLandscape ,
   BiLogOut,
-  BiSolidReport,
-  BiCreditCard
+  BiSolidUserDetail ,
+  BiSolidCreditCard,
+  BiGift 
 } from "react-icons/bi";
 
 const Sidebar = () => {
@@ -20,17 +21,18 @@ const Sidebar = () => {
 
   const menuConfig = {
     admin: [
-      { path: "/admin/dashboard", icon: <BiSolidDashboard />, label: "Dashboard" },
+      { path: "/admin/dashboard", icon: <BiSolidDashboard />, label: "Thống kê báo cáo" },
       { path: "/admin/product", icon: <BiPackage />, label: "Sản phẩm" },
       { path: "/admin/orders", icon: <BiAlignRight />, label: "Đơn hàng" },
-      { path: "/admin/categories", icon: <BiSolidUserDetail />, label: "Danh mục sản phẩm" },
-      { path: "/admin/brands", icon: <BiSolidHourglass />, label: "Thương hiệu" },
-      { path: "/admin/banners", icon: <BiInfoSquare />, label: "Banner" },
-      { path: "/admin/payments", icon: <BiCreditCard />, label: "Giao dịch" },
-      { path: "/admin/users", icon: <BiCreditCard />, label: "Người dùng" },
+      { path: "/admin/categories", icon: <BiCategory  />, label: "Danh mục sản phẩm" },
+      { path: "/admin/brands", icon: <BiSolidStoreAlt  />, label: "Thương hiệu" },
+      { path: "/admin/promotions", icon: <BiGift   />, label: "Ưu đãi" },
+      { path: "/admin/banners", icon: <BiLandscape  />, label: "Banner" },
+      { path: "/admin/payments", icon: <BiSolidCreditCard  />, label: "Giao dịch" },
+      { path: "/admin/users", icon: <BiSolidUserDetail   />, label: "Người dùng" },
     ],
 
-    staff: [
+    seller: [
       { path: "/seller/orders", icon: <BiAlignRight />, label: "Đơn hàng" },
       { path: "/seller/product", icon: <BiPackage />, label: "Sản phẩm" },
     ],
@@ -67,7 +69,7 @@ const Sidebar = () => {
 
       <div className="mb-4 border-top pt-3 text-danger">
         <button onClick={handleLogout} type="button" className="btn btn-default btn-sm">
-          <BiLogOut size={18} /> Log out
+          <BiLogOut size={18} /> Đăng xuất
         </button>
       </div>
     </div>

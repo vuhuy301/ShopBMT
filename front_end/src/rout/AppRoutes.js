@@ -16,6 +16,7 @@ import ProductDetails from "../pages/ProductDetails";
 import LoginPage from "../pages/LoginPage";
 import Cart from "../pages/Cart";
 import Checkout from "../pages/Checkout";
+import RegisterPage from "../pages/RegisterPage";
 
 import AdminLayout from "../layouts/AdminLayout";
 import ProductAdmin from "../pages/admin/ProductAdmin";
@@ -31,6 +32,7 @@ import OrderDetailPage from "../pages/OrderDetailPage";
 import UserManagement from "../pages/admin/UserManagement";
 import PaymentManagement from "../pages/admin/PaymentManagement";
 import DashboardPage from "../pages/admin/DashboardPage";
+import PromotionPage from "../pages/admin/PromotionPage";
 
 // Role-based Route
 const RoleRoute = ({ children, allowedRoles = [] }) => {
@@ -68,6 +70,7 @@ const AppRouter = () => {
 
         {/* Login */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         {/* ================= CUSTOMER ================= */}
         <Route path="/*" element={<CustomerLayout />} />
@@ -93,12 +96,13 @@ const AppRouter = () => {
           <Route path="/admin/banners" element={<BannerManager />} />
           <Route path="/admin/users" element={<UserManagement />} />
           <Route path="/admin/payments" element={<PaymentManagement />} />
+          <Route path="/admin/promotions" element={<PromotionPage />} />
         </Route>
 
          <Route
           path="/seller"
           element={
-            <RoleRoute allowedRoles={["Staff"]}>
+            <RoleRoute allowedRoles={["Seller"]}>
               <AdminLayout />
             </RoleRoute>
           }

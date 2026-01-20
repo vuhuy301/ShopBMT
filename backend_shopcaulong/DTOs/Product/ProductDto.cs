@@ -1,4 +1,6 @@
-﻿namespace backend_shopcaulong.DTOs.Product
+﻿using backend_shopcaulong.DTOs.Promotion;
+
+namespace backend_shopcaulong.DTOs.Product
 {
     public class ProductDto
     {
@@ -19,5 +21,6 @@
         public List<ProductImageDto> Images { get; set; } = new();
         public List<ProductDetailDto> Details { get; set; } = new();
         public List<ColorVariantDto> ColorVariants { get; set; } = new();
+        public List<ProductPromotionDto> Promotions { get; set; } = new();
     }
 }

@@ -21,7 +21,8 @@ const LoginPage = () => {
 
     script.onload = () => {
       window.google.accounts.id.initialize({
-        client_id: "1013063153881-rd02h43rtk2rtsnjtvla6jlm94mt66f5.apps.googleusercontent.com",
+        client_id:
+          "1013063153881-rd02h43rtk2rtsnjtvla6jlm94mt66f5.apps.googleusercontent.com",
         callback: async (response) => {
           if (!response.credential) {
             setError("Đăng nhập Google thất bại");
@@ -38,20 +39,20 @@ const LoginPage = () => {
 
             const data = await res.json();
             if (data.accessToken) {
-              // Decode exp
               const payload = JSON.parse(atob(data.accessToken.split(".")[1]));
-              const exp = payload.exp * 1000;
+              const exp = payload.exp * 2000;
 
               localStorage.setItem("accessToken", data.accessToken);
               localStorage.setItem("accessTokenExp", exp);
               localStorage.setItem("role", data.user?.role || "Customer");
               localStorage.setItem("user", JSON.stringify(data.user || {}));
 
-              window.location.href = data.user?.role === "Admin" ? "/admin" : "/";
+              window.location.href =
+                data.user?.role === "Admin" ? "/admin" : "/";
             } else {
               setError("Không nhận được token từ server");
             }
-          } catch (err) {
+          } catch {
             setError("Lỗi kết nối server");
           } finally {
             setLoading(false);
@@ -61,7 +62,12 @@ const LoginPage = () => {
 
       window.google.accounts.id.renderButton(
         document.getElementById("googleSignInButton"),
-        { theme: "outline", size: "large", text: "continue_with", width: "340", logo_alignment: "left" }
+        {
+          theme: "outline",
+          size: "large",
+          text: "continue_with",
+          width: "340",
+        }
       );
     };
   }, []);
@@ -75,32 +81,25 @@ const LoginPage = () => {
     try {
       const res = await fetch(`${BASE_URL}/Users/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", accept: "*/*" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: email.trim().toLowerCase(),
           password,
         }),
       });
 
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error(err.message || "Email hoặc mật khẩu không đúng");
-      }
+      if (!res.ok) throw new Error("Email hoặc mật khẩu không đúng");
 
       const data = await res.json();
-      const accessToken = data.accessToken;
+      const payload = JSON.parse(atob(data.accessToken.split(".")[1]));
+      const exp = payload.exp * 2000;
 
-      // Decode exp
-      const payload = JSON.parse(atob(accessToken.split(".")[1]));
-      const exp = payload.exp * 1000;
-
-      // Giải mã role
       const role =
         payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ||
         payload.role ||
         "Customer";
 
-      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("accessTokenExp", exp);
       localStorage.setItem("role", role);
       localStorage.setItem("user", JSON.stringify({ email, role }));
@@ -116,85 +115,63 @@ const LoginPage = () => {
   };
 
   return (
-    <>
-      <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-        crossOrigin="anonymous"
-        referrerPolicy="no-referrer"
-      />
+    <div className={styles.container}>
+      <div className={styles.card}>
+        <h1 className={styles.title}>SHOP CẦU LÔNG BMT</h1>
+        <p className={styles.subtitle}>
+          Đăng nhập hệ thống quản lý
+        </p>
 
-      <div className={styles.container}>
-        <div className={styles.overlay}></div>
+        <form onSubmit={handleLogin} className={styles.form}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
+            required
+          />
 
-        <div className={styles.card}>
-          <div className={styles.header}>
-            <div className={styles.logoCircle}>
-              <img
-                src="https://aocaulongthietke.com/wp-content/uploads/2022/10/Mau-logo-doi-club-cau-lac-bo-cau-long-thiet-ke-dep-1-400x400.png"
-                alt="Shop Cầu Lông BMT"
-                className={styles.logo}
-              />
-            </div>
-            <h1>SHOP CẦU LÔNG BMT</h1>
-            <p>Hệ thống quản trị • Nhân viên • Kho hàng</p>
-          </div>
-
-          <form onSubmit={handleLogin} className={styles.form}>
-            <div className={styles.inputGroup}>
-              <label><i className="fas fa-envelope me-2"></i>Email</label>
-              <input
-                type="email"
-                placeholder="admin@shopbmt.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
-                required
-                className={styles.input}
-              />
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label><i className="fas fa-lock me-2"></i>Mật khẩu</label>
-              <div className={styles.passwordWrapper}>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={loading}
-                  required
-                  className={styles.input}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className={styles.eyeBtn}
-                >
-                  <i className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
-                </button>
-              </div>
-            </div>
-
-            {error && <div className={styles.error}>{error}</div>}
-
-            <button type="submit" disabled={loading} className={styles.primaryBtn}>
-              {loading ? <><i className="fas fa-spinner fa-spin"></i> Đang đăng nhập...</> : "ĐĂNG NHẬP NGAY"}
+          <div className={styles.passwordBox}>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Mật khẩu"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              👁
             </button>
-          </form>
-
-          <div className={styles.divider}>
-            <span>HOẶC</span>
           </div>
 
-          <div id="googleSignInButton" style={{ margin: "20px auto", display: "flex", justifyContent: "center" }}></div>
+          {error && <div className={styles.error}>{error}</div>}
 
-          <div className={styles.footer}>
-            © 2025 Shop Cầu Lông BMT • Được xây dựng với Team BMT
-          </div>
+          <button type="submit" disabled={loading} className={styles.loginBtn}>
+            {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+          </button>
+        </form>
+
+        <div className={styles.divider}>HOẶC</div>
+
+        <div id="googleSignInButton" className={styles.googleBtn}></div>
+
+        {/* 🔥 NÚT ĐĂNG KÝ */}
+        <div className={styles.registerBox}>
+          <span>Bạn chưa có tài khoản?</span>
+          <button
+            onClick={() => (window.location.href = "/register")}
+            className={styles.registerBtn}
+          >
+            Đăng ký ngay
+          </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

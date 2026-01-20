@@ -1,13 +1,15 @@
 using backend_shopcaulong.Services;using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
-    namespace backend_shopcaolong.Controllers
+namespace backend_shopcaolong.Controllers
     {
         /// <summary>
         /// API Dashboard dành cho Admin.
         /// </summary>
         [ApiController]
         [Route("api/admin/dashboard")]
-        public class AdminDashboardController : ControllerBase
+        [Authorize(Roles = "Admin")]
+    public class AdminDashboardController : ControllerBase
         {
             private readonly IDashboardService _dashboardService;
 

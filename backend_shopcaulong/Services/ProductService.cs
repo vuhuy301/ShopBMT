@@ -23,7 +23,7 @@ namespace backend_shopcaulong.Services
             _aiSync = aiSync;
         }
 
-        // ✅ OPTIMIZED: Chỉ SELECT các field cần thiết, giảm 70-80% dữ liệu load
+        //  OPTIMIZED: Chỉ SELECT các field cần thiết, giảm 70-80% dữ liệu load
         private IQueryable<ProductDto> GetOptimizedProductQuery()
         {
             return _context.Products
@@ -93,7 +93,7 @@ namespace backend_shopcaulong.Services
                 });
         }
 
-        // ✅ OPTIMIZED: Danh sách đơn giản hơn cho listing
+        //  OPTIMIZED: Danh sách đơn giản hơn cho listing
         private IQueryable<ProductDto> GetProductListQuery()
         {
             return _context.Products
@@ -149,6 +149,13 @@ namespace backend_shopcaulong.Services
                 .OrderBy(p => p.Name)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<ProductDto>> GetAllForAiAsync()
+        {
+            return await GetOptimizedProductQuery()
+                .OrderBy(p => p.Name)
+                .ToListAsync();
+        }
+
 
         public async Task<ProductDto?> GetByIdAsync(int id)
         {
@@ -156,7 +163,7 @@ namespace backend_shopcaulong.Services
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        // ✅ OPTIMIZED: Sử dụng CountAsync riêng để tránh load data 2 lần
+        //  OPTIMIZED: Sử dụng CountAsync riêng để tránh load data 2 lần
         public async Task<PagedResultDto<ProductDto>> GetPagedAsync(int page, int pageSize)
         {
             var query = GetProductListQuery().OrderBy(p => p.Name);
@@ -179,7 +186,7 @@ namespace backend_shopcaulong.Services
             };
         }
 
-        // ✅ OPTIMIZED: Filter với index hints
+        //  OPTIMIZED: Filter với index hints
         public async Task<PagedResultDto<ProductDto>> GetProductsByFilterAsync(
             int? categoryId, int? brandId, string? search, string? sortBy, int page, int pageSize)
         {

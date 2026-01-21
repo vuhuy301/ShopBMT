@@ -1108,28 +1108,32 @@ async def delete_product(product_id: int):
 @app.post("/reindex_all")
 async def rebuild(products: List[Product]):
     global vectorstore, product_doc_ids
-    
+
     product_doc_ids = {}
     all_docs = []
-    
+    product_docs_map = {}
+
+    # 1. Build docs 1 lần
     for p in products:
         docs = create_product_documents(p)
+        product_docs_map[p.id] = docs
         all_docs.extend(docs)
-        product_doc_ids[p.id] = []
-    
+
+    # 2. Build FAISS
     vectorstore = FAISS.from_documents(all_docs, get_embedding())
-    
-    current_index = 0
-    for p in products:
-        docs_count = len(create_product_documents(p))
-        ids = [vectorstore.index_to_docstore_id[current_index + i] for i in range(docs_count)]
-        product_doc_ids[p.id] = ids
-        current_index += docs_count
-    
+
+    # 3. Map doc_ids theo product (AN TOÀN)
+    cursor = 0
+    for pid, docs in product_docs_map.items():
+        ids = vectorstore.index_to_docstore_id[cursor: cursor + len(docs)]
+        product_doc_ids[pid] = ids
+        cursor += len(docs)
+
     vectorstore.save_local(str(DB_FOLDER))
     build_qa_chain()
-    
+
     return {"status": "OK", "chunks": len(all_docs)}
+
 
 # ==================== CHAT PAYLOAD ====================
 class ChatPayload(BaseModel):

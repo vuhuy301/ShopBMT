@@ -43,20 +43,22 @@ namespace backend_shopcaulong.Services
                 Console.WriteLine($"[AI] Xóa chunk thất bại ID: {productId}");
         }
 
-        public async Task RebuildAllAsync(List<ProductDto> products)
+        public async Task RebuildAllAsync(IEnumerable<ProductDto> products)
         {
             var json = JsonSerializer.Serialize(products, new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
+
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            
-            var response = await _http.PostAsync("/reindex_all", content); // ĐÃ SỬA
+
+            var response = await _http.PostAsync("/reindex_all", content);
 
             if (response.IsSuccessStatusCode)
                 Console.WriteLine("[AI] Rebuild toàn bộ thành công!");
             else
                 Console.WriteLine($"[AI] Rebuild thất bại: {await response.Content.ReadAsStringAsync()}");
         }
+
 }
 }

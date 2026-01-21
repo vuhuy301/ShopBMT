@@ -40,5 +40,108 @@
       "type": "ai",
       "content": "Chào anh/chị! Hiện tại Shop Cầu Lông Pro có một loại cước cầu lông phù hợp với nhu cầu của anh/chị ạ:\n\n1.  **Cước Yonex BG65** - Giá: **900,000đ**\n    *   Đây là cước cầu lông chính hãng Yonex.\n    *   Anh/chị có thể xem thông tin chi tiết tại đây: [Xem chi tiết](http://localhost:3000/product/25)\n\nNgoài ra, nếu anh/chị đang tìm mua vợt để đóng cước, shop cũng có một số mẫu vợt Yonex và Victor với nhiều phân khúc giá khác nhau. Anh/chị có muốn Linh gợi ý thêm không ạ?\n\n**Gợi ý cho anh/chị:**\n*   Anh/chị có quan tâm đến các loại vợt cầu lông để kết hợp với cước không ạ?\n*   Hay anh/chị muốn tìm hiểu thêm về phụ kiện khác như giày hoặc áo?"
     }
+  ],
+  "7702b0c2-4fc2-4d63-9f1a-2e22588a583d": [
+    {
+      "type": "human",
+      "content": "Tôi đang yêu 1 người phải làm sao bây giờ"
+    },
+    {
+      "type": "ai",
+      "content": "Xin chào anh/chị, rất vui được hỗ trợ anh/chị tại Shop Cầu Lông Pro.\n\nTuy nhiên, câu hỏi của anh/chị hiện tại nằm ngoài phạm vi tư vấn về sản phẩm cầu lông của shop mình. Mình chuyên hỗ trợ thông tin về các sản phẩm như vợt, giày, cước, phụ kiện cầu lông.\n\nNếu anh/chị đang quan tâm đến việc chọn mua dụng cụ để chơi cầu lông, mình có thể giới thiệu một số sản phẩm nổi bật hiện có:\n\n1.  **Vợt Yonex Astrox 99 Play 2025** - Giá: 16,000,000đ. [Xem chi tiết](http://localhost:3000/product/9)\n2.  **Giày Victor A970 NL-A chính hãng** - Giá: 24,000,000đ. [Xem chi tiết](http://localhost:3000/product/21)\n3.  **Cước Yonex BG65** - Giá: 900,000đ. [Xem chi tiết](http://localhost:3000/product/25)\n\nĐể mình có thể tư vấn cụ thể hơn, anh/chị có thể cho mình biết:\n*   Anh/chị đang tìm sản phẩm cho người mới chơi hay đã có kinh nghiệm?\n*   Ngân sách dự kiến cho sản phẩm là bao nhiêu?\n\nMình luôn sẵn sàng hỗ trợ anh/chị tìm được sản phẩm phù hợp nhất ạ."
+    }
+  ],
+  "592ae479-266c-4915-9883-b810e29d0b52": [
+    {
+      "type": "human",
+      "content": "Tôi đang yêu 1 người phải làm sao bây giờ"
+    },
+    {
+      "type": "ai",
+      "content": "Xin chào anh/chị, rất vui được hỗ trợ anh/chị!\n\nTuy nhiên, tôi là Linh - nhân viên tư vấn của Shop Cầu Lông Pro, nên tôi chỉ có thể hỗ trợ anh/chị về các sản phẩm cầu lông như vợt, giày, cước, phụ kiện... có trong cửa hàng của chúng tôi thôi ạ.\n\nHiện tại, shop mình có một số sản phẩm đang khởi động như:\n*   **Vợt cầu lông Yonex Astrox 99 Play 2025** với giá **16,000,000đ**. [Xem chi tiết](http://localhost:3000/product/9)\n*   **Giày cầu lông Victor A970 NL-A chính hãng** với giá **24,000,000đ**. [Xem chi tiết](http://localhost:3000/product/21)\n*   **Cước Yonex BG65** với giá **900,000đ**. [Xem chi tiết](http://localhost:3000/product/25)\n\nAnh/chị đang quan tâm đến sản phẩm nào ạ? Ví dụ như anh/chị đang tìm vợt, giày hay phụ kiện? Tôi có thể tư vấn cụ thể hơn dựa trên nhu cầu của anh/chị."
+    }
+  ],
+  "53232eea-cf7b-4dbb-8dcb-39ca4d4198b5": [],
+  "aa8e37dd-22d0-4949-9241-3dce38b7ebc5": [
+    {
+      "type": "human",
+      "content": "Tôi đang yêu 1 người phải làm sao bây giờ"
+    },
+    {
+      "type": "ai",
+      "content": "Chào anh/chị, Linh từ Shop Cầu Lông Pro đây ạ.\n\nHiện tại, shop mình chuyên cung cấp các sản phẩm dụng cụ cầu lông chính hãng như vợt, cước (dây vợt) và giày. Có lẽ anh/chị đang tìm kiếm một món đồ thể thao để giải tỏa tinh thần hoặc làm quà tặng ý nghĩa chăng?\n\nDưới đây là một số sản phẩm nổi bật tại shop, anh/chị có thể tham khảo ạ:\n\n1.  **Vợt Yonex Astrox 99 Play 2025** – Giá: 16,000,000đ. <a href=\"http://localhost:3000/product/9\" target=\"_blank\">xem chi tiết</a>\n2.  **Giày Victor A970 NL-A chính hãng** – Giá: 24,000,000đ. <a href=\"http://localhost:3000/product/21\" target=\"_blank\">xem chi tiết</a>\n3.  **Cước Yonex BG65** – Giá: 900,000đ. <a href=\"http://localhost:3000/product/25\" target=\"_blank\">xem chi tiết</a>\n\nAnh/chị đang quan tâm đến sản phẩm nào ạ, hay cần tư vấn thêm về vợt, giày hay phụ kiện cầu lông?"
+    }
+  ],
+  "c3ded95c-cad2-4a1b-ae9c-652046be928d": [
+    {
+      "type": "human",
+      "content": "Tôi đang yêu 1 người phải làm sao bây giờ"
+    },
+    {
+      "type": "ai",
+      "content": "Chào anh/chị, Linh đây ạ! \n\nHiện tại, shop mình chuyên về các sản phẩm cầu lông như vợt, giày và cước. Với câu hỏi của anh/chị, Linh có thể tư vấn về các sản phẩm để anh/chị tham khảo nhé.\n\nDưới đây là một số sản phẩm nổi bật trong kho của shop:\n\n1.  **Vợt cầu lông Yonex Astrox 99 Play 2025** – Giá: **16.000.000đ**\n    *   Mô tả: Vợt Yonex\n    *   <a href=\"http://localhost:3000/product/9\" target=\"_blank\">xem chi tiết</a>\n\n2.  **Giày cầu lông Victor A970 NL-A chính hãng** – Giá: **24.000.000đ**\n    *   Mô tả: Giày Victor\n    *   <a href=\"http://localhost:3000/product/21\" target=\"_blank\">xem chi tiết</a>\n\n3.  **Giày cầu lông Victor A170 II-LR chính hãng 1** – Giá: **11.000.000đ**\n    *   Mô tả: Giày Victor\n    *   <a href=\"http://localhost:3000/product/22\" target=\"_blank\">xem chi tiết</a>\n\nAnh/chị đang quan tâm đến sản phẩm nào ạ, hay cần tư vấn thêm về vợt hoặc phụ kiện?"
+    }
+  ],
+  "9335dee5-50ad-44d2-9a7c-8a724174804b": [
+    {
+      "type": "human",
+      "content": "Tôi đang yêu 1 người phải làm sao bây giờ"
+    },
+    {
+      "type": "ai",
+      "content": "⚠️ *Linh chưa tìm thấy sản phẩm này trong gian hàng hiện tại.*\n\nChào bạn! Đây là một câu hỏi rất thú vị và Linh rất vui vì bạn đã chia sẻ điều này.\n\nVề câu hỏi của bạn, tình yêu là một hành trình đẹp và đôi khi cũng đầy băn khoăn. Dưới góc nhìn của một người yêu thể thao, Linh có thể gợi ý điều này: giống như khi bắt đầu chơi cầu lông, điều quan trọng là bạn cần hiểu rõ luật chơi, luyện tập kiên nhẫn và quan trọng nhất là tận hưởng từng phút giây trên sân. Hãy dành thời gian để thấu hiểu đối phương, trung thực với cảm xúc của bản thân và bước từng bước thật vững chắc.\n\nNếu bạn cảm thấy lo lắng, hãy xem đây như một trận đấu thú vị – đôi khi bạn cần mạnh dạn tấn công (thổ lộ), đôi khi cần kiên nhẫn phòng thủ (quan sát). Hãy cứ là chính mình và tin vào cảm xúc của trái tim nhé!\n\n💡 *Thông tin này mang tính tham khảo, có thể không chính xác 100%.*\n\nNếu bạn có bất kỳ câu hỏi nào về cầu lông như cách chọn vợt, kỹ thuật hay cần tư vấn sản phẩm, đừng ngần ngại mô tả nhu cầu cho Linh hoặc liên hệ trực tiếp với **Shop Cầu Lông Pro** để được hỗ trợ tốt nhất bạn nhé! 🏸"
+    }
+  ],
+  "bc8793b6-24ac-475d-8249-dfc2679e37d0": [
+    {
+      "type": "human",
+      "content": "Sáng chế cho tôi 1 bài thơ về sự nỗ lực trong cuộc sống"
+    },
+    {
+      "type": "ai",
+      "content": "⚠️ *Linh chưa tìm thấy sản phẩm này trong gian hàng hiện tại.*\n\nChào bạn! Rất vui được đồng hành cùng bạn. Dưới đây là một bài thơ nhỏ về sự nỗ lực mà Linh sáng tác dành tặng bạn:\n\n**Vươn Cao**\n\nĐời như trận cầu đầy thử thách,\nMỗi cú đánh qua, một bước trưởng thành.\nVấp ngã đau, tay vẫn cầm chắc vợt,\nĐứng dậy, lau mồ hôi, tiếp tục tiến lên.\n\nMồ hôi rơi trên sàn như hạt nắng,\nMỗi đường cầu bay, một nỗ lực không ngừng.\nKhông có chiến thắng nào không từ gian khó,\nNhư không có kỹ năng nào chẳng cần rèn.\n\nHãy như cầu lông, dù gió đẩy lệch đường,\nVẫn kiên định hướng về phía trước.\nNỗ lực hôm nay, dù nhỏ bé thôi,\nSẽ là nền tảng cho chiến thắng ngày mai.\n\nGắn bó với đam mê, không từ bỏ,\nTừng bước, từng điểm, tự khắc thành công.\nBạn nhé, hãy tin vào hành trình của mình,\nNỗ lực chính là vợt đưa ta bay xa.\n\n💡 *Thông tin này mang tính tham khảo, có thể không chính xác 100%.*\n\nNếu bạn có nhu cầu tìm mua các sản phẩm cầu lông như vợt, cầu, giày hay cần tư vấn về kỹ thuật để *hỗ trợ cho hành trình nỗ lực luyện tập* của mình, bạn có thể liên hệ trực tiếp Shop Cầu Lông Pro hoặc mô tả cụ thể nhu cầu để Linh hỗ trợ tốt hơn nhé! 🏸"
+    }
+  ],
+  "27f4f0b2-928f-4248-8774-759239d9a18b": [
+    {
+      "type": "human",
+      "content": "Tư vấn cho tôi 1 đôi giày đá bóng phù hợp người sút mạnh hãng mizuno đá sân nhân tạo"
+    },
+    {
+      "type": "ai",
+      "content": "⚠️ *Linh chưa tìm thấy sản phẩm này trong gian hàng hiện tại.*\n\nChào bạn! Shop Cầu Lông Pro chuyên về dụng cụ cầu lông nên Linh không có thông tin chi tiết về giày đá bóng của Mizuno.\n\nTuy nhiên, dựa trên kiến thức chung, nếu bạn là người sút mạnh và đá sân nhân tạo, bạn có thể tham khảo các dòng giày đinh TF (Turf) hoặc AG (Artificial Grass) của Mizuno. Những dòng này thường có đế phù hợp với sân cỏ nhân tạo, hỗ trợ ổn định và bám sân tốt, giúp truyền lực hiệu quả khi sút. Bạn có thể tìm hiểu các dòng như **Mizuno Morelia Neo III Beta TF** hoặc **Mizuno Rebula Cup II TF**, vốn được đánh giá cao về độ ôm chân, cảm giác bóng và hỗ trợ lực sút.\n\n💡 *Thông tin này mang tính tham khảo, có thể không chính xác 100%.*\n\nĐể được tư vấn chính xác nhất về giày đá bóng, bạn nên liên hệ trực tiếp với các cửa hàng chuyên về bóng đá nhé. Còn nếu bạn cần tư vấn về **giày cầu lông** hoặc bất kỳ dụng cụ cầu lông nào, Linh luôn sẵn sàng hỗ trợ! 🏸"
+    },
+    {
+      "type": "human",
+      "content": "Giá của nó là bao nhiêu tiền?"
+    },
+    {
+      "type": "ai",
+      "content": "Chào bạn! Trong câu hỏi trước, Linh đã đề cập đến một số mẫu giày bóng đá tham khảo, nhưng hiện tại shop mình chuyên về cầu lông nên không có sẵn sản phẩm đó trong kho để báo giá chính xác được.\n\nTuy nhiên, nếu bạn đang quan tâm đến giày cầu lông, Linh có thể giới thiệu một vài mẫu giày chính hãng Victor đang có tại shop nhé:\n\n1.  **Giày Victor A550 LS**: Giá **15.000.000đ**. Mẫu này có màu Trắng, size 40 và 41 còn hàng. <a href=\"http://localhost:3000/product/20\" target=\"_blank\">xem chi tiết</a>\n2.  **Giày Victor A970 NL-A**: Giá **24.000.000đ**. <a href=\"http://localhost:3000/product/21\" target=\"_blank\">xem chi tiết</a>\n\nBạn có thể cho Linh biết thêm về nhu cầu sử dụng (ví dụ: thi đấu hay tập luyện, sân gỗ hay sân nhựa) để Linh tư vấn cụ thể hơn không ạ?"
+    },
+    {
+      "type": "human",
+      "content": "Vậy tư vợt cho tôi 1 bộ cuớc của nhà yonex đi"
+    },
+    {
+      "type": "ai",
+      "content": "Chào bạn! Rất vui khi bạn quan tâm đến cước (dây vợt) của Yonex. Hiện tại shop mình đang có sản phẩm sau phù hợp với yêu cầu của bạn:\n\n**Cước Yonex BG65**\n*   **Giá:** 900.000đ\n*   **Thông tin:** Có màu Đỏ, size 0.66mm.\n*   **Link:** <a href=\"http://localhost:3000/product/25\" target=\"_blank\">xem chi tiết</a>\n\nĐây là dòng cước rất được ưa chuộng vì độ bền cao và cảm giác bóng ổn định, phù hợp cho cả tập luyện và thi đấu. Bạn đang dùng vợt gì và thường chơi với cường độ như thế nào để Linh có thể tư vấn liệu BG65 có phải là lựa chọn tối ưu không nhé?"
+    },
+    {
+      "type": "human",
+      "content": "Tôi cần 1 đôi giày hãng mizuno sân nhân tạo đá thật bền"
+    },
+    {
+      "type": "ai",
+      "content": "Chào bạn! \n\nHiện tại, Shop Cầu Lông Pro chuyên về dụng cụ cầu lông nên trong kho của Linh không có sẵn giày đá bóng hãng Mizuno để tư vấn cho bạn ạ.\n\nTuy nhiên, nếu bạn đang tìm một đôi giày thể thao chính hãng chất lượng cao để sử dụng bền lâu, Linh có thể giới thiệu đến bạn một số mẫu **giày cầu lông Victor** đang có sẵn. Đây là thương hiệu nổi tiếng về độ bền và hỗ trợ vận động tốt:\n\n1.  **Giày Victor A550 LS**: Giá **15.000.000đ**. Mẫu này có màu Trắng, size 40 và 41 còn hàng. <a href=\"http://localhost:3000/product/20\" target=\"_blank\">xem chi tiết</a>\n2.  **Giày Victor A970 NL-A**: Giá **24.000.000đ**. <a href=\"http://localhost:3000/product/21\" target=\"_blank\">xem chi tiết</a>\n3.  **Giày Victor A170 II-AG**: Giá **11.000.000đ**. <a href=\"http://localhost:3000/product/23\" target=\"_blank\">xem chi tiết</a>\n\nBạn có thể cho Linh biết bạn thường chơi cầu lông trên sân gỗ hay sân nhựa không? Điều này sẽ giúp Linh tư vấn mẫu giày phù hợp nhất với nhu cầu thực tế của bạn đấy."
+    },
+    {
+      "type": "human",
+      "content": "Hãy tư vấn tôi 1 đôi giaỳ đá bóng hãng mizuno sân nhân tạo ?"
+    },
+    {
+      "type": "ai",
+      "content": "Ồ, bạn lại hỏi về giày Mizuno sân nhân tạo nữa rồi! 😄\n\nNhư Linh đã chia sẻ trước đó, shop mình chuyên về cầu lông nên không có sẵn giày bóng đá để báo giá hay bán trực tiếp được. Nhưng nếu bạn cần thông tin tham khảo thôi, Linh có thể gợi ý tiếp nè!\n\nVới yêu cầu \"đá thật bền\" của bạn, dòng **Mizuno Morelia Neo III Beta TF** hoặc **Mizuno Rebula Cup II TF** vẫn là lựa chọn rất đáng cân nhắc. Chúng thường được thiết kế với chất liệu da mềm, ôm chân và đế TF chuyên cho sân nhân tạo, hỗ trợ độ bám và giảm hao mòn tốt, nên độ bền sẽ cao hơn so với các dòng đế khác khi đá trên sân cỏ nhân tạo.\n\nBạn có thể tìm hiểu kỹ hơn ở các shop bóng đá chuyên nghiệp hoặc trang web thể thao uy tín để xem thông số kỹ thuật và giá cả chính xác nhé!\n\nCòn nếu bạn tò mò muốn xem giày cầu lông của bên mình có mẫu nào bền và hỗ trợ tốt cho di chuyển nhiều không, Linh có thể giới thiệu vài mẫu Victor đang có sẵn luôn! Bạn có hứng thú không? 🏸"
+    }
   ]
 }

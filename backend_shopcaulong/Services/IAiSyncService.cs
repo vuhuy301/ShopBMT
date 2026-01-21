@@ -8,6 +8,7 @@ namespace backend_shopcaulong.Services
     Task SyncProductAsync(ProductDto product);
     Task DeleteProductAsync(int productId);
 
-    Task RebuildAllAsync(List<ProductDto> products);
+    Task RebuildAllAsync(IEnumerable<ProductDto> products);
+
 }
 }

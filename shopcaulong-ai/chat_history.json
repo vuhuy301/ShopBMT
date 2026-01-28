@@ -39,6 +39,62 @@
     {
       "type": "ai",
       "content": "Chào anh/chị! Hiện tại Shop Cầu Lông Pro có một loại cước cầu lông phù hợp với nhu cầu của anh/chị ạ:\n\n1.  **Cước Yonex BG65** - Giá: **900,000đ**\n    *   Đây là cước cầu lông chính hãng Yonex.\n    *   Anh/chị có thể xem thông tin chi tiết tại đây: [Xem chi tiết](http://localhost:3000/product/25)\n\nNgoài ra, nếu anh/chị đang tìm mua vợt để đóng cước, shop cũng có một số mẫu vợt Yonex và Victor với nhiều phân khúc giá khác nhau. Anh/chị có muốn Linh gợi ý thêm không ạ?\n\n**Gợi ý cho anh/chị:**\n*   Anh/chị có quan tâm đến các loại vợt cầu lông để kết hợp với cước không ạ?\n*   Hay anh/chị muốn tìm hiểu thêm về phụ kiện khác như giày hoặc áo?"
+    },
+    {
+      "type": "human",
+      "content": "tôi muốn mua quả cầu lông"
+    },
+    {
+      "type": "ai",
+      "content": "Chào anh/chị! Linh xin tư vấn ạ.\n\nHiện tại, trong kho của Shop Cầu Lông Pro **không có sản phẩm quả cầu lông (cầu bay)** nào được liệt kê trong danh sách. Các sản phẩm hiện có chủ yếu là vợt, giày, áo và cước (dây vợt).\n\nTuy nhiên, nếu anh/chị đang tìm mua **cước** (dây vợt) để đóng vào vợt, shop có một lựa chọn chính hãng:\n\n1.  **Cước Yonex BG65** - Giá: **900,000đ**\n    *   Đây là loại cước phổ biến, bền và có độ bền cao, phù hợp với nhiều trình độ chơi.\n    *   [Xem chi tiết](http://localhost:3000/product/25)\n\nNgoài ra, nếu anh/chị cần mua vợt để sử dụng cùng với cước, shop có rất nhiều mẫu vợt từ Yonex, Victor, Adidas với nhiều phân khúc giá khác nhau, từ 40,000đ đến 16,000,000đ.\n\n**Để Linh hỗ trợ anh/chị tốt hơn, anh/chị có thể cho Linh biết thêm:**\n*   Anh/chị có đang tìm mua **quả cầu lông để chơi** hay là **cước (dây) để đóng vào vợt** ạ?\n*   Nếu là quả cầu, anh/chị thường chơi loại cầu vũ (lông vũ) hay cầu nhựa ạ?\n\nLinh sẽ cố gắng hỗ trợ anh/chị tìm được sản phẩm phù hợp nhất!"
+    },
+    {
+      "type": "human",
+      "content": "có vợt vs không"
+    },
+    {
+      "type": "ai",
+      "content": "Chào anh/chị! Linh xin tư vấn ạ.\n\nHiện tại, trong kho của Shop Cầu Lông Pro có cả sản phẩm **có vợt** và **không có vợt** ạ.\n\n**1. Sản phẩm CÓ VỢT:**\nShop có nhiều mẫu vợt từ các thương hiệu Yonex, Victor, Adidas với đa dạng phân khúc giá, từ 40,000đ đến 16,000,000đ.\n*   **Vợt cao cấp:** Ví dụ: Vợt Yonex Astrox 99 Play 2025 (16,000,000đ).\n*   **Vợt tầm trung:** Ví dụ: Vợt Victor DriveX 12 O Zheng Siwei (3,800,000đ).\n*   **Vợt giá rẻ:** Ví dụ: Vợt Yonex Arcsaber 0 Clear (40,000đ).\n\n**2. Sản phẩm KHÔNG CÓ VỢT:**\nBao gồm các phụ kiện và trang phục chơi cầu lông.\n*   **Giày:** Ví dụ: Giày Victor A970 NL-A (24,000,000đ), Giày Victor A550 LS (15,000,000đ, có màu Vàng và Trắng size 40, 41).\n*   **Cước (dây vợt):** Cước Yonex BG65 (900,000đ, có màu Đỏ size 0.66mm).\n*   **Áo:** Áo cầu lông Adidas (12,345đ).\n\n---\n\nĐể Linh có thể tư vấn cụ thể và phù hợp hơn, anh/chị đang quan tâm đến **nhóm sản phẩm nào** ạ?\n*   **Vợt cầu lông** (thiên tấn công, phòng thủ hay cân bằng)?\n*   **Giày** hay **phụ kiện** (cước, áo)?\n\nAnh/chị có thể cho Linh biết thêm về trình độ chơi và mức ngân sách dự kiến để Linh gợi ý sản phẩm phù hợp nhất nhé!"
+    },
+    {
+      "type": "human",
+      "content": "tư vấn tôi vợt cầu lông VS"
+    },
+    {
+      "type": "ai",
+      "content": "Chào anh/chị! Linh xin được tư vấn về vợt cầu lông ạ.\n\nHiện tại, trong kho của shop **không có sản phẩm vợt cầu lông nào mang tên hoặc series \"VS\"** được liệt kê trong dữ liệu.\n\nTuy nhiên, shop có rất nhiều mẫu vợt từ các thương hiệu lớn như Yonex, Victor và Adidas. Để Linh có thể gợi ý sản phẩm phù hợp nhất, anh/chị có thể cho Linh biết thêm một chút thông tin được không ạ?\n\n1.  **Trình độ chơi** của anh/chị hiện tại là gì (mới bắt đầu, trung cấp hay nâng cao)?\n2.  **Phong cách chơi** anh/chị thiên về tấn công mạnh, phòng thủ linh hoạt hay toàn diện?\n3.  **Mức ngân sách** anh/chị dự kiến là bao nhiêu?\n\nKhi có thông tin, Linh sẽ dựa trên kiến thức chuyên môn và kho hàng hiện có để tư vấn cho anh/chị mẫu vợt phù hợp nhất về trọng lượng, điểm cân bằng và đặc tính kỹ thuật."
+    },
+    {
+      "type": "human",
+      "content": "có quấn cán vợt không"
+    },
+    {
+      "type": "ai",
+      "content": "Chào anh/chị! Linh xin tư vấn ạ.\n\nHiện tại, trong danh sách sản phẩm của Shop Cầu Lông Pro **không có thông tin về dịch vụ quấn cán vợt** được liệt kê. Các sản phẩm hiện có chủ yếu là vợt, giày, áo và cước (dây vợt).\n\nTuy nhiên, nếu anh/chị đang tìm mua **cước (dây vợt)** để đóng vào vợt, shop có một lựa chọn chính hãng:\n\n1.  **Cước Yonex BG65** - Giá: **900,000đ**\n    *   **Thông số:** Màu Đỏ, size 0.66mm.\n    *   Đây là loại cước phổ biến, bền và có độ bền cao, phù hợp với nhiều trình độ chơi.\n    *   [Xem chi tiết](http://localhost:3000/product/25)\n\nNgoài ra, nếu anh/chị cần mua vợt mới, shop có rất nhiều mẫu vợt từ Yonex, Victor, Adidas với nhiều phân khúc giá khác nhau.\n\n**Để Linh hỗ trợ anh/chị tốt hơn, anh/chị có thể cho Linh biết thêm:**\n*   Anh/chị đang có sẵn vợt và cần mua cước để đóng, hay đang muốn tìm mua một cây vợt mới hoàn chỉnh ạ?\n*   Nếu là vợt, anh/chị có phong cách chơi và mức ngân sách như thế nào?\n\nLinh sẽ cố gắng hỗ trợ anh/chị tìm được sản phẩm phù hợp nhất!"
+    },
+    {
+      "type": "human",
+      "content": "tư vấn tôi quấn cán cầu lông rẻ"
+    },
+    {
+      "type": "ai",
+      "content": "Chào anh/chị! Linh xin tư vấn về các loại quấn cán cầu lông có giá tốt hiện có tại shop ạ.\n\nDựa trên kho hàng, shop có 4 lựa chọn quấn cán với mức giá rất phải chăng, phù hợp với nhu cầu của anh/chị:\n\n1.  **Quấn cán vợt cầu lông Yonex ET 903 E** - Giá: **4,000đ**\n    *   Thương hiệu: Yonex\n    *   Mô tả: Là dòng sản phẩm cao cấp.\n    *   [Xem chi tiết](http://localhost:3000/product/38)\n\n2.  **Quấn cán vợt cầu lông Victor GR2-10** - Giá: **25,000đ**\n    *   Thương hiệu: Victor\n    *   [Xem chi tiết](http://localhost:3000/product/107)\n\n3.  **Quấn cán vợt cầu lông Victor GR262DRM Vàng** - Giá: **25,000đ**\n    *   Thương hiệu: Victor\n    *   [Xem chi tiết](http://localhost:3000/product/108)\n\n4.  **Quấn cán cầu lông Victor GR-K** - Giá: **50,000đ**\n    *   Thương hiệu: Victor\n    *   [Xem chi tiết](http://localhost:3000/product/106)\n\n**Gợi ý của Linh:**\n- Nếu anh/chị muốn **tiết kiệm nhất**, có thể chọn mẫu **Yonex ET 903 E** với giá chỉ 4,000đ.\n- Nếu ưu tiên thương hiệu **Victor** với mức giá tốt, hai mẫu **GR2-10** và **GR262DRM** đều có giá 25,000đ.\n\nAnh/chị có thể tham khảo thông tin chi tiết từng loại tại các link trên để lựa chọn phù hợp nhất nhé!"
+    },
+    {
+      "type": "human",
+      "content": "bên shop có quả cầu lông không"
+    },
+    {
+      "type": "ai",
+      "content": "Chào anh/chị! Có ạ, bên shop hiện có một số loại quả cầu lông (ống cầu) từ các thương hiệu khác nhau. Linh xin gợi ý 3 sản phẩm phù hợp nhất:\n\n1. **Ống Cầu Lông Nhựa Victor NCS chính hãng (12 quả)** - Giá: **370,000đ**\n   * Thương hiệu: Victor\n   * [Xem chi tiết](http://localhost:3000/product/71)\n\n2. **Ống cầu lông nhựa Lining AN01 (6 In 1 ) Vàng** - Giá: **350,000đ**\n   * Thương hiệu: Lining\n   * [Xem chi tiết](http://localhost:3000/product/104)\n\n3. **Ống Cầu Lông Kawasaki King Kong 500** - Giá: **280,000đ**\n   * Thương hiệu: Kawasaki\n   * [Xem chi tiết](http://localhost:3000/product/105)\n\nNgoài ra, shop còn có **Ống cầu lông HYFA** của Yonex với giá 270,000đ. Anh/chị có thể tham khảo thêm thông tin chi tiết tại các link trên để lựa chọn nhé!"
+    },
+    {
+      "type": "human",
+      "content": "balo cầu lông thì sao"
+    },
+    {
+      "type": "ai",
+      "content": "Chào anh/chị! Có ạ, bên shop hiện có một số mẫu balo cầu lông chính hãng từ thương hiệu Yonex. Linh xin gợi ý 3 mẫu phù hợp nhất:\n\n1. **Balo cầu lông Yonex BA291CR (GC)** - Giá: **500,000đ**\n   * Thương hiệu: Yonex\n   * [Xem chi tiết](http://localhost:3000/product/96)\n\n2. **Balo Cầu Lông Yonex BAG524B0312Z** - Giá: **450,000đ**\n   * Thương hiệu: Yonex\n   * [Xem chi tiết](http://localhost:3000/product/99)\n\n3. **Balo Cầu Lông Yonex B1408 (GC)** - Giá: **300,000đ**\n   * Thương hiệu: Yonex\n   * [Xem chi tiết](http://localhost:3000/product/98)\n\nAnh/chị có thể tham khảo thêm thông tin chi tiết tại các link trên để lựa chọn mẫu balo phù hợp với nhu cầu và ngân sách nhé!"
     }
   ],
   "7702b0c2-4fc2-4d63-9f1a-2e22588a583d": [
@@ -142,6 +198,40 @@
     {
       "type": "ai",
       "content": "Ồ, bạn lại hỏi về giày Mizuno sân nhân tạo nữa rồi! 😄\n\nNhư Linh đã chia sẻ trước đó, shop mình chuyên về cầu lông nên không có sẵn giày bóng đá để báo giá hay bán trực tiếp được. Nhưng nếu bạn cần thông tin tham khảo thôi, Linh có thể gợi ý tiếp nè!\n\nVới yêu cầu \"đá thật bền\" của bạn, dòng **Mizuno Morelia Neo III Beta TF** hoặc **Mizuno Rebula Cup II TF** vẫn là lựa chọn rất đáng cân nhắc. Chúng thường được thiết kế với chất liệu da mềm, ôm chân và đế TF chuyên cho sân nhân tạo, hỗ trợ độ bám và giảm hao mòn tốt, nên độ bền sẽ cao hơn so với các dòng đế khác khi đá trên sân cỏ nhân tạo.\n\nBạn có thể tìm hiểu kỹ hơn ở các shop bóng đá chuyên nghiệp hoặc trang web thể thao uy tín để xem thông số kỹ thuật và giá cả chính xác nhé!\n\nCòn nếu bạn tò mò muốn xem giày cầu lông của bên mình có mẫu nào bền và hỗ trợ tốt cho di chuyển nhiều không, Linh có thể giới thiệu vài mẫu Victor đang có sẵn luôn! Bạn có hứng thú không? 🏸"
+    }
+  ],
+  "user_3": [
+    {
+      "type": "human",
+      "content": "mình cần tư vấn vợt cầu lông tầm 2 triêuj"
+    },
+    {
+      "type": "ai",
+      "content": "Chào bạn! Mình là Linh từ Shop Cầu Lông Pro, rất vui được tư vấn cho bạn.\n\nDựa trên dữ liệu shop đang có, hiện có một số mẫu vợt cầu lông có mức giá xung quanh 2 triệu đồng rất phù hợp với nhu cầu của bạn. Mình gợi ý cho bạn 3 sản phẩm nổi bật nhất nhé:\n\n1.  **Vợt cầu lông Lining Halbertec Motor Pro chính hãng**\n    *   **Giá:** 2,100,000đ\n    *   **Mô tả:** Vợt tầm trung cận cao cấp của nhà Lining.\n    *   **Xem chi tiết:** http://localhost:3000/product/39\n\n2.  **Vợt cầu lông Apacs Blizzard Pro New**\n    *   **Giá:** 2,200,000đ\n    *   **Mô tả:** Vợt cao cấp nhà Apacs.\n    *   **Xem chi tiết:** http://localhost:3000/product/59\n\n3.  **Vợt cầu lông Lining Aeronaut 6000I**\n    *   **Giá:** 1,800,000đ\n    *   **Mô tả:** Vợt dòng cận cao cấp.\n    *   **Xem chi tiết:** http://localhost:3000/product/56\n\nTheo thông tin hiện tại của shop, cả 3 mẫu này đều thuộc phân khúc cận cao cấp đến cao cấp, phù hợp với mức ngân sách bạn đề cập. Bạn có thể tham khảo thêm thông tin chi tiết từng sản phẩm qua link mình để bên dưới mỗi mẫu nhé.\n\nBạn có thể cho Linh biết thêm về trình độ chơi hoặc phong cách đánh (tấn công, phòng thủ, toàn diện) để mình có thể tư vấn cụ thể hơn không?"
+    },
+    {
+      "type": "human",
+      "content": "tư vấn vợt tầm giá 1 triệu "
+    },
+    {
+      "type": "ai",
+      "content": "Chào bạn! Linh đây ạ.\n\nDựa trên dữ liệu shop đang có, hiện có một số mẫu vợt cầu lông có mức giá xung quanh 1 triệu đồng rất phù hợp với nhu cầu của bạn. Mình gợi ý cho bạn 4 sản phẩm nổi bật nhất nhé:\n\n1.  **Vợt cầu lông Yonex Astrox 01A 2024**\n    *   **Giá:** 900,000đ\n    *   **Mô tả:** Vợt dòng giá rẻ nhà Yonex.\n    *   **Xem chi tiết:** [http://localhost:3000/product/42](http://localhost:3000/product/42)\n\n2.  **Vợt cầu lông Felet RG Low Vibration chính hãng**\n    *   **Giá:** 900,000đ\n    *   **Mô tả:** Được sản xuất để phục vụ người mới.\n    *   **Xem chi tiết:** [http://localhost:3000/product/48](http://localhost:3000/product/48)\n\n3.  **Vợt cầu lông Kawasaki P37**\n    *   **Giá:** 900,000đ\n    *   **Mô tả:** Dòng vợt giá rẻ.\n    *   **Xem chi tiết:** [http://localhost:3000/product/63](http://localhost:3000/product/63)\n\n4.  **Vợt cầu lông Lining Axforce Cannon**\n    *   **Giá:** 900,000đ\n    *   **Mô tả:** Vợt giá rẻ.\n    *   **Xem chi tiết:** [http://localhost:3000/product/57](http://localhost:3000/product/57)\n\nTheo thông tin hiện tại của shop, các mẫu vợt này đều thuộc phân khúc giá rẻ, phù hợp với mức ngân sách bạn đề cập. Đặc biệt, mẫu Felet RG Low Vibration được mô tả là dành cho người mới chơi. Bạn có thể tham khảo thêm thông tin chi tiết từng sản phẩm qua link mình để bên dưới mỗi mẫu nhé.\n\nBạn có thể cho Linh biết thêm về trình độ chơi hoặc phong cách đánh (tấn công, phòng thủ, toàn diện) để mình có thể tư vấn cụ thể hơn không?"
+    },
+    {
+      "type": "human",
+      "content": "bạn có vợt pickleball không "
+    },
+    {
+      "type": "ai",
+      "content": "Chào bạn! Linh đây ạ.\n\nMình chia sẻ ở góc độ tham khảo nhé, hiện tại Shop Cầu Lông Pro chuyên về các sản phẩm cầu lông như vợt, cầu, giày, phụ kiện... nên có thể chưa có sẵn dòng vợt pickleball để mình giới thiệu cho bạn.\n\nTheo kinh nghiệm chung thì pickleball là một môn thể thao khác, sử dụng vợt và bóng riêng biệt so với cầu lông. Nếu bạn đang tìm mua vợt pickleball, có thể tham khảo ở các shop chuyên về môn này hoặc các cửa hàng thể thao đa năng sẽ có nhiều lựa chọn hơn.\n\nBạn có muốn mình tư vấn thêm về vợt cầu lông không, hay có câu hỏi nào khác về đồ chơi cầu lông không ạ?"
+    },
+    {
+      "type": "human",
+      "content": "tôi đang thích nuôi 1 con chó thì bạn tư vấn cho tôi nên mua chó gì với tài chính 2 -3 triệu ?"
+    },
+    {
+      "type": "ai",
+      "content": "Chào bạn! Linh đây ạ.\n\nMình chia sẻ ở góc độ tham khảo và là người yêu thú cưng thôi nhé, vì shop mình chuyên về cầu lông nên không có dữ liệu về thú cưng để tư vấn chính thức đâu.\n\nTheo kinh nghiệm chung thì với mức ngân sách từ 2-3 triệu, bạn có thể cân nhắc một số giống chó nhỏ, dễ chăm sóc và phổ biến ở Việt Nam. Ví dụ như chó Phốc (Pug), chó Poodle lai (hay còn gọi là Poodle teddy), chó ta (chó cỏ) thuần chủng hoặc một số bé chó lai khỏe mạnh, đáng yêu. Mức giá này thường phù hợp để rước một em cún con khỏe mạnh từ các hộ gia đình nuôi sinh sản có uy tín hoặc cứu hộ.\n\nÝ kiến cá nhân mình là, quan trọng hơn giá tiền ban đầu, bạn nên chuẩn bị cả kinh phí cho việc tiêm phòng, khám sức khỏe định kỳ, thức ăn và các vật dụng cần thiết nữa. Bạn nên tìm đến những địa chỉ uy tín, xem xét kỹ sức khỏe và nguồn gốc của bé trước khi quyết định.\n\nBạn đã có kinh nghiệm nuôi chó lần nào chưa, hay đây sẽ là lần đầu tiên?"
     }
   ]
 }
